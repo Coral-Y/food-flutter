@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:food/home.dart';
+import 'package:food/pages/home.dart';
 
 void main() {
   runApp(const MyApp());
@@ -13,7 +13,14 @@ class MyApp extends StatelessWidget {
     return MaterialApp(
       title: 'Food',
       theme: ThemeData(
-        colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
+        colorScheme: ColorScheme.fromSeed(
+          seedColor: Colors.white,
+          primary: Colors.white,
+          onBackground: const Color(0xFF333333),
+          background: const Color(0xFFF5F5F5),
+          onSurface: const Color(0xFF333333),
+          surface: const Color(0xFFF5F5F5),
+        ),
         useMaterial3: true,
       ),
       home: const MyHomePage(title: 'Food'),
