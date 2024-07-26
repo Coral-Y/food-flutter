@@ -16,11 +16,27 @@ class _ScheduleState extends State<Schedule> {
       body: Column(
         children: [
           // 头部背景及用户头像展示
-          Image.asset(
-            'assets/images/food.png',
-            width: double.infinity,
-            height: 180,
-            fit: BoxFit.cover,
+          Stack(
+            children: [
+              Image.asset(
+                'assets/images/food.png',
+                width: double.infinity,
+                height: 180,
+                fit: BoxFit.cover,
+              ),
+              Positioned(
+                top: 40,
+                left: 40,
+                child: InkWell(
+                    onTap: () {
+                      Navigator.of(context).pushNamed('/me');
+                    },
+                    child: const CircleAvatar(
+                        radius: 26, // 半径
+                        backgroundImage:
+                            AssetImage('assets/images/strawberry.png'))),
+              )
+            ],
           ),
 
           // 滚动日期选择

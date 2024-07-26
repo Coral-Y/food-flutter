@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:food/pages/contact_us/index.dart';
 import 'package:food/pages/home.dart';
+import 'package:food/pages/me/index.dart';
 
 void main() {
   runApp(const MyApp());
@@ -23,6 +25,10 @@ class MyApp extends StatelessWidget {
         ),
         useMaterial3: true,
       ),
+      routes: {
+        '/me': (context) => Me(),
+        '/contactUs': (context) => ContactUs(),
+      },
       home: const MyHomePage(title: 'Food'),
     );
   }
