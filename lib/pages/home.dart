@@ -62,7 +62,7 @@ class _HomeState extends State<Home> {
         const Schedule(),
 
         /// 食谱管理
-        const Recipe(),
+        const RecipeList(),
       ][currentPageIndex],
     );
   }
