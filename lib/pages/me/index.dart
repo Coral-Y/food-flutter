@@ -64,7 +64,7 @@ class _MeState extends State<Me> {
             ),
 
             const SizedBox(
-              height: 10,
+              height: 15,
             ),
 
             // 模块
@@ -86,7 +86,7 @@ class _MeState extends State<Me> {
             ),
 
             const SizedBox(
-              height: 15,
+              height: 30,
             ),
 
             // 功能区
@@ -97,10 +97,12 @@ class _MeState extends State<Me> {
                 Feature(
                   name: '分类管理',
                   icon: Twemoji.card_file_box,
+                  route: ''
                 ),
                 Feature(
                   name: '联系我们',
                   icon: Twemoji.open_mailbox_with_raised_flag,
+                  route: '/contactUs'
                 )
               ],
             ))
@@ -114,13 +116,20 @@ class _MeState extends State<Me> {
 class Feature extends StatelessWidget {
   final String name;
   final String icon;
+  final String route;
 
-  const Feature({super.key, required this.name, required this.icon});
+  const Feature(
+      {super.key, required this.name, required this.icon, required this.route});
 
   @override
   Widget build(BuildContext context) {
-    return Column(
-      children: [Iconify(icon), Text(name)],
+    return InkWell(
+      onTap: () {
+        Navigator.of(context).pushNamed(route);
+      },
+      child: Column(
+        children: [Iconify(icon), Text(name)],
+      ),
     );
   }
 }
