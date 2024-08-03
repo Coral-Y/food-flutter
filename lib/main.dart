@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:food/pages/contact_us/index.dart';
 import 'package:food/pages/home.dart';
 import 'package:food/pages/me/index.dart';
+import 'package:food/pages/module/list.dart';
 
 void main() {
   runApp(const MyApp());
@@ -26,8 +27,9 @@ class MyApp extends StatelessWidget {
         useMaterial3: true,
       ),
       routes: {
-        '/me': (context) => Me(),
-        '/contactUs': (context) => ContactUs(),
+        '/me': (context) => const Me(),
+        '/contactUs': (context) => const ContactUs(),
+        '/moduleList': (context) => const ModuleList(),
       },
       home: const MyHomePage(title: 'Food'),
     );

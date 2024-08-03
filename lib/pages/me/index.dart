@@ -20,17 +20,27 @@ class _MeState extends State<Me> {
         child: Column(
           children: [
             // 操作区
-            const Row(
+            Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                Iconify(
-                  Cil.arrow_left,
-                  size: 20,
+                InkWell(
+                  onTap: () {
+                    Navigator.of(context).pop();
+                  },
+                  child: const Iconify(
+                    Cil.arrow_left,
+                    size: 20,
+                  ),
                 ),
-                Iconify(
-                  Cil.settings,
-                  size: 20,
-                )
+                InkWell(
+                  onTap: () {
+                    // TODO:跳转到设置页
+                  },
+                  child: const Iconify(
+                    Cil.settings,
+                    size: 20,
+                  ),
+                ),
               ],
             ),
 
@@ -79,8 +89,8 @@ class _MeState extends State<Me> {
                 subtitle: Text('2/4'),
                 trailing: const Icon(Icons.arrow_forward),
                 onTap: () {
-                  // 点击事件
-                  print('Tapped on John Doe');
+                  // TODO:跳转到装备列表
+                  Navigator.of(context).pushNamed('/moduleList');
                 },
               ),
             ),
@@ -94,16 +104,11 @@ class _MeState extends State<Me> {
                 child: GridView.count(
               crossAxisCount: 4,
               children: const [
+                Feature(name: '分类管理', icon: Twemoji.card_file_box, route: ''),
                 Feature(
-                  name: '分类管理',
-                  icon: Twemoji.card_file_box,
-                  route: ''
-                ),
-                Feature(
-                  name: '联系我们',
-                  icon: Twemoji.open_mailbox_with_raised_flag,
-                  route: '/contactUs'
-                )
+                    name: '联系我们',
+                    icon: Twemoji.open_mailbox_with_raised_flag,
+                    route: '/contactUs')
               ],
             ))
           ],
