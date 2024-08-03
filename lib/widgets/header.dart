@@ -9,14 +9,22 @@ class Header extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return  Row(
+    return Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
-        const Iconify(
-          Cil.arrow_left,
-          size: 20,
+        InkWell(
+          onTap: () {
+            Navigator.of(context).pop();
+          },
+          child: const Iconify(
+            Cil.arrow_left,
+            size: 20,
+          ),
         ),
-        Text(title)
+        Text(
+          title,
+          style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
+        )
       ],
     );
   }

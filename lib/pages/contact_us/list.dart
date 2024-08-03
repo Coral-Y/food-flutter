@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:food/widgets/header.dart';
+import 'package:iconify_flutter/iconify_flutter.dart';
+import 'package:iconify_flutter/icons/cil.dart';
 
 class ContactUs extends StatelessWidget {
   const ContactUs({super.key});
@@ -27,10 +29,16 @@ class ContactUs extends StatelessWidget {
                       ],
                     ),
                     Positioned(
-                      bottom: 40,
-                      left: 140,
+                      bottom: 60,
+                      right: 0,
                       child: FilledButton(
-                          onPressed: () {}, child: const Text('我要留言')),
+                          onPressed: () {
+                            Navigator.of(context).pushNamed('/leaveMessage');
+                          },
+                          child: const Iconify(
+                            Cil.pencil,
+                            color: Colors.white,
+                          )),
                     )
                   ],
                 ))));

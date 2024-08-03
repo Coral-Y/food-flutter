@@ -21,12 +21,12 @@ class _ScheduleState extends State<Schedule> {
               Image.asset(
                 'assets/images/food.png',
                 width: double.infinity,
-                height: 180,
+                height: 210,
                 fit: BoxFit.cover,
               ),
               Positioned(
-                top: 40,
-                left: 40,
+                top: 60,
+                left: 30,
                 child: InkWell(
                     onTap: () {
                       Navigator.of(context).pushNamed('/me');

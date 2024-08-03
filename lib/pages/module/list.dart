@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
+import 'package:food/widgets/header.dart';
 import 'package:iconify_flutter/iconify_flutter.dart';
 import 'package:iconify_flutter/icons/cil.dart';
 
@@ -24,25 +25,8 @@ class _ModuleListState extends State<ModuleList> {
         padding: const EdgeInsets.fromLTRB(15, 5, 15, 10),
         child: Column(
           children: [
-            // 操作区
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                InkWell(
-                  onTap: () {
-                    Navigator.of(context).pop();
-                  },
-                  child: const Iconify(
-                    Cil.arrow_left,
-                    size: 20,
-                  ),
-                ),
-                const Text(
-                  '装备',
-                  style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
-                )
-              ],
-            ),
+            // 头部标题
+            const Header(title: '装备'),
 
             const SizedBox(
               height: 10,
