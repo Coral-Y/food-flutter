@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:food/pages/contact_us/leave_message.dart';
 import 'package:food/pages/contact_us/list.dart';
 import 'package:food/pages/home.dart';
+import 'package:food/pages/kind_manage/list.dart';
 import 'package:food/pages/me/index.dart';
 import 'package:food/pages/module/list.dart';
 
@@ -30,6 +31,7 @@ class MyApp extends StatelessWidget {
       routes: {
         '/me': (context) => const Me(),
         '/contactUs': (context) => const ContactUs(),
+        '/kindManage': (context) => const KindManage(),
         '/leaveMessage': (context) => const LeaveMessage(),
         '/moduleList': (context) => const ModuleList(),
       },
