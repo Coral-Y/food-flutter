@@ -102,40 +102,46 @@ class RecipeCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Card(
-      elevation: 0, // 去除阴影
-      color: Colors.white,
-      surfaceTintColor: Colors.white,
-      shape: RoundedRectangleBorder(
-        side: const BorderSide(
-          color: Color(0xFF333333), // 边框颜色
-          width: 1, // 边框宽度
+    return InkWell(
+      onTap: () {
+        Navigator.of(context)
+            .pushNamed('/recipeDetail', arguments: name);
+      },
+      child: Card(
+        elevation: 0, // 去除阴影
+        color: Colors.white,
+        surfaceTintColor: Colors.white,
+        shape: RoundedRectangleBorder(
+          side: const BorderSide(
+            color: Color(0xFF333333), // 边框颜色
+            width: 1, // 边框宽度
+          ),
+          borderRadius: BorderRadius.circular(10), // 圆角半径
         ),
-        borderRadius: BorderRadius.circular(10), // 圆角半径
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-        children: [
-          Container(
-            width: double.infinity,
-            height: 92, // 设置容器高度
-            decoration: BoxDecoration(
-              borderRadius: const BorderRadius.only(
-                topLeft: Radius.circular(10.0), // 左上角圆角
-                topRight: Radius.circular(10.0), // 右上角圆角
-              ),
-              image: DecorationImage(
-                image: AssetImage(image), // 替换为你的图片路径
-                fit: BoxFit.cover, // 确保图片覆盖整个容器
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            Container(
+              width: double.infinity,
+              height: 92, // 设置容器高度
+              decoration: BoxDecoration(
+                borderRadius: const BorderRadius.only(
+                  topLeft: Radius.circular(10.0), // 左上角圆角
+                  topRight: Radius.circular(10.0), // 右上角圆角
+                ),
+                image: DecorationImage(
+                  image: AssetImage(image), // 替换为你的图片路径
+                  fit: BoxFit.cover, // 确保图片覆盖整个容器
+                ),
               ),
             ),
-          ),
-          Padding(
-            padding: EdgeInsets.only(left: 5,bottom: 5),
-            child: Text(name),
-          )
-        ],
+            Padding(
+              padding: EdgeInsets.only(left: 5, bottom: 5),
+              child: Text(name),
+            )
+          ],
+        ),
       ),
     );
   }

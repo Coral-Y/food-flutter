@@ -5,6 +5,7 @@ import 'package:food/pages/home.dart';
 import 'package:food/pages/kind_manage/list.dart';
 import 'package:food/pages/me/index.dart';
 import 'package:food/pages/module/list.dart';
+import 'package:food/pages/recipe/detail.dart';
 
 void main() {
   runApp(const MyApp());
@@ -29,6 +30,7 @@ class MyApp extends StatelessWidget {
         useMaterial3: true,
       ),
       routes: {
+        '/recipeDetail': (context) => const RecipeDetail(),
         '/me': (context) => const Me(),
         '/contactUs': (context) => const ContactUs(),
         '/kindManage': (context) => const KindManage(),
