@@ -50,28 +50,32 @@ class _MeState extends State<Me> {
 
             // 用户卡片
             Container(
-              decoration: BoxDecoration(
-                borderRadius: BorderRadius.circular(8),
-                color: Colors.white,
-              ),
-              height: 150,
-              child: const Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  crossAxisAlignment: CrossAxisAlignment.center,
-                  children: [
-                    CircleAvatar(
-                        radius: 25, // 半径
-                        backgroundImage:
-                            AssetImage('assets/images/strawberry.png')),
-                    SizedBox(
-                      width: 10,
-                    ),
-                    Text(
-                      '曲奇',
-                      style: TextStyle(fontWeight: FontWeight.bold),
-                    )
-                  ]),
-            ),
+                decoration: BoxDecoration(
+                  borderRadius: BorderRadius.circular(8),
+                  color: Colors.white,
+                ),
+                height: 150,
+                child: InkWell(
+                  onTap: () {
+                    Navigator.of(context).pushNamed('/editInfo');
+                  },
+                  child: const Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      crossAxisAlignment: CrossAxisAlignment.center,
+                      children: [
+                        CircleAvatar(
+                            radius: 25, // 半径
+                            backgroundImage:
+                                AssetImage('assets/images/strawberry.png')),
+                        SizedBox(
+                          width: 10,
+                        ),
+                        Text(
+                          '曲奇',
+                          style: TextStyle(fontWeight: FontWeight.bold),
+                        )
+                      ]),
+                )),
 
             const SizedBox(
               height: 15,
@@ -89,7 +93,6 @@ class _MeState extends State<Me> {
                 subtitle: Text('2/4'),
                 trailing: const Icon(Icons.arrow_forward),
                 onTap: () {
-                  // TODO:跳转到装备列表
                   Navigator.of(context).pushNamed('/moduleList');
                 },
               ),

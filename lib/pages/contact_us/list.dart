@@ -22,6 +22,7 @@ class ContactUs extends StatelessWidget {
                         ),
                         MessageCard(
                           title: '我是标题',
+                          senderName: 'Cookie',
                           time: '2024-7-24 9:37',
                           content:
                               '我是内容我是内容我是内容我是内容我是内容我是内容我是内容我是内容我是内容我是内容我是内容',
@@ -47,12 +48,14 @@ class ContactUs extends StatelessWidget {
 
 class MessageCard extends StatelessWidget {
   final String title;
+  final String senderName;
   final String content;
   final String time;
 
   const MessageCard(
       {super.key,
       required this.title,
+      required this.senderName,
       required this.content,
       required this.time});
 
@@ -71,7 +74,13 @@ class MessageCard extends StatelessWidget {
             const SizedBox(
               width: 10,
             ),
-            Text(title),
+            Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(title),
+                Text(senderName,style: const TextStyle(fontSize: 12),),
+              ],
+            )
           ],
         ),
         Padding(

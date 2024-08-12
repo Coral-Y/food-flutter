@@ -3,6 +3,7 @@ import 'package:food/pages/contact_us/leave_message.dart';
 import 'package:food/pages/contact_us/list.dart';
 import 'package:food/pages/home.dart';
 import 'package:food/pages/kind_manage/list.dart';
+import 'package:food/pages/me/edit_info.dart';
 import 'package:food/pages/me/index.dart';
 import 'package:food/pages/module/list.dart';
 import 'package:food/pages/recipe/detail.dart';
@@ -34,6 +35,7 @@ class MyApp extends StatelessWidget {
         '/recipeDetail': (context) => const RecipeDetail(),
         '/editRecipe': (context) => const EditRecipe(),
         '/me': (context) => const Me(),
+        '/editInfo': (context) => const EditInfo(),
         '/contactUs': (context) => const ContactUs(),
         '/kindManage': (context) => const KindManage(),
         '/leaveMessage': (context) => const LeaveMessage(),

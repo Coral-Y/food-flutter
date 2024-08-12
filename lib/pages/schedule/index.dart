@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
+import 'package:intl/intl.dart';
 
 class Schedule extends StatefulWidget {
   const Schedule({super.key});
@@ -9,6 +10,7 @@ class Schedule extends StatefulWidget {
 }
 
 class _ScheduleState extends State<Schedule> {
+  final List<String> week = <String>['周一', '周二', '周三', '周四', '周五', '周六', '周日'];
   final List<String> types = <String>['早餐', '中餐', '晚餐'];
   @override
   Widget build(BuildContext context) {
@@ -41,16 +43,41 @@ class _ScheduleState extends State<Schedule> {
 
           // 滚动日期选择
           Container(
-            height: 100,
             margin: const EdgeInsets.fromLTRB(15, 10, 15, 0),
+            padding: const EdgeInsets.fromLTRB(5, 6, 5, 10),
             decoration: BoxDecoration(
                 color: Colors.white, borderRadius: BorderRadius.circular(10)),
+            child: Column(
+              children: [
+                Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    crossAxisAlignment: CrossAxisAlignment.center,
+                    children: week
+                        .map((item) => Container(
+                              width: 30,
+                              alignment: Alignment.center,
+                              child: Text(
+                                item,
+                                style: const TextStyle(
+                                    fontWeight: FontWeight.bold),
+                              ),
+                            ))
+                        .toList()),
+                const SizedBox(
+                  height: 8,
+                ),
+                DatePicker(
+                  start: DateTime.now(),
+                )
+              ],
+            ),
           ),
 
           // 三餐展示
           Expanded(
               child: ListView.builder(
             itemCount: types.length,
+            padding: const EdgeInsets.only(top: 15),
             itemBuilder: (context, index) {
               return FoodCard(
                 title: types[index],
@@ -59,6 +86,38 @@ class _ScheduleState extends State<Schedule> {
           ))
         ],
       ),
+    );
+  }
+}
+
+class DatePicker extends StatefulWidget {
+  final DateTime start;
+  const DatePicker({super.key, required this.start});
+
+  @override
+  State<DatePicker> createState() => _DatePickerState();
+}
+
+class _DatePickerState extends State<DatePicker> {
+  @override
+  Widget build(BuildContext context) {
+    List<String> list = List.generate(
+        7,
+        (index) =>
+            DateFormat('dd').format(widget.start.add(Duration(days: index))));
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+      crossAxisAlignment: CrossAxisAlignment.center,
+      children: list
+          .map((item) => Container(
+                width: 30,
+                alignment: Alignment.center,
+                child: Text(
+                  item,
+                  style: const TextStyle(fontWeight: FontWeight.bold),
+                ),
+              ))
+          .toList(),
     );
   }
 }
