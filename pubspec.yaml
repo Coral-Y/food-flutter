@@ -36,8 +36,13 @@ dependencies:
   # Use with the CupertinoIcons class for iOS style icons.
   intl: ^0.19.0
   cupertino_icons: ^1.0.6
+  # 使用iconify图标
   iconify_flutter: ^0.0.5
+  # 加载SVG图片
   flutter_svg: ^1.1.6
+  # 从相册中选择图片
+  image_picker: ^1.1.2
+  # 虚线边框widget
   dotted_border: ^2.1.0
   flutter_launcher_icons: ^0.13.1
 

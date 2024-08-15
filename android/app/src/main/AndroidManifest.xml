@@ -1,4 +1,9 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android">
+    <!-- 摄像头权限 -->
+    <uses-permission android:name="android.permission.CAMERA"/>
+    <!-- 读外部存储文件权限 -->
+    <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE"/>
+
     <application
         android:label="food"
         android:name="${applicationName}"
