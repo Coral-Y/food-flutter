@@ -1,6 +1,6 @@
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
-import 'package:intl/intl.dart';
 
 class Schedule extends StatefulWidget {
   const Schedule({super.key});
@@ -12,6 +12,8 @@ class Schedule extends StatefulWidget {
 class _ScheduleState extends State<Schedule> {
   final List<String> week = <String>['周一', '周二', '周三', '周四', '周五', '周六', '周日'];
   final List<String> types = <String>['早餐', '中餐', '晚餐'];
+  final current = DateTime.now();
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -40,7 +42,6 @@ class _ScheduleState extends State<Schedule> {
               )
             ],
           ),
-
           // 滚动日期选择
           Container(
             margin: const EdgeInsets.fromLTRB(15, 10, 15, 0),
@@ -67,7 +68,7 @@ class _ScheduleState extends State<Schedule> {
                   height: 8,
                 ),
                 DatePicker(
-                  start: DateTime.now(),
+                  current: current,
                 )
               ],
             ),
@@ -91,20 +92,75 @@ class _ScheduleState extends State<Schedule> {
 }
 
 class DatePicker extends StatefulWidget {
-  final DateTime start;
-  const DatePicker({super.key, required this.start});
+  final DateTime current;
+  const DatePicker({super.key, required this.current});
 
   @override
   State<DatePicker> createState() => _DatePickerState();
 }
 
 class _DatePickerState extends State<DatePicker> {
+  late DateTime startOfWeek;
+  late List<DateTime> weeks = [];
+  PageController _pageController = PageController(initialPage: 1);
+
+  @override
+  void initState() {
+    setState(() {
+      startOfWeek =
+          widget.current.subtract(Duration(days: widget.current.weekday - 1));
+      weeks = [
+        startOfWeek.subtract(const Duration(days: 7)),
+        startOfWeek,
+        startOfWeek.add(const Duration(days: 7))
+      ];
+    });
+    super.initState();
+  }
+
   @override
   Widget build(BuildContext context) {
-    List<String> list = List.generate(
-        7,
-        (index) =>
-            DateFormat('dd').format(widget.start.add(Duration(days: index))));
+    return SizedBox(
+      height: 30,
+      child: PageView(
+          controller: _pageController,
+          onPageChanged: (page) {
+            var first = weeks[0];
+            var last = weeks[weeks.length - 1];
+            // 如果是第一页
+            if (page == 0) {
+              setState(() {
+                weeks.insert(0, first.subtract(Duration(days: 7)));
+                _pageController.jumpToPage(1);
+              });
+              print('page$weeks');
+            }
+            // 如果是最后一页
+            if (page == weeks.length - 1) {
+              setState(() {
+                weeks.add(last.add(Duration(days: 7)));
+              });
+            }
+          },
+          children: weeks
+              .map((item) => WeekView(
+                    start: item,
+                    current: widget.current,
+                  ))
+              .toList()),
+    );
+  }
+}
+
+class WeekView extends StatelessWidget {
+  final DateTime start; // 周一的日期
+  final DateTime current; // 当前选中的日期
+  const WeekView({super.key, required this.start, required this.current});
+
+  @override
+  Widget build(BuildContext context) {
+    List<DateTime> list =
+        List.generate(7, (index) => start.add(Duration(days: index)));
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       crossAxisAlignment: CrossAxisAlignment.center,
@@ -112,8 +168,15 @@ class _DatePickerState extends State<DatePicker> {
           .map((item) => Container(
                 width: 30,
                 alignment: Alignment.center,
+                decoration: BoxDecoration(
+                    color: item.day == current.day &&
+                            item.month == current.month &&
+                            item.year == current.year
+                        ? const Color(0xFFd4939d)
+                        : Colors.white,
+                    borderRadius: BorderRadius.circular(15)),
                 child: Text(
-                  item,
+                  item.day == 1 ? '${item.month}/${item.day}' : '${item.day}',
                   style: const TextStyle(fontWeight: FontWeight.bold),
                 ),
               ))
