@@ -1,6 +1,7 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
+import 'package:flutter_svg/flutter_svg.dart';
 
 class Schedule extends StatefulWidget {
   const Schedule({super.key});
@@ -13,6 +14,124 @@ class _ScheduleState extends State<Schedule> {
   final List<String> week = <String>['周一', '周二', '周三', '周四', '周五', '周六', '周日'];
   final List<String> types = <String>['早餐', '中餐', '晚餐'];
   final current = DateTime.now();
+
+  _bottomSheet() {
+    var tabs = ['assets/icons/emoji.svg', 'assets/icons/recipe.svg'];
+    var recipes = ['水煮牛肉', '拆骨肉荷包蛋', '鸡翅包饭'];
+    var icons = ['egg', 'cookie', 'food', 'peach', 'poultry-leg'];
+    showModalBottomSheet(
+        context: context,
+        builder: (BuildContext context) {
+          return Container(
+            height: 300,
+            padding: const EdgeInsets.fromLTRB(15, 8, 15, 8),
+            decoration: const BoxDecoration(
+                color: Colors.white,
+                borderRadius: BorderRadius.only(
+                    topLeft: Radius.circular(10),
+                    topRight: Radius.circular(10))),
+            child: Column(
+              children: [
+                // 按钮
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.end,
+                  children: [
+                    SizedBox(
+                      width: 60,
+                      height: 30,
+                      child: FilledButton(
+                          style: ButtonStyle(
+                            padding:
+                                MaterialStateProperty.all<EdgeInsetsGeometry>(
+                              const EdgeInsets.symmetric(
+                                  horizontal: 5, vertical: 3), // 设置内边距
+                            ),
+                            shape: MaterialStateProperty.all<
+                                RoundedRectangleBorder>(
+                              RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(4), // 设置圆角
+                              ),
+                            ),
+                          ),
+                          onPressed: () {},
+                          child: const Text(
+                            '确认',
+                            style: TextStyle(fontSize: 12),
+                          )),
+                    )
+                  ],
+                ),
+                const SizedBox(
+                  height: 10,
+                ),
+                // 输入框
+                Row(
+                  children: [
+                    Container(
+                      width: 40,
+                      height: 40,
+                      decoration: BoxDecoration(
+                          color: const Color(0xFFF5F5F5),
+                          borderRadius: BorderRadius.circular(20)),
+                    ),
+                    const SizedBox(
+                      width: 10,
+                    ),
+                    Expanded(child: TextField()),
+                  ],
+                ),
+                const SizedBox(
+                  height: 10,
+                ),
+                // Tab
+                Expanded(
+                    child: DefaultTabController(
+                        length: 2,
+                        child: Column(
+                          children: [
+                            Align(
+                              alignment: Alignment.centerLeft,
+                              child: SizedBox(
+                                width: 120,
+                                child: TabBar(
+                                    dividerHeight: 0,
+                                    tabs: tabs
+                                        .map((item) => Tab(
+                                              icon: SvgPicture.asset(
+                                                item,
+                                                width: 25,
+                                                height: 25,
+                                              ),
+                                            ))
+                                        .toList()),
+                              ),
+                            ),
+                            Expanded(
+                              child: TabBarView(children: [
+                                GridView.count(
+                                  crossAxisCount: 5,
+                                  children: icons
+                                      .map((item) => SvgPicture.asset(
+                                          'assets/icons/food/$item.svg'))
+                                      .toList(),
+                                ),
+                                ListView.builder(
+                                    itemCount: recipes.length,
+                                    itemBuilder:
+                                        (BuildContext context, int index) {
+                                      return ListTile(
+                                        title: Text(recipes[index]),
+                                      );
+                                    })
+                              ]),
+                            )
+                          ],
+                        )))
+              ],
+            ),
+          );
+        });
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -80,8 +199,11 @@ class _ScheduleState extends State<Schedule> {
             itemCount: types.length,
             padding: const EdgeInsets.only(top: 15),
             itemBuilder: (context, index) {
-              return FoodCard(
-                title: types[index],
+              return InkWell(
+                onTap: _bottomSheet,
+                child: FoodCard(
+                  title: types[index],
+                ),
               );
             },
           ))
