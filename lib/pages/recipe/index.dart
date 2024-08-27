@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:food/model/kind.dart';
 import 'package:food/model/recipe.dart';
-import 'package:food/pages/kind_manage/list.dart';
 import 'package:iconify_flutter/iconify_flutter.dart';
 import 'package:iconify_flutter/icons/cil.dart';
 import 'package:colorful_iconify_flutter/icons/twemoji.dart';

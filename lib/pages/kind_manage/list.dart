@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:food/model/kind.dart';
 import 'package:food/widgets/header.dart';
 import 'package:iconify_flutter/iconify_flutter.dart';
 import 'package:iconify_flutter/icons/cil.dart';
@@ -95,11 +96,4 @@ class _KindManageState extends State<KindManage> {
       )),
     );
   }
-}
-
-class Kind {
-  String name;
-  String icon;
-
-  Kind({required this.name, required this.icon});
 }

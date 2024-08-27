@@ -1,7 +1,9 @@
 import 'dart:io';
-import 'package:flutter_svg/flutter_svg.dart';
+import 'package:food/model/kind.dart';
 import 'package:food/model/recipe.dart';
+import 'package:colorful_iconify_flutter/icons/twemoji.dart';
 import 'package:food/widgets/c_button.dart';
+import 'package:food/widgets/c_list_tile.dart';
 import 'package:iconify_flutter/icons/mdi_light.dart';
 import 'package:dotted_border/dotted_border.dart';
 import 'package:flutter/material.dart';
@@ -35,7 +37,12 @@ class _EditRecipeState extends State<EditRecipe> {
   }
 
   _bottomSheet() {
-    var kinds = ['水煮牛肉', '拆骨肉荷包蛋', '鸡翅包饭'];
+    final List<Kind> kinds = [
+      Kind(name: '荤菜', icon: Twemoji.shallow_pan_of_food),
+      Kind(name: '素菜', icon: Twemoji.green_salad),
+      Kind(name: '主食', icon: Twemoji.cooked_rice),
+      Kind(name: '汤羹', icon: Twemoji.pot_of_food),
+    ];
     showModalBottomSheet(
         context: context,
         builder: (BuildContext context) {
@@ -49,42 +56,24 @@ class _EditRecipeState extends State<EditRecipe> {
                     topRight: Radius.circular(10))),
             child: Column(
               children: [
-                // 按钮
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    SizedBox(
-                      width: 60,
-                      height: 30,
-                      child: CButton(
-                        onPressed: () {},
-                        text: '删除',
-                        type: 'secondary',
-                        size: 'small',
-                      ),
-                    ),
-                    SizedBox(
-                      width: 60,
-                      height: 30,
-                      child: CButton(
-                        onPressed: () {
-                          Navigator.pop(context);
-                        },
-                        text: '确认',
-                        size: 'small',
-                      ),
-                    )
-                  ],
-                ),
-                const SizedBox(
-                  height: 5,
-                ),
                 Expanded(
-                    child: ListView.builder(
+                    child: ListView.separated(
+                        padding: const EdgeInsets.only(top: 5),
                         itemCount: kinds.length,
+                        separatorBuilder: (BuildContext context, int index) =>
+                            const Divider(
+                              color: Color(0xFFf5f5f5),
+                            ),
                         itemBuilder: (BuildContext context, int index) {
-                          return ListTile(
-                            title: Text(kinds[index]),
+                          return CListTile(
+                            leading: Iconify(kinds[index].icon),
+                            title: kinds[index].name,
+                            onTap: () {
+                              setState(() {
+                                recipe.kind = kinds[index];
+                              });
+                              Navigator.pop(context);
+                            },
                           );
                         }))
               ],
@@ -95,6 +84,9 @@ class _EditRecipeState extends State<EditRecipe> {
 
   @override
   Widget build(BuildContext context) {
+    final TextEditingController ingredientController = TextEditingController();
+    String ingredient = '';
+
     return Scaffold(
       body: SafeArea(
         child: Padding(
@@ -105,6 +97,7 @@ class _EditRecipeState extends State<EditRecipe> {
               Expanded(
                   child: SingleChildScrollView(
                 child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     const SizedBox(
                       height: 5,
@@ -131,11 +124,14 @@ class _EditRecipeState extends State<EditRecipe> {
                         InkWell(
                           onTap: _bottomSheet,
                           child: Chip(
-                            avatar: CircleAvatar(
-                              backgroundColor: Colors.grey.shade800,
-                              child: const Text('AB'),
-                            ),
-                            label: const Text('选择分类'),
+                            avatar: recipe.kind == null
+                                ? const CircleAvatar(
+                                    backgroundColor: Color(0xfff5f5f5),
+                                  )
+                                : Iconify(recipe.kind!.icon),
+                            label: Text(recipe.kind != null
+                                ? recipe.kind!.name
+                                : '选择分类'),
                           ),
                         )
                       ],
@@ -164,11 +160,22 @@ class _EditRecipeState extends State<EditRecipe> {
                                       Cil.plus,
                                       size: 40,
                                     ))
-                                : Image.file(
-                                    _image!,
+                                : Container(
                                     width: 160,
                                     height: 90,
-                                    fit: BoxFit.cover,
+                                    decoration: BoxDecoration(
+                                      border: Border.all(
+                                        color: Theme.of(context)
+                                            .colorScheme
+                                            .primary,
+                                      ),
+                                      borderRadius:
+                                          BorderRadius.circular(10.0), // 设置圆角半径
+                                      image: DecorationImage(
+                                        image: FileImage(_image!), // 替换为你的图片路径
+                                        fit: BoxFit.cover, // 控制图片的缩放和裁剪方式
+                                      ),
+                                    ),
                                   ))
                       ],
                     ),
@@ -186,11 +193,9 @@ class _EditRecipeState extends State<EditRecipe> {
                         ),
                         Expanded(
                           child: TextField(
-                            maxLines: null,
+                            controller: ingredientController,
                             onChanged: (value) {
-                              setState(() {
-                                recipe.name = value;
-                              });
+                              ingredient = value;
                             },
                           ),
                         ),
@@ -198,11 +203,26 @@ class _EditRecipeState extends State<EditRecipe> {
                           width: 5,
                         ),
                         InkWell(
-                          onTap: () {},
+                          onTap: () {
+                            setState(() {
+                              recipe.ingredients.add(ingredient);
+                            });
+                            ingredient = '';
+                            ingredientController.clear();
+                          },
                           child: const Iconify(MdiLight.plus_circle),
                         )
                       ],
                     ),
+                    if (recipe.ingredients.isNotEmpty)
+                      TagList(
+                        tags: recipe.ingredients,
+                        onDoubleTap: (item) {
+                          setState(() {
+                            recipe.ingredients.remove(item);
+                          });
+                        },
+                      ),
                     Row(
                       children: [
                         const Text(
@@ -214,7 +234,6 @@ class _EditRecipeState extends State<EditRecipe> {
                         ),
                         Expanded(
                           child: TextField(
-                            maxLines: null,
                             onChanged: (value) {
                               setState(() {
                                 recipe.name = value;
@@ -288,6 +307,41 @@ class _EditRecipeState extends State<EditRecipe> {
             ],
           ),
         ),
+      ),
+    );
+  }
+}
+
+class TagList extends StatelessWidget {
+  final List<String> tags;
+  final void Function(String)? onDoubleTap;
+  const TagList({super.key, required this.tags, this.onDoubleTap});
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 10),
+      child: Wrap(
+        spacing: 4,
+        children: tags.map((item) {
+          return InkWell(
+            onDoubleTap: () {
+              if (onDoubleTap != null) {
+                onDoubleTap!(item);
+              }
+            },
+            child: Container(
+              padding: const EdgeInsets.symmetric(horizontal: 5),
+              decoration: BoxDecoration(
+                border: Border.all(
+                  color: Theme.of(context).colorScheme.primary,
+                ),
+                borderRadius: BorderRadius.circular(4), // 设置圆角半径
+              ),
+              child: Text(item),
+            ),
+          );
+        }).toList(),
       ),
     );
   }
