@@ -121,7 +121,7 @@ class _ScheduleState extends State<WeeklySchedule> {
                                   crossAxisSpacing: 8,
                                   children: icons
                                       .map((item) => SvgPicture.asset(
-                                            'assets/icons/instruction/$item.svg',
+                                            'assets/icons/ingredients/$item.svg',
                                           ))
                                       .toList(),
                                 ),
@@ -373,7 +373,7 @@ class FoodCard extends StatelessWidget {
                                 child: Row(
                                   children: [
                                     SvgPicture.asset(
-                                      'assets/icons/instruction/${item.icon}.svg',
+                                      'assets/icons/ingredients/${item.icon}.svg',
                                       width: 13,
                                       height: 13,
                                     ),

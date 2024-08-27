@@ -20,8 +20,8 @@ class _RecipeListState extends State<RecipeList> {
     Kind(name: '汤羹', icon: Twemoji.pot_of_food),
   ];
   final List<Recipe> recipes = [
-    Recipe('沙拉', 'assets/images/salad.png'),
-    Recipe('汉堡', 'assets/images/hamburger.png')
+    Recipe(name: '沙拉', image: 'assets/images/salad.png'),
+    Recipe(name: '汉堡', image: 'assets/images/hamburger.png')
   ];
   @override
   Widget build(BuildContext context) {

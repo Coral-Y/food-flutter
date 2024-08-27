@@ -39,9 +39,6 @@ class _EditInfoState extends State<EditInfo> {
         child: Column(
           children: [
             const Header(title: '个人信息'),
-            const SizedBox(
-              height: 20,
-            ),
             Row(
               children: [
                 const Text(

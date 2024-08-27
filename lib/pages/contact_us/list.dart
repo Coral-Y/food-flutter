@@ -17,9 +17,6 @@ class ContactUs extends StatelessWidget {
                     const Column(
                       children: [
                         Header(title: '联系我们'),
-                        SizedBox(
-                          height: 10,
-                        ),
                         MessageCard(
                           title: '我是标题',
                           senderName: 'Cookie',

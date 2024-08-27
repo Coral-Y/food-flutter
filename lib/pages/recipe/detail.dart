@@ -21,30 +21,30 @@ class _RecipeDetailState extends State<RecipeDetail> {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Header(title: title),
-            const SizedBox(
-              height: 15,
-            ),
+            
             Row(
               children: [
                 Container(
+                  width: 180,
                   color: const Color(0xFFFFFFFE),
                   child: DottedBorder(
                     borderType: BorderType.RRect,
                     radius: const Radius.circular(4),
-                    padding: const EdgeInsets.all(20),
-                    child: Column(
+                    padding: const EdgeInsets.fromLTRB(35,20,0,20),
+                    child: const Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Padding(
-                          padding: const EdgeInsets.only(bottom: 10),
+                          padding: EdgeInsets.only(bottom: 10),
                           child: Text(
-                            '$title食材',
-                            style: const TextStyle(fontSize: 16),
+                            '食材',
+                            style: TextStyle(
+                                fontSize: 16, fontWeight: FontWeight.bold),
                           ),
                         ),
-                        const Text('生菜'),
-                        const Text('黑椒猪肉肠'),
-                        const Text('鸡蛋'),
+                        Text('生菜'),
+                        Text('黑椒猪肉肠'),
+                        Text('鸡蛋'),
                       ],
                     ),
                   ),

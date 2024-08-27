@@ -28,9 +28,6 @@ class _KindManageState extends State<KindManage> {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             const Header(title: '分类'),
-            const SizedBox(
-              height: 10,
-            ),
             FilledButton.icon(
               onPressed: () {},
               label: const Text('添加'),

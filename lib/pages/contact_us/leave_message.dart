@@ -26,9 +26,6 @@ class _LeaveMessageState extends State<LeaveMessage> {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               const Header(title: '我要留言'),
-              const SizedBox(
-                height: 15,
-              ),
               const Text(
                 '反馈类型',
                 style: TextStyle(fontSize: 16),

@@ -27,10 +27,6 @@ class _ModuleListState extends State<ModuleList> {
             // 头部标题
             const Header(title: '装备'),
 
-            const SizedBox(
-              height: 10,
-            ),
-
             // 模块列表
             Expanded(
                 child: GridView.builder(
