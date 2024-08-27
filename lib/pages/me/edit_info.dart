@@ -1,5 +1,6 @@
 import 'dart:io';
 import 'package:dotted_border/dotted_border.dart';
+import 'package:food/widgets/c_button.dart';
 import 'package:iconify_flutter/iconify_flutter.dart';
 import 'package:iconify_flutter/icons/cil.dart';
 import 'package:flutter/material.dart';
@@ -82,7 +83,7 @@ class _EditInfoState extends State<EditInfo> {
             ),
             SizedBox(
               width: double.infinity,
-              child: FilledButton(onPressed: () {}, child: const Text('提交')),
+              child: CButton(onPressed: () {}, text: '提交'),
             )
           ],
         ),

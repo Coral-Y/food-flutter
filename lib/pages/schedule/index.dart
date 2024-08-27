@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:food/model/dish.dart';
+import 'package:food/widgets/c_button.dart';
 
 class WeeklySchedule extends StatefulWidget {
   const WeeklySchedule({super.key});
@@ -46,54 +47,23 @@ class _ScheduleState extends State<WeeklySchedule> {
                     SizedBox(
                       width: 60,
                       height: 30,
-                      child: FilledButton(
-                          style: ButtonStyle(
-                            backgroundColor: MaterialStateProperty.all(
-                                const Color(0xffd4939d)),
-                            padding:
-                                MaterialStateProperty.all<EdgeInsetsGeometry>(
-                              const EdgeInsets.symmetric(
-                                  horizontal: 5, vertical: 3), // 设置内边距
-                            ),
-                            shape: MaterialStateProperty.all<
-                                RoundedRectangleBorder>(
-                              RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(4), // 设置圆角
-                              ),
-                            ),
-                          ),
-                          onPressed: () {
-                            Navigator.pop(context);
-                          },
-                          child: const Text(
-                            '删除',
-                            style: TextStyle(fontSize: 12),
-                          )),
+                      child: CButton(
+                        onPressed: () {},
+                        text: '删除',
+                        type: 'secondary',
+                        size: 'small',
+                      ),
                     ),
                     SizedBox(
                       width: 60,
                       height: 30,
-                      child: FilledButton(
-                          style: ButtonStyle(
-                            padding:
-                                MaterialStateProperty.all<EdgeInsetsGeometry>(
-                              const EdgeInsets.symmetric(
-                                  horizontal: 5, vertical: 3), // 设置内边距
-                            ),
-                            shape: MaterialStateProperty.all<
-                                RoundedRectangleBorder>(
-                              RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(4), // 设置圆角
-                              ),
-                            ),
-                          ),
-                          onPressed: () {
-                            Navigator.pop(context);
-                          },
-                          child: const Text(
-                            '确认',
-                            style: TextStyle(fontSize: 12),
-                          )),
+                      child: CButton(
+                        onPressed: () {
+                          Navigator.pop(context);
+                        },
+                        text: '确认',
+                        size: 'small',
+                      ),
                     )
                   ],
                 ),

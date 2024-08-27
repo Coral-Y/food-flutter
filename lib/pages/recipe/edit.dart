@@ -1,7 +1,6 @@
 import 'dart:io';
-
+import 'package:food/widgets/c_button.dart';
 import 'package:iconify_flutter/icons/mdi_light.dart';
-
 import 'package:dotted_border/dotted_border.dart';
 import 'package:flutter/material.dart';
 import 'package:food/widgets/header.dart';
@@ -145,6 +144,62 @@ class _EditRecipeState extends State<EditRecipe> {
               Row(
                 children: [
                   const Text(
+                    '食材',
+                    style: TextStyle(fontSize: 16),
+                  ),
+                  const SizedBox(
+                    width: 25,
+                  ),
+                  Expanded(
+                    child: TextField(
+                      maxLines: null,
+                      onChanged: (value) {
+                        setState(() {
+                          recipe['name'] = value;
+                        });
+                      },
+                    ),
+                  ),
+                  const SizedBox(
+                    width: 5,
+                  ),
+                  InkWell(
+                    onTap: () {},
+                    child: const Iconify(MdiLight.plus_circle),
+                  )
+                ],
+              ),
+              Row(
+                children: [
+                  const Text(
+                    '调料',
+                    style: TextStyle(fontSize: 16),
+                  ),
+                  const SizedBox(
+                    width: 25,
+                  ),
+                  Expanded(
+                    child: TextField(
+                      maxLines: null,
+                      onChanged: (value) {
+                        setState(() {
+                          recipe['name'] = value;
+                        });
+                      },
+                    ),
+                  ),
+                  const SizedBox(
+                    width: 5,
+                  ),
+                  InkWell(
+                    onTap: () {},
+                    child: const Iconify(MdiLight.plus_circle),
+                  )
+                ],
+              ),
+              Row(
+                children: [
+                  const Text(
                     '步骤',
                     style: TextStyle(fontSize: 16),
                   ),
@@ -176,13 +231,20 @@ class _EditRecipeState extends State<EditRecipe> {
               Row(
                 children: [
                   Expanded(
-                    child: FilledButton(onPressed: () {}, child: Text('取消')),
+                    child: CButton(
+                      onPressed: () {},
+                      text: '取消',
+                      type: 'secondary',
+                    ),
                   ),
                   const SizedBox(
                     width: 25,
                   ),
                   Expanded(
-                    child: FilledButton(onPressed: () {}, child: Text('确认')),
+                    child: CButton(
+                      onPressed: () {},
+                      text: '确认',
+                    ),
                   ),
                 ],
               )

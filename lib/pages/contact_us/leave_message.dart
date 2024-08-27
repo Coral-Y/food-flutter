@@ -1,6 +1,7 @@
 import 'dart:ffi';
 
 import 'package:flutter/material.dart';
+import 'package:food/widgets/c_button.dart';
 import 'package:food/widgets/header.dart';
 
 class LeaveMessage extends StatefulWidget {
@@ -72,7 +73,7 @@ class _LeaveMessageState extends State<LeaveMessage> {
               ),
               SizedBox(
                 width: double.infinity,
-                child: FilledButton(onPressed: () {}, child: const Text('提交')),
+                child: CButton(onPressed: () {}, text: '提交'),
               )
             ],
           ),
