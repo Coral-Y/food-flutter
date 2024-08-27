@@ -59,7 +59,7 @@ class _HomeState extends State<Home> {
       ),
       body: <Widget>[
         /// 一周食谱
-        const Schedule(),
+        const WeeklySchedule(),
 
         /// 食谱管理
         const RecipeList(),

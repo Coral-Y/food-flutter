@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:food/model/recipe.dart';
 import 'package:food/pages/kind_manage/list.dart';
 import 'package:iconify_flutter/iconify_flutter.dart';
 import 'package:iconify_flutter/icons/cil.dart';
@@ -213,11 +214,4 @@ class RecipeCard extends StatelessWidget {
       ),
     );
   }
-}
-
-class Recipe {
-  String name;
-  String image;
-
-  Recipe(this.name, this.image);
 }

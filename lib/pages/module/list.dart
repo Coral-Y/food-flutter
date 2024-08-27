@@ -1,8 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
+import 'package:food/model/module.dart';
 import 'package:food/widgets/header.dart';
-import 'package:iconify_flutter/iconify_flutter.dart';
-import 'package:iconify_flutter/icons/cil.dart';
 
 class ModuleList extends StatefulWidget {
   const ModuleList({super.key});
@@ -105,10 +104,3 @@ class ModuleCard extends StatelessWidget {
   }
 }
 
-class Module {
-  String icon;
-  String title;
-  String? endTime;
-
-  Module({required this.icon, required this.title, this.endTime});
-}

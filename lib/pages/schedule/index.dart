@@ -2,23 +2,30 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_svg/flutter_svg.dart';
+import 'package:food/model/dish.dart';
 
-class Schedule extends StatefulWidget {
-  const Schedule({super.key});
+class WeeklySchedule extends StatefulWidget {
+  const WeeklySchedule({super.key});
 
   @override
-  State<Schedule> createState() => _ScheduleState();
+  State<WeeklySchedule> createState() => _ScheduleState();
 }
 
-class _ScheduleState extends State<Schedule> {
+class _ScheduleState extends State<WeeklySchedule> {
   final List<String> week = <String>['周一', '周二', '周三', '周四', '周五', '周六', '周日'];
   final List<String> types = <String>['早餐', '中餐', '晚餐'];
   final current = DateTime.now();
+  final List<Dish> breakfast = <Dish>[
+    Dish(title: '拆骨肉荷包蛋', icon: 'egg', type: 1, date: DateTime(2024, 8, 27)),
+    Dish(title: '牛奶', icon: 'milk', type: 1, date: DateTime(2024, 8, 27)),
+    Dish(title: '鸡蛋', icon: 'egg', type: 1, date: DateTime(2024, 8, 27)),
+    Dish(title: '牛奶', icon: 'milk', type: 1, date: DateTime(2024, 8, 27)),
+  ];
 
   _bottomSheet() {
     var tabs = ['assets/icons/emoji.svg', 'assets/icons/recipe.svg'];
     var recipes = ['水煮牛肉', '拆骨肉荷包蛋', '鸡翅包饭'];
-    var icons = ['egg', 'cookie', 'food', 'peach', 'poultry-leg'];
+    var icons = ['egg', 'cookie', 'bread', 'peach', 'pear'];
     showModalBottomSheet(
         context: context,
         builder: (BuildContext context) {
@@ -34,8 +41,35 @@ class _ScheduleState extends State<Schedule> {
               children: [
                 // 按钮
                 Row(
-                  mainAxisAlignment: MainAxisAlignment.end,
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
+                    SizedBox(
+                      width: 60,
+                      height: 30,
+                      child: FilledButton(
+                          style: ButtonStyle(
+                            backgroundColor: MaterialStateProperty.all(
+                                const Color(0xffd4939d)),
+                            padding:
+                                MaterialStateProperty.all<EdgeInsetsGeometry>(
+                              const EdgeInsets.symmetric(
+                                  horizontal: 5, vertical: 3), // 设置内边距
+                            ),
+                            shape: MaterialStateProperty.all<
+                                RoundedRectangleBorder>(
+                              RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(4), // 设置圆角
+                              ),
+                            ),
+                          ),
+                          onPressed: () {
+                            Navigator.pop(context);
+                          },
+                          child: const Text(
+                            '删除',
+                            style: TextStyle(fontSize: 12),
+                          )),
+                    ),
                     SizedBox(
                       width: 60,
                       height: 30,
@@ -53,7 +87,9 @@ class _ScheduleState extends State<Schedule> {
                               ),
                             ),
                           ),
-                          onPressed: () {},
+                          onPressed: () {
+                            Navigator.pop(context);
+                          },
                           child: const Text(
                             '确认',
                             style: TextStyle(fontSize: 12),
@@ -109,10 +145,14 @@ class _ScheduleState extends State<Schedule> {
                             Expanded(
                               child: TabBarView(children: [
                                 GridView.count(
-                                  crossAxisCount: 5,
+                                  padding: const EdgeInsets.only(top: 10),
+                                  crossAxisCount: 10,
+                                  mainAxisSpacing: 4,
+                                  crossAxisSpacing: 8,
                                   children: icons
                                       .map((item) => SvgPicture.asset(
-                                          'assets/icons/food/$item.svg'))
+                                            'assets/icons/instruction/$item.svg',
+                                          ))
                                       .toList(),
                                 ),
                                 ListView.builder(
@@ -202,8 +242,9 @@ class _ScheduleState extends State<Schedule> {
               return InkWell(
                 onTap: _bottomSheet,
                 child: FoodCard(
-                  title: types[index],
-                ),
+                    title: types[index],
+                    foods: breakfast,
+                    onEdit: _bottomSheet),
               );
             },
           ))
@@ -309,30 +350,83 @@ class WeekView extends StatelessWidget {
 
 class FoodCard extends StatelessWidget {
   final String title;
+  final List<Dish> foods;
+  final Function() onEdit;
 
-  const FoodCard({super.key, required this.title});
+  const FoodCard(
+      {super.key,
+      required this.title,
+      required this.foods,
+      required this.onEdit});
 
   @override
   Widget build(BuildContext context) {
-    return Card(
-        color: Colors.white,
-        surfaceTintColor: Colors.white,
-        margin: const EdgeInsets.fromLTRB(15, 0, 15, 10),
-        child: Padding(
-          padding: EdgeInsets.all(10),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text(
-                title,
-                style:
-                    const TextStyle(fontWeight: FontWeight.bold, fontSize: 12),
-              ),
-              Container(
-                height: 100,
-              )
-            ],
-          ),
-        ));
+    return SizedBox(
+      height: 145,
+      child: Card(
+          color: Colors.white,
+          surfaceTintColor: Colors.white,
+          margin: const EdgeInsets.fromLTRB(15, 0, 15, 10),
+          child: Padding(
+            padding: const EdgeInsets.all(10),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  title,
+                  style: const TextStyle(fontWeight: FontWeight.bold),
+                ),
+                Expanded(
+                  child: GridView.count(
+                    padding: const EdgeInsets.only(top: 5),
+                    crossAxisCount: 2,
+                    childAspectRatio: 3.5,
+                    children: foods
+                        .map((item) => Align(
+                            alignment: Alignment.centerLeft,
+                            child: InkWell(
+                              onTap: () {
+                                print('编辑');
+                                onEdit();
+                              },
+                              child: Container(
+                                width: 100,
+                                height: 25,
+                                alignment: Alignment.centerLeft,
+                                padding:
+                                    const EdgeInsets.symmetric(horizontal: 10),
+                                decoration: BoxDecoration(
+                                    color: Colors.white,
+                                    border: Border.all(
+                                        color: const Color(0xFF999999)),
+                                    borderRadius: BorderRadius.circular(4)),
+                                child: Row(
+                                  children: [
+                                    SvgPicture.asset(
+                                      'assets/icons/instruction/${item.icon}.svg',
+                                      width: 13,
+                                      height: 13,
+                                    ),
+                                    const SizedBox(
+                                      width: 4,
+                                    ),
+                                    Expanded(
+                                        child: Text(
+                                      item.title,
+                                      overflow: TextOverflow.ellipsis,
+                                      maxLines: 1,
+                                      style: const TextStyle(fontSize: 10),
+                                    ))
+                                  ],
+                                ),
+                              ),
+                            )))
+                        .toList(),
+                  ),
+                )
+              ],
+            ),
+          )),
+    );
   }
 }
