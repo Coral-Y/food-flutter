@@ -146,7 +146,8 @@ class _ScheduleState extends State<WeeklySchedule> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: Column(
+      body: SafeArea(
+          child: Column(
         children: [
           // 头部背景及用户头像展示
           Stack(
@@ -154,7 +155,7 @@ class _ScheduleState extends State<WeeklySchedule> {
               Image.asset(
                 'assets/images/food.png',
                 width: double.infinity,
-                height: 210,
+                height: 200,
                 fit: BoxFit.cover,
               ),
               Positioned(
@@ -219,7 +220,7 @@ class _ScheduleState extends State<WeeklySchedule> {
             },
           ))
         ],
-      ),
+      )),
     );
   }
 }

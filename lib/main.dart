@@ -8,6 +8,7 @@ import 'package:food/pages/me/index.dart';
 import 'package:food/pages/module/list.dart';
 import 'package:food/pages/recipe/detail.dart';
 import 'package:food/pages/recipe/edit.dart';
+import 'package:food/pages/sign_in/index.dart';
 
 void main() {
   runApp(const MyApp());
@@ -32,6 +33,8 @@ class MyApp extends StatelessWidget {
         useMaterial3: true,
       ),
       routes: {
+        '/login': (context) => const Login(),
+        '/home': (context) => const Home(),
         '/recipeDetail': (context) => const RecipeDetail(),
         '/editRecipe': (context) => const EditRecipe(),
         '/me': (context) => const Me(),
@@ -58,6 +61,6 @@ class MyHomePage extends StatefulWidget {
 class _MyHomePageState extends State<MyHomePage> {
   @override
   Widget build(BuildContext context) {
-    return const Home();
+    return const Login();
   }
 }

@@ -45,6 +45,12 @@ dependencies:
   # 虚线边框widget
   dotted_border: ^2.1.0
   flutter_launcher_icons: ^0.13.1
+  # 网络请求
+  dio: ^5.6.0
+  # JSON序列化和反序列化工具
+  json_serializable: ^6.8.0
+  # 提供JSON序列化和反序列化注解
+  json_annotation: ^4.9.0
 
 dev_dependencies:
   flutter_test:
