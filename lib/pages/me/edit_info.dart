@@ -1,6 +1,7 @@
 import 'dart:io';
 import 'package:dotted_border/dotted_border.dart';
 import 'package:food/widgets/c_button.dart';
+import 'package:food/widgets/c_snackbar.dart';
 import 'package:iconify_flutter/iconify_flutter.dart';
 import 'package:iconify_flutter/icons/cil.dart';
 import 'package:flutter/material.dart';
@@ -15,6 +16,20 @@ class EditInfo extends StatefulWidget {
 }
 
 class _EditInfoState extends State<EditInfo> {
+  String imagePath = '';
+  String nickname = '';
+  TextEditingController _nicknameController = TextEditingController();
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    final args =
+        ModalRoute.of(context)!.settings.arguments as Map<String, dynamic>;
+    imagePath = args['imagePath'];
+    nickname = args['nickname'];
+    _nicknameController.text = nickname; // 初始化文本框
+  }
+
   File? _image;
 
   Future<void> _pickImage() async {
@@ -28,6 +43,19 @@ class _EditInfoState extends State<EditInfo> {
         print('No image selected.');
       }
     });
+  }
+
+  void _submit() {
+    //收起键盘
+    FocusScope.of(context).unfocus();
+
+    final nickname = _nicknameController.text;
+    if (nickname.isEmpty) {
+      CSnackBar(message: '用户名不能为空').show(context);
+    } else {
+      //TODO:提交请求
+      Navigator.of(context).pop();
+    }
   }
 
   @override
@@ -51,14 +79,9 @@ class _EditInfoState extends State<EditInfo> {
                 InkWell(
                     onTap: _pickImage,
                     child: _image == null
-                        ? DottedBorder(
-                            borderType: BorderType.RRect,
-                            radius: const Radius.circular(4),
-                            padding: const EdgeInsets.all(30),
-                            child: const Iconify(
-                              Cil.plus,
-                              size: 40,
-                            ))
+                        ? CircleAvatar(
+                            radius: 40, // 半径
+                            backgroundImage: AssetImage(imagePath))
                         : Image.file(
                             _image!,
                             width: 100,
@@ -70,8 +93,8 @@ class _EditInfoState extends State<EditInfo> {
             const SizedBox(
               height: 15,
             ),
-            const TextField(
-              obscureText: true,
+            TextField(
+              controller: _nicknameController,
               decoration: InputDecoration(
                   border: OutlineInputBorder(), labelText: '用户名'),
             ),
@@ -80,7 +103,7 @@ class _EditInfoState extends State<EditInfo> {
             ),
             SizedBox(
               width: double.infinity,
-              child: CButton(onPressed: () {}, text: '提交'),
+              child: CButton(onPressed: _submit, text: '提交'),
             )
           ],
         ),

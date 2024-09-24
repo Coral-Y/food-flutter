@@ -57,7 +57,13 @@ class _MeState extends State<Me> {
                 height: 150,
                 child: InkWell(
                   onTap: () {
-                    Navigator.of(context).pushNamed('/editInfo');
+                    Navigator.of(context).pushNamed(
+                      '/editInfo',
+                      arguments: {
+                        'imagePath': 'assets/images/strawberry.png', // 头像
+                        'nickname': '曲奇', // 传入昵称
+                      },
+                    );
                   },
                   child: const Row(
                       mainAxisAlignment: MainAxisAlignment.center,
