@@ -3,7 +3,7 @@ class Dish {
   String title; // 标题
   String icon; // 图标
   bool isRecipe; // 是否是食谱
-  String? recipeId; // 食谱Id
+  int? recipeId; // 食谱Id
   int type; // 类型 1-早餐 2-中餐 3-晚餐
   DateTime date; // 日期
 
@@ -12,5 +12,6 @@ class Dish {
       required this.icon,
       required this.type,
       required this.date,
+      this.recipeId,
       this.isRecipe = false});
 }

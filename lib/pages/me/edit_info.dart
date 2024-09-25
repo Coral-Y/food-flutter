@@ -48,7 +48,6 @@ class _EditInfoState extends State<EditInfo> {
   void _submit() {
     //收起键盘
     FocusScope.of(context).unfocus();
-
     final nickname = _nicknameController.text;
     if (nickname.isEmpty) {
       CSnackBar(message: '用户名不能为空').show(context);

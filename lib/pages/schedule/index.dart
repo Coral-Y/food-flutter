@@ -17,12 +17,31 @@ class _ScheduleState extends State<WeeklySchedule> {
   final List<String> types = <String>['早餐', '中餐', '晚餐'];
   DateTime current = DateTime.now();
   List<Dish> breakfast = <Dish>[
-    Dish(title: '拆骨肉荷包蛋', icon: 'egg', type: 1, date: DateTime(2024, 8, 27)),
-    Dish(title: '牛奶', icon: 'milk', type: 1, date: DateTime(2024, 8, 27)),
-    Dish(title: '鸡蛋', icon: 'egg', type: 1, date: DateTime(2024, 8, 27)),
-    Dish(title: '牛奶', icon: 'milk', type: 1, date: DateTime(2024, 8, 27)),
+    Dish(
+        recipeId: 1,
+        title: '拆骨肉荷包蛋',
+        icon: 'egg',
+        type: 1,
+        date: DateTime(2024, 8, 27)),
+    Dish(
+        recipeId: 2,
+        title: '牛奶',
+        icon: 'milk',
+        type: 1,
+        date: DateTime(2024, 8, 27)),
+    Dish(
+        recipeId: 3,
+        title: '鸡蛋',
+        icon: 'egg',
+        type: 1,
+        date: DateTime(2024, 8, 27)),
+    Dish(
+        recipeId: 4,
+        title: '牛奶',
+        icon: 'milk',
+        type: 1,
+        date: DateTime(2024, 8, 27)),
   ];
-  String? selectedIcon;
 
   // 更新当前日期
   void updateCurrent(DateTime newDate) {
@@ -32,180 +51,65 @@ class _ScheduleState extends State<WeeklySchedule> {
     //TODO:请求当前日期数据
     setState(() {
       breakfast = <Dish>[
-        Dish(title: '鸡蛋', icon: 'egg', type: 1, date: DateTime(2024, 8, 27)),
-        Dish(title: '牛奶', icon: 'milk', type: 1, date: DateTime(2024, 8, 27)),
-        Dish(title: '鸡蛋', icon: 'egg', type: 1, date: DateTime(2024, 8, 27)),
-        Dish(title: '牛奶', icon: 'milk', type: 1, date: DateTime(2024, 8, 27)),
+        Dish(
+            recipeId: 1,
+            title: '鸡蛋',
+            icon: 'egg',
+            type: 1,
+            date: DateTime(2024, 8, 27)),
+        Dish(
+            recipeId: 2,
+            title: '牛奶',
+            icon: 'milk',
+            type: 1,
+            date: DateTime(2024, 8, 27)),
+        Dish(
+            recipeId: 3,
+            title: '鸡蛋',
+            icon: 'egg',
+            type: 1,
+            date: DateTime(2024, 8, 27)),
+        Dish(
+            recipeId: 4,
+            title: '牛奶',
+            icon: 'milk',
+            type: 1,
+            date: DateTime(2024, 8, 27)),
       ];
     });
   }
 
-  _bottomSheet({String? title, String? icon, String? name}) {
-    var tabs = ['assets/icons/emoji.svg', 'assets/icons/recipe.svg'];
-    var recipes = ['水煮牛肉', '拆骨肉荷包蛋', '鸡翅包饭'];
-    var icons = ['egg', 'cookie', 'bread', 'peach', 'pear'];
+  // 修改/添加计划
+  Future<void> addOrUpdatePlanning(
+      {String? name, String? icon, int? id}) async {
+    //TODO:请求添加修改计划
+    print(id);
+    print(name);
+    print(current);
+  }
 
-    TextEditingController _nameController = TextEditingController();
-    _nameController.text = name ?? ''; // 初始化文本框
-    setState(() {
-      selectedIcon = icon;
-    });
+  //删除计划
+  Future<void> deletePlanning(id) async {
+    //TODO:请求删除计划
+    print(id);
+    print(current);
+  }
 
+  _bottomSheet({String? title, String? icon, String? name, int? id}) {
+    print(id);
     showModalBottomSheet(
-        context: context,
-        isScrollControlled: true, // 允许滚动
-        builder: (BuildContext context) {
-          return Container(
-            height: 450,
-            padding: const EdgeInsets.fromLTRB(15, 8, 15, 8),
-            decoration: const BoxDecoration(
-                color: Colors.white,
-                borderRadius: BorderRadius.only(
-                    topLeft: Radius.circular(10),
-                    topRight: Radius.circular(10))),
-            child: Column(
-              children: [
-                // 按钮
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    if (name != null && name.isNotEmpty) ...[
-                      SizedBox(
-                        width: 60,
-                        height: 30,
-                        child: CButton(
-                          onPressed: () {
-                            // 按钮点击事件
-                          },
-                          text: '删除',
-                          type: 'secondary',
-                          size: 'small',
-                        ),
-                      ),
-                    ] else ...[
-                      SizedBox(width: 60),
-                    ],
-                    SizedBox(
-                      width: 60,
-                      height: 30,
-                      child: CButton(
-                        onPressed: () {
-                          Navigator.pop(context);
-                        },
-                        text: '确认',
-                        size: 'small',
-                      ),
-                    )
-                  ],
-                ),
-                const SizedBox(
-                  height: 10,
-                ),
-                // 输入框
-                Row(
-                  children: [
-                    if (selectedIcon != null && selectedIcon!.isNotEmpty) ...[
-                      SvgPicture.asset(
-                        'assets/icons/ingredients/$selectedIcon.svg',
-                        width: 40,
-                        height: 40,
-                      )
-                    ] else ...[
-                      Container(
-                        width: 40,
-                        height: 40,
-                        decoration: BoxDecoration(
-                            color: const Color(0xFFF5F5F5),
-                            borderRadius: BorderRadius.circular(20)),
-                      ),
-                    ],
-                    const SizedBox(
-                      width: 10,
-                    ),
-                    Expanded(
-                      child: TextField(
-                        controller: _nameController,
-                        decoration: InputDecoration(
-                          labelText: title,
-                          border: OutlineInputBorder(),
-                        ),
-                        onTap: () {
-                          // 滚动到输入框位置
-                          // FocusScope.of(context).requestFocus(FocusNode());
-                        },
-                      ),
-                    ),
-                  ],
-                ),
-                const SizedBox(
-                  height: 10,
-                ),
-                // Tab
-                Expanded(
-                    child: DefaultTabController(
-                        length: 2,
-                        child: Column(
-                          children: [
-                            Align(
-                              alignment: Alignment.centerLeft,
-                              child: SizedBox(
-                                width: 120,
-                                child: TabBar(
-                                    dividerHeight: 0,
-                                    tabs: tabs
-                                        .map((item) => Tab(
-                                              icon: SvgPicture.asset(
-                                                item,
-                                                width: 25,
-                                                height: 25,
-                                              ),
-                                            ))
-                                        .toList()),
-                              ),
-                            ),
-                            Expanded(
-                              child: TabBarView(children: [
-                                GridView.count(
-                                  padding: const EdgeInsets.only(top: 10),
-                                  crossAxisCount: 10,
-                                  mainAxisSpacing: 4,
-                                  crossAxisSpacing: 8,
-                                  children: icons
-                                      .map((item) => GestureDetector(
-                                            onTap: () {
-                                              print(item);
-                                              setState(() {
-                                                selectedIcon = item;
-                                              }); // 刷新界面以显示选中的图标
-                                            },
-                                            child: SvgPicture.asset(
-                                              'assets/icons/ingredients/$item.svg',
-                                            ),
-                                          ))
-                                      .toList(),
-                                ),
-                                ListView.builder(
-                                    itemCount: recipes.length,
-                                    itemBuilder:
-                                        (BuildContext context, int index) {
-                                      return ListTile(
-                                        title: Text(recipes[index]),
-                                        onTap: () {
-                                          setState(() {
-                                            _nameController.text =
-                                                recipes[index];
-                                          });
-                                        },
-                                      );
-                                    })
-                              ]),
-                            )
-                          ],
-                        )))
-              ],
-            ),
-          );
-        });
+      context: context,
+      isScrollControlled: true,
+      builder: (BuildContext context) {
+        return PickerBottomSheet(
+            title: title,
+            icon: icon,
+            name: name,
+            id: id,
+            onSubmit: addOrUpdatePlanning,
+            onDelete: deletePlanning);
+      },
+    );
   }
 
   @override
@@ -285,8 +189,8 @@ class _ScheduleState extends State<WeeklySchedule> {
                 child: FoodCard(
                     title: types[index],
                     foods: breakfast,
-                    onEdit: (title, icon, name) =>
-                        _bottomSheet(title: title, icon: icon, name: name)),
+                    onEdit: ({title, icon, name, id}) => _bottomSheet(
+                        title: title, icon: icon, name: name, id: id)),
               );
             },
           ))
@@ -405,7 +309,7 @@ class WeekView extends StatelessWidget {
 class FoodCard extends StatelessWidget {
   final String title;
   final List<Dish> foods;
-  final Function(String? title, String? icon, String? name) onEdit;
+  final Function({String? title, String? icon, String? name, int? id}) onEdit;
 
   const FoodCard(
       {super.key,
@@ -441,7 +345,11 @@ class FoodCard extends StatelessWidget {
                             child: InkWell(
                               onTap: () {
                                 print('编辑');
-                                onEdit(title, item.icon, item.title);
+                                onEdit(
+                                    title: title,
+                                    icon: item.icon,
+                                    name: item.title,
+                                    id: item.recipeId);
                               },
                               child: Container(
                                 width: 100,
@@ -481,6 +389,200 @@ class FoodCard extends StatelessWidget {
               ],
             ),
           )),
+    );
+  }
+}
+
+class PickerBottomSheet extends StatefulWidget {
+  final String? title;
+  final String? icon;
+  final String? name;
+  final int? id;
+  final Function({String? name, String? icon, int? id}) onSubmit;
+  final Function(int id) onDelete;
+  const PickerBottomSheet(
+      {Key? key,
+      this.title,
+      this.icon,
+      this.name,
+      this.id,
+      required this.onSubmit,
+      required this.onDelete})
+      : super(key: key);
+
+  @override
+  _PickerBottomSheetState createState() => _PickerBottomSheetState();
+}
+
+class _PickerBottomSheetState extends State<PickerBottomSheet> {
+  late TextEditingController _nameController;
+  String? selectedIcon;
+
+  @override
+  void initState() {
+    super.initState();
+    _nameController = TextEditingController(text: widget.name ?? '');
+    selectedIcon = widget.icon;
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    var tabs = ['assets/icons/emoji.svg', 'assets/icons/recipe.svg'];
+    var recipes = ['水煮牛肉', '拆骨肉荷包蛋', '鸡翅包饭'];
+    var icons = ['egg', 'cookie', 'bread', 'peach', 'pear'];
+
+    return Container(
+      height: 500,
+      padding: const EdgeInsets.fromLTRB(15, 8, 15, 8),
+      decoration: const BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.only(
+              topLeft: Radius.circular(10), topRight: Radius.circular(10))),
+      child: Column(
+        children: [
+          // 按钮
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              if (widget.name != null && widget.name!.isNotEmpty) ...[
+                SizedBox(
+                  width: 60,
+                  height: 30,
+                  child: CButton(
+                    onPressed: () {
+                      // 按钮点击事件
+                      widget.onDelete(widget.id!);
+                    },
+                    text: '删除',
+                    type: 'secondary',
+                    size: 'small',
+                  ),
+                ),
+              ] else ...[
+                SizedBox(width: 60),
+              ],
+              SizedBox(
+                width: 60,
+                height: 30,
+                child: CButton(
+                  onPressed: () {
+                    //修改规划
+                    widget.onSubmit(
+                        name: _nameController.text,
+                        icon: selectedIcon,
+                        id: widget.id);
+                    Navigator.pop(context);
+                  },
+                  text: '确认',
+                  size: 'small',
+                ),
+              )
+            ],
+          ),
+          const SizedBox(
+            height: 10,
+          ),
+          // 输入框
+          Row(
+            children: [
+              if (selectedIcon != null && selectedIcon!.isNotEmpty) ...[
+                SvgPicture.asset(
+                  'assets/icons/ingredients/$selectedIcon.svg',
+                  width: 40,
+                  height: 40,
+                )
+              ] else ...[
+                Container(
+                  width: 40,
+                  height: 40,
+                  decoration: BoxDecoration(
+                      color: const Color(0xFFF5F5F5),
+                      borderRadius: BorderRadius.circular(20)),
+                ),
+              ],
+              const SizedBox(
+                width: 10,
+              ),
+              Expanded(
+                child: TextField(
+                  controller: _nameController,
+                  decoration: InputDecoration(
+                    labelText: widget.title,
+                    border: OutlineInputBorder(),
+                  ),
+                  onTap: () {
+                    // 滚动到输入框位置
+                    // FocusScope.of(context).requestFocus(FocusNode());
+                  },
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(
+            height: 10,
+          ),
+          // Tab
+          Expanded(
+              child: DefaultTabController(
+                  length: 2,
+                  child: Column(
+                    children: [
+                      Align(
+                        alignment: Alignment.centerLeft,
+                        child: SizedBox(
+                          width: 120,
+                          child: TabBar(
+                              dividerHeight: 0,
+                              tabs: tabs
+                                  .map((item) => Tab(
+                                        icon: SvgPicture.asset(
+                                          item,
+                                          width: 25,
+                                          height: 25,
+                                        ),
+                                      ))
+                                  .toList()),
+                        ),
+                      ),
+                      Expanded(
+                        child: TabBarView(children: [
+                          GridView.count(
+                            padding: const EdgeInsets.only(top: 10),
+                            crossAxisCount: 10,
+                            mainAxisSpacing: 4,
+                            crossAxisSpacing: 8,
+                            children: icons
+                                .map((item) => GestureDetector(
+                                      onTap: () {
+                                        print(item);
+                                        setState(() {
+                                          selectedIcon = item;
+                                        }); // 刷新界面以显示选中的图标
+                                      },
+                                      child: SvgPicture.asset(
+                                        'assets/icons/ingredients/$item.svg',
+                                      ),
+                                    ))
+                                .toList(),
+                          ),
+                          ListView.builder(
+                              itemCount: recipes.length,
+                              itemBuilder: (BuildContext context, int index) {
+                                return ListTile(
+                                  title: Text(recipes[index]),
+                                  onTap: () {
+                                    setState(() {
+                                      _nameController.text = recipes[index];
+                                    });
+                                  },
+                                );
+                              })
+                        ]),
+                      )
+                    ],
+                  )))
+        ],
+      ),
     );
   }
 }
