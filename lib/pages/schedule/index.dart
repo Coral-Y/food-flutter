@@ -15,23 +15,48 @@ class WeeklySchedule extends StatefulWidget {
 class _ScheduleState extends State<WeeklySchedule> {
   final List<String> week = <String>['周一', '周二', '周三', '周四', '周五', '周六', '周日'];
   final List<String> types = <String>['早餐', '中餐', '晚餐'];
-  final current = DateTime.now();
-  final List<Dish> breakfast = <Dish>[
+  DateTime current = DateTime.now();
+  List<Dish> breakfast = <Dish>[
     Dish(title: '拆骨肉荷包蛋', icon: 'egg', type: 1, date: DateTime(2024, 8, 27)),
     Dish(title: '牛奶', icon: 'milk', type: 1, date: DateTime(2024, 8, 27)),
     Dish(title: '鸡蛋', icon: 'egg', type: 1, date: DateTime(2024, 8, 27)),
     Dish(title: '牛奶', icon: 'milk', type: 1, date: DateTime(2024, 8, 27)),
   ];
+  String? selectedIcon;
 
-  _bottomSheet() {
+  // 更新当前日期
+  void updateCurrent(DateTime newDate) {
+    setState(() {
+      current = newDate;
+    });
+    //TODO:请求当前日期数据
+    setState(() {
+      breakfast = <Dish>[
+        Dish(title: '鸡蛋', icon: 'egg', type: 1, date: DateTime(2024, 8, 27)),
+        Dish(title: '牛奶', icon: 'milk', type: 1, date: DateTime(2024, 8, 27)),
+        Dish(title: '鸡蛋', icon: 'egg', type: 1, date: DateTime(2024, 8, 27)),
+        Dish(title: '牛奶', icon: 'milk', type: 1, date: DateTime(2024, 8, 27)),
+      ];
+    });
+  }
+
+  _bottomSheet({String? title, String? icon, String? name}) {
     var tabs = ['assets/icons/emoji.svg', 'assets/icons/recipe.svg'];
     var recipes = ['水煮牛肉', '拆骨肉荷包蛋', '鸡翅包饭'];
     var icons = ['egg', 'cookie', 'bread', 'peach', 'pear'];
+
+    TextEditingController _nameController = TextEditingController();
+    _nameController.text = name ?? ''; // 初始化文本框
+    setState(() {
+      selectedIcon = icon;
+    });
+
     showModalBottomSheet(
         context: context,
+        isScrollControlled: true, // 允许滚动
         builder: (BuildContext context) {
           return Container(
-            height: 300,
+            height: 450,
             padding: const EdgeInsets.fromLTRB(15, 8, 15, 8),
             decoration: const BoxDecoration(
                 color: Colors.white,
@@ -44,16 +69,22 @@ class _ScheduleState extends State<WeeklySchedule> {
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
-                    SizedBox(
-                      width: 60,
-                      height: 30,
-                      child: CButton(
-                        onPressed: () {},
-                        text: '删除',
-                        type: 'secondary',
-                        size: 'small',
+                    if (name != null && name.isNotEmpty) ...[
+                      SizedBox(
+                        width: 60,
+                        height: 30,
+                        child: CButton(
+                          onPressed: () {
+                            // 按钮点击事件
+                          },
+                          text: '删除',
+                          type: 'secondary',
+                          size: 'small',
+                        ),
                       ),
-                    ),
+                    ] else ...[
+                      SizedBox(width: 60),
+                    ],
                     SizedBox(
                       width: 60,
                       height: 30,
@@ -73,17 +104,37 @@ class _ScheduleState extends State<WeeklySchedule> {
                 // 输入框
                 Row(
                   children: [
-                    Container(
-                      width: 40,
-                      height: 40,
-                      decoration: BoxDecoration(
-                          color: const Color(0xFFF5F5F5),
-                          borderRadius: BorderRadius.circular(20)),
-                    ),
+                    if (selectedIcon != null && selectedIcon!.isNotEmpty) ...[
+                      SvgPicture.asset(
+                        'assets/icons/ingredients/$selectedIcon.svg',
+                        width: 40,
+                        height: 40,
+                      )
+                    ] else ...[
+                      Container(
+                        width: 40,
+                        height: 40,
+                        decoration: BoxDecoration(
+                            color: const Color(0xFFF5F5F5),
+                            borderRadius: BorderRadius.circular(20)),
+                      ),
+                    ],
                     const SizedBox(
                       width: 10,
                     ),
-                    Expanded(child: TextField()),
+                    Expanded(
+                      child: TextField(
+                        controller: _nameController,
+                        decoration: InputDecoration(
+                          labelText: title,
+                          border: OutlineInputBorder(),
+                        ),
+                        onTap: () {
+                          // 滚动到输入框位置
+                          // FocusScope.of(context).requestFocus(FocusNode());
+                        },
+                      ),
+                    ),
                   ],
                 ),
                 const SizedBox(
@@ -120,8 +171,16 @@ class _ScheduleState extends State<WeeklySchedule> {
                                   mainAxisSpacing: 4,
                                   crossAxisSpacing: 8,
                                   children: icons
-                                      .map((item) => SvgPicture.asset(
-                                            'assets/icons/ingredients/$item.svg',
+                                      .map((item) => GestureDetector(
+                                            onTap: () {
+                                              print(item);
+                                              setState(() {
+                                                selectedIcon = item;
+                                              }); // 刷新界面以显示选中的图标
+                                            },
+                                            child: SvgPicture.asset(
+                                              'assets/icons/ingredients/$item.svg',
+                                            ),
                                           ))
                                       .toList(),
                                 ),
@@ -131,6 +190,12 @@ class _ScheduleState extends State<WeeklySchedule> {
                                         (BuildContext context, int index) {
                                       return ListTile(
                                         title: Text(recipes[index]),
+                                        onTap: () {
+                                          setState(() {
+                                            _nameController.text =
+                                                recipes[index];
+                                          });
+                                        },
                                       );
                                     })
                               ]),
@@ -199,6 +264,7 @@ class _ScheduleState extends State<WeeklySchedule> {
                 ),
                 DatePicker(
                   current: current,
+                  onCurrentUpdate: updateCurrent,
                 )
               ],
             ),
@@ -211,11 +277,16 @@ class _ScheduleState extends State<WeeklySchedule> {
             padding: const EdgeInsets.only(top: 15),
             itemBuilder: (context, index) {
               return InkWell(
-                onTap: _bottomSheet,
+                onTap: () {
+                  WidgetsBinding.instance.addPostFrameCallback((_) {
+                    _bottomSheet(title: types[index]);
+                  });
+                },
                 child: FoodCard(
                     title: types[index],
                     foods: breakfast,
-                    onEdit: _bottomSheet),
+                    onEdit: (title, icon, name) =>
+                        _bottomSheet(title: title, icon: icon, name: name)),
               );
             },
           ))
@@ -227,7 +298,9 @@ class _ScheduleState extends State<WeeklySchedule> {
 
 class DatePicker extends StatefulWidget {
   final DateTime current;
-  const DatePicker({super.key, required this.current});
+  final Function(DateTime) onCurrentUpdate;
+  const DatePicker(
+      {super.key, required this.current, required this.onCurrentUpdate});
 
   @override
   State<DatePicker> createState() => _DatePickerState();
@@ -255,7 +328,7 @@ class _DatePickerState extends State<DatePicker> {
   @override
   Widget build(BuildContext context) {
     return SizedBox(
-      height: 30,
+      height: 32,
       child: PageView(
           controller: _pageController,
           onPageChanged: (page) {
@@ -280,6 +353,7 @@ class _DatePickerState extends State<DatePicker> {
               .map((item) => WeekView(
                     start: item,
                     current: widget.current,
+                    onCurrentUpdate: widget.onCurrentUpdate,
                   ))
               .toList()),
     );
@@ -289,7 +363,12 @@ class _DatePickerState extends State<DatePicker> {
 class WeekView extends StatelessWidget {
   final DateTime start; // 周一的日期
   final DateTime current; // 当前选中的日期
-  const WeekView({super.key, required this.start, required this.current});
+  final Function(DateTime) onCurrentUpdate; // 更新选中日期回调函数
+  const WeekView(
+      {super.key,
+      required this.start,
+      required this.current,
+      required this.onCurrentUpdate});
 
   @override
   Widget build(BuildContext context) {
@@ -299,8 +378,12 @@ class WeekView extends StatelessWidget {
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       crossAxisAlignment: CrossAxisAlignment.center,
       children: list
-          .map((item) => Container(
-                width: 30,
+          .map((item) => GestureDetector(
+              onTap: () {
+                onCurrentUpdate(item);
+              },
+              child: Container(
+                width: 32,
                 alignment: Alignment.center,
                 decoration: BoxDecoration(
                     color: item.day == current.day &&
@@ -308,12 +391,12 @@ class WeekView extends StatelessWidget {
                             item.year == current.year
                         ? const Color(0xFFd4939d)
                         : Colors.white,
-                    borderRadius: BorderRadius.circular(15)),
+                    borderRadius: BorderRadius.circular(16)),
                 child: Text(
                   item.day == 1 ? '${item.month}/${item.day}' : '${item.day}',
                   style: const TextStyle(fontWeight: FontWeight.bold),
                 ),
-              ))
+              )))
           .toList(),
     );
   }
@@ -322,7 +405,7 @@ class WeekView extends StatelessWidget {
 class FoodCard extends StatelessWidget {
   final String title;
   final List<Dish> foods;
-  final Function() onEdit;
+  final Function(String? title, String? icon, String? name) onEdit;
 
   const FoodCard(
       {super.key,
@@ -358,7 +441,7 @@ class FoodCard extends StatelessWidget {
                             child: InkWell(
                               onTap: () {
                                 print('编辑');
-                                onEdit();
+                                onEdit(title, item.icon, item.title);
                               },
                               child: Container(
                                 width: 100,
