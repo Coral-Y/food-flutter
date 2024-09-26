@@ -26,6 +26,9 @@ class _EditRecipeState extends State<EditRecipe> {
   final TextEditingController _seasoningController =
       TextEditingController(); //调料输入框控制器
   final FocusNode _seasoningFocusNode = FocusNode(); // 调料 FocusNode
+  final TextEditingController _instructionController =
+      TextEditingController(); //步骤输入框控制器
+  final FocusNode _instructionFocusNode = FocusNode(); // 步骤 FocusNode
   final Recipe recipe = Recipe(
     name: '',
     image: '',
@@ -319,6 +322,9 @@ class _EditRecipeState extends State<EditRecipe> {
                           _seasoningFocusNode.requestFocus(); // 请求焦点
                         },
                       ),
+                    const SizedBox(
+                      height: 15,
+                    ),
                     Row(
                       children: [
                         const Text(
@@ -330,23 +336,48 @@ class _EditRecipeState extends State<EditRecipe> {
                         ),
                         Expanded(
                           child: TextField(
+                            controller: _instructionController,
+                            focusNode: _instructionFocusNode,
                             maxLines: null,
-                            onChanged: (value) {
-                              setState(() {
-                                recipe.name = value;
-                              });
-                            },
+                            decoration: const InputDecoration(
+                                border: OutlineInputBorder(),
+                                hintText: '请输入步骤'),
                           ),
                         ),
                         const SizedBox(
                           width: 5,
                         ),
                         InkWell(
-                          onTap: () {},
+                          onTap: () {
+                            if (_instructionController.text.isNotEmpty) {
+                              setState(() {
+                                recipe.instructions ??= [];
+                                recipe.instructions
+                                    ?.add(_instructionController.text);
+                              });
+                              _instructionController.clear();
+                            }
+                          },
                           child: const Iconify(MdiLight.plus_circle),
                         )
                       ],
                     ),
+                    if (recipe.instructions != null)
+                      StepList(
+                        steps: recipe.instructions!,
+                        onDeleted: (index) {
+                          setState(() {
+                            recipe.instructions!.removeAt(index);
+                          });
+                        },
+                        onDoubleTap: (item) {
+                          setState(() {
+                            print(item);
+                            _instructionController.text = item;
+                          });
+                          _instructionFocusNode.requestFocus(); // 请求焦点
+                        },
+                      ),
                     const SizedBox(
                       height: 25,
                     ),
@@ -417,6 +448,50 @@ class TagList extends StatelessWidget {
           );
         }).toList(),
       ),
+    );
+  }
+}
+
+class StepList extends StatelessWidget {
+  final List<String> steps;
+  final void Function(String)? onDoubleTap;
+  final void Function(int)? onDeleted;
+
+  const StepList(
+      {super.key, required this.steps, this.onDeleted, this.onDoubleTap});
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      children: [
+        for (int index = 0; index < steps.length; index++)
+          Container(
+            key: ValueKey(steps[index]),
+            padding: const EdgeInsets.all(8.0),
+            decoration: BoxDecoration(
+              borderRadius: BorderRadius.circular(4),
+            ),
+            child: InkWell(
+              onDoubleTap: () {
+                if (onDoubleTap != null) {
+                  onDoubleTap!(steps[index]);
+                }
+              },
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Expanded(
+                    child: Text('${index + 1}. ${steps[index]}'),
+                  ),
+                  IconButton(
+                    icon: const Iconify(MdiLight.minus_circle),
+                    onPressed: () => onDeleted!(index),
+                  ),
+                ],
+              ),
+            ),
+          ),
+      ],
     );
   }
 }
