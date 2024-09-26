@@ -51,6 +51,8 @@ dependencies:
   json_serializable: ^6.8.0
   # 提供JSON序列化和反序列化注解
   json_annotation: ^4.9.0
+  # 拖拽
+  reorderables: ^0.6.0
 
 dev_dependencies:
   flutter_test:

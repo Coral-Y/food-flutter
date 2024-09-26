@@ -4,6 +4,7 @@ import 'package:flutter/widgets.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:food/model/dish.dart';
 import 'package:food/widgets/c_button.dart';
+import 'package:reorderables/reorderables.dart';
 
 class WeeklySchedule extends StatefulWidget {
   const WeeklySchedule({super.key});
@@ -39,6 +40,12 @@ class _ScheduleState extends State<WeeklySchedule> {
         recipeId: 4,
         title: '牛奶',
         icon: 'milk',
+        type: 1,
+        date: DateTime(2024, 8, 27)),
+    Dish(
+        recipeId: 1,
+        title: '拆骨肉荷包蛋',
+        icon: 'egg',
         type: 1,
         date: DateTime(2024, 8, 27)),
   ];
@@ -79,9 +86,26 @@ class _ScheduleState extends State<WeeklySchedule> {
     });
   }
 
-  // 修改/添加计划
-  Future<void> addOrUpdatePlanning(
-      {String? name, String? icon, int? id}) async {
+  //更新排序
+  void reordering(int oldIndex, int newIndex) {
+    print(oldIndex);
+    print(newIndex);
+
+    setState(() {
+      Dish row = breakfast.removeAt(oldIndex);
+      breakfast.insert(newIndex, row);
+    });
+  }
+
+  // 添加计划
+  Future<void> addPlan({String? name, String? icon}) async {
+    //TODO:请求添加修改计划
+    print(name);
+    print(current);
+  }
+
+  // 修改计划
+  Future<void> updatePlan({String? name, String? icon, int? id}) async {
     //TODO:请求添加修改计划
     print(id);
     print(name);
@@ -89,14 +113,13 @@ class _ScheduleState extends State<WeeklySchedule> {
   }
 
   //删除计划
-  Future<void> deletePlanning(id) async {
+  Future<void> deletePlan(id) async {
     //TODO:请求删除计划
     print(id);
     print(current);
   }
 
   _bottomSheet({String? title, String? icon, String? name, int? id}) {
-    print(id);
     showModalBottomSheet(
       context: context,
       isScrollControlled: true,
@@ -106,8 +129,9 @@ class _ScheduleState extends State<WeeklySchedule> {
             icon: icon,
             name: name,
             id: id,
-            onSubmit: addOrUpdatePlanning,
-            onDelete: deletePlanning);
+            onAddPlan: addPlan,
+            onUpdatePlan: updatePlan,
+            onDelete: deletePlan);
       },
     );
   }
@@ -190,7 +214,8 @@ class _ScheduleState extends State<WeeklySchedule> {
                     title: types[index],
                     foods: breakfast,
                     onEdit: ({title, icon, name, id}) => _bottomSheet(
-                        title: title, icon: icon, name: name, id: id)),
+                        title: title, icon: icon, name: name, id: id),
+                    onReorder: reordering),
               );
             },
           ))
@@ -310,12 +335,14 @@ class FoodCard extends StatelessWidget {
   final String title;
   final List<Dish> foods;
   final Function({String? title, String? icon, String? name, int? id}) onEdit;
+  final Function(int oldIndex, int newIndex) onReorder;
 
   const FoodCard(
       {super.key,
       required this.title,
       required this.foods,
-      required this.onEdit});
+      required this.onEdit,
+      required this.onReorder});
 
   @override
   Widget build(BuildContext context) {
@@ -335,54 +362,55 @@ class FoodCard extends StatelessWidget {
                   style: const TextStyle(fontWeight: FontWeight.bold),
                 ),
                 Expanded(
-                  child: GridView.count(
+                  child: ReorderableWrap(
                     padding: const EdgeInsets.only(top: 5),
-                    crossAxisCount: 2,
-                    childAspectRatio: 3.5,
+                    spacing: 30.0, //列间距
+                    runSpacing: 20.0, //行间距
+                    onReorder: onReorder, //重排序
                     children: foods
-                        .map((item) => Align(
-                            alignment: Alignment.centerLeft,
-                            child: InkWell(
-                              onTap: () {
-                                print('编辑');
-                                onEdit(
-                                    title: title,
-                                    icon: item.icon,
-                                    name: item.title,
-                                    id: item.recipeId);
-                              },
-                              child: Container(
-                                width: 100,
-                                height: 25,
-                                alignment: Alignment.centerLeft,
-                                padding:
-                                    const EdgeInsets.symmetric(horizontal: 10),
-                                decoration: BoxDecoration(
-                                    color: Colors.white,
-                                    border: Border.all(
-                                        color: const Color(0xFF999999)),
-                                    borderRadius: BorderRadius.circular(4)),
-                                child: Row(
-                                  children: [
-                                    SvgPicture.asset(
-                                      'assets/icons/ingredients/${item.icon}.svg',
-                                      width: 13,
-                                      height: 13,
-                                    ),
-                                    const SizedBox(
-                                      width: 4,
-                                    ),
-                                    Expanded(
-                                        child: Text(
-                                      item.title,
-                                      overflow: TextOverflow.ellipsis,
-                                      maxLines: 1,
-                                      style: const TextStyle(fontSize: 10),
-                                    ))
-                                  ],
-                                ),
+                        .map(
+                          (item) => InkWell(
+                            onTap: () {
+                              print('编辑');
+                              onEdit(
+                                  title: title,
+                                  icon: item.icon,
+                                  name: item.title,
+                                  id: item.recipeId);
+                            },
+                            child: Container(
+                              width: 100,
+                              height: 25,
+                              alignment: Alignment.centerLeft,
+                              padding:
+                                  const EdgeInsets.symmetric(horizontal: 10),
+                              decoration: BoxDecoration(
+                                  color: Colors.white,
+                                  border: Border.all(
+                                      color: const Color(0xFF999999)),
+                                  borderRadius: BorderRadius.circular(4)),
+                              child: Row(
+                                children: [
+                                  SvgPicture.asset(
+                                    'assets/icons/ingredients/${item.icon}.svg',
+                                    width: 13,
+                                    height: 13,
+                                  ),
+                                  const SizedBox(
+                                    width: 4,
+                                  ),
+                                  Expanded(
+                                      child: Text(
+                                    item.title,
+                                    overflow: TextOverflow.ellipsis,
+                                    maxLines: 1,
+                                    style: const TextStyle(fontSize: 10),
+                                  ))
+                                ],
                               ),
-                            )))
+                            ),
+                          ),
+                        )
                         .toList(),
                   ),
                 )
@@ -398,7 +426,8 @@ class PickerBottomSheet extends StatefulWidget {
   final String? icon;
   final String? name;
   final int? id;
-  final Function({String? name, String? icon, int? id}) onSubmit;
+  final Function({String? name, String? icon}) onAddPlan;
+  final Function({String? name, String? icon, int? id}) onUpdatePlan;
   final Function(int id) onDelete;
   const PickerBottomSheet(
       {Key? key,
@@ -406,7 +435,8 @@ class PickerBottomSheet extends StatefulWidget {
       this.icon,
       this.name,
       this.id,
-      required this.onSubmit,
+      required this.onAddPlan,
+      required this.onUpdatePlan,
       required this.onDelete})
       : super(key: key);
 
@@ -466,11 +496,19 @@ class _PickerBottomSheetState extends State<PickerBottomSheet> {
                 height: 30,
                 child: CButton(
                   onPressed: () {
-                    //修改规划
-                    widget.onSubmit(
+                    if (widget.id == null) {
+                      //添加
+                      widget.onAddPlan(
                         name: _nameController.text,
                         icon: selectedIcon,
-                        id: widget.id);
+                      );
+                    } else {
+                      //修改
+                      widget.onUpdatePlan(
+                          name: _nameController.text,
+                          icon: selectedIcon,
+                          id: widget.id);
+                    }
                     Navigator.pop(context);
                   },
                   text: '确认',
@@ -554,7 +592,6 @@ class _PickerBottomSheetState extends State<PickerBottomSheet> {
                             children: icons
                                 .map((item) => GestureDetector(
                                       onTap: () {
-                                        print(item);
                                         setState(() {
                                           selectedIcon = item;
                                         }); // 刷新界面以显示选中的图标
