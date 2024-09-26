@@ -545,8 +545,8 @@ class _PickerBottomSheetState extends State<PickerBottomSheet> {
                 child: TextField(
                   controller: _nameController,
                   decoration: InputDecoration(
-                    labelText: widget.title,
                     border: OutlineInputBorder(),
+                    hintText: '${widget.title}准备吃...',
                   ),
                   onTap: () {
                     // 滚动到输入框位置
@@ -621,5 +621,11 @@ class _PickerBottomSheetState extends State<PickerBottomSheet> {
         ],
       ),
     );
+  }
+
+  @override
+  void dispose() {
+    _nameController.dispose();
+    super.dispose();
   }
 }

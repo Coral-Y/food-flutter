@@ -13,7 +13,9 @@ class RecipeList extends StatefulWidget {
 }
 
 class _RecipeListState extends State<RecipeList> {
+  Kind kind = Kind(name: '全部', icon: Twemoji.shallow_pan_of_food); //当前分类
   final List<Kind> kinds = [
+    Kind(name: '全部', icon: Twemoji.shallow_pan_of_food),
     Kind(name: '荤菜', icon: Twemoji.shallow_pan_of_food),
     Kind(name: '素菜', icon: Twemoji.green_salad),
     Kind(name: '主食', icon: Twemoji.cooked_rice),
@@ -58,6 +60,9 @@ class _RecipeListState extends State<RecipeList> {
                         itemBuilder: (BuildContext context, int index) {
                           return InkWell(
                             onTap: () {
+                              setState(() {
+                                kind = kinds[index];
+                              });
                               Navigator.of(context).pop();
                             },
                             child: Row(
@@ -92,7 +97,7 @@ class _RecipeListState extends State<RecipeList> {
                     children: [
                       Builder(builder: (context) {
                         return FilledButton.icon(
-                          label: const Text('全部'),
+                          label: Text(kind.name),
                           icon: const Iconify(
                             Cil.list,
                             color: Colors.white,
@@ -117,7 +122,8 @@ class _RecipeListState extends State<RecipeList> {
                       ),
                       FilledButton.icon(
                         onPressed: () {
-                          Navigator.of(context).pushNamed('/editRecipe');
+                          Navigator.of(context).pushNamed('/editRecipe',
+                              arguments: {"kind": kind});
                         },
                         label: const Text('添加'),
                         icon: const Iconify(

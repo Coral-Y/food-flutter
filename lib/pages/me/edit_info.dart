@@ -109,4 +109,10 @@ class _EditInfoState extends State<EditInfo> {
       )),
     );
   }
+
+  @override
+  void dispose() {
+    _nicknameController.dispose(); // 销毁控制器
+    super.dispose();
+  }
 }

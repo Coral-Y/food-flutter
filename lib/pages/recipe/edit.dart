@@ -20,8 +20,27 @@ class EditRecipe extends StatefulWidget {
 }
 
 class _EditRecipeState extends State<EditRecipe> {
-  final Recipe recipe = Recipe(name: '', image: '');
+  final TextEditingController _ingredientController =
+      TextEditingController(); //食材输入框控制器
+  final FocusNode _ingredientFocusNode = FocusNode(); // 食材 FocusNode
+  final TextEditingController _seasoningController =
+      TextEditingController(); //调料输入框控制器
+  final FocusNode _seasoningFocusNode = FocusNode(); // 调料 FocusNode
+  final Recipe recipe = Recipe(
+    name: '',
+    image: '',
+  );
   File? _image;
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    final args =
+        ModalRoute.of(context)!.settings.arguments as Map<String, dynamic>;
+    if (args['kind'].name != '全部') {
+      recipe.kind = args['kind'];
+    }
+  }
 
   Future<void> _pickImage() async {
     final pickedFile =
@@ -84,9 +103,6 @@ class _EditRecipeState extends State<EditRecipe> {
 
   @override
   Widget build(BuildContext context) {
-    final TextEditingController ingredientController = TextEditingController();
-    String ingredient = '';
-
     return Scaffold(
       body: SafeArea(
         child: Padding(
@@ -102,13 +118,24 @@ class _EditRecipeState extends State<EditRecipe> {
                     const SizedBox(
                       height: 5,
                     ),
-                    TextField(
-                      decoration: const InputDecoration(
-                          border: OutlineInputBorder(), labelText: '名称'),
-                      onChanged: (value) {
-                        recipe.name = value;
-                      },
-                    ),
+                    Row(children: [
+                      const Text(
+                        '名称',
+                        style: TextStyle(fontSize: 16),
+                      ),
+                      const SizedBox(
+                        width: 25,
+                      ),
+                      Expanded(
+                        child: TextField(
+                          decoration: const InputDecoration(
+                              border: OutlineInputBorder(), hintText: '请输入名称'),
+                          onChanged: (value) {
+                            recipe.name = value;
+                          },
+                        ),
+                      )
+                    ]),
                     const SizedBox(
                       height: 15,
                     ),
@@ -193,22 +220,26 @@ class _EditRecipeState extends State<EditRecipe> {
                         ),
                         Expanded(
                           child: TextField(
-                            controller: ingredientController,
-                            onChanged: (value) {
-                              ingredient = value;
-                            },
-                          ),
+                              controller: _ingredientController,
+                              focusNode: _ingredientFocusNode,
+                              decoration: const InputDecoration(
+                                  border: OutlineInputBorder(),
+                                  hintText: '请输入食材')),
                         ),
                         const SizedBox(
                           width: 5,
                         ),
                         InkWell(
                           onTap: () {
-                            setState(() {
-                              recipe.ingredients.add(ingredient);
-                            });
-                            ingredient = '';
-                            ingredientController.clear();
+                            if (_ingredientController.text != null &&
+                                !_ingredientController.text.isEmpty) {
+                              print(_ingredientController.text);
+                              setState(() {
+                                recipe.ingredients
+                                    .add(_ingredientController.text);
+                              });
+                              _ingredientController.clear();
+                            }
                           },
                           child: const Iconify(MdiLight.plus_circle),
                         )
@@ -217,12 +248,23 @@ class _EditRecipeState extends State<EditRecipe> {
                     if (recipe.ingredients.isNotEmpty)
                       TagList(
                         tags: recipe.ingredients,
-                        onDoubleTap: (item) {
+                        onDeleted: (item) {
                           setState(() {
                             recipe.ingredients.remove(item);
                           });
                         },
+                        onDoubleTap: (item) {
+                          setState(() {
+                            print(item);
+                            _ingredientController.text = item;
+                            recipe.ingredients.remove(item);
+                          });
+                          _ingredientFocusNode.requestFocus(); // 请求焦点
+                        },
                       ),
+                    const SizedBox(
+                      height: 15,
+                    ),
                     Row(
                       children: [
                         const Text(
@@ -234,22 +276,49 @@ class _EditRecipeState extends State<EditRecipe> {
                         ),
                         Expanded(
                           child: TextField(
-                            onChanged: (value) {
-                              setState(() {
-                                recipe.name = value;
-                              });
-                            },
+                            controller: _seasoningController,
+                            focusNode: _seasoningFocusNode,
+                            decoration: const InputDecoration(
+                                border: OutlineInputBorder(),
+                                hintText: '请输入调料'),
                           ),
                         ),
                         const SizedBox(
                           width: 5,
                         ),
                         InkWell(
-                          onTap: () {},
+                          onTap: () {
+                            if (_seasoningController.text != null &&
+                                !_seasoningController.text.isEmpty) {
+                              setState(() {
+                                recipe.seasonings ??= [];
+                                recipe.seasonings
+                                    ?.add(_seasoningController.text);
+                              });
+                              _seasoningController.clear();
+                            }
+                          },
                           child: const Iconify(MdiLight.plus_circle),
                         )
                       ],
                     ),
+                    if (recipe.seasonings != null)
+                      TagList(
+                        tags: recipe.seasonings!,
+                        onDeleted: (item) {
+                          setState(() {
+                            recipe.seasonings!.remove(item);
+                          });
+                        },
+                        onDoubleTap: (item) {
+                          setState(() {
+                            print(item);
+                            _seasoningController.text = item;
+                            recipe.seasonings!.remove(item);
+                          });
+                          _seasoningFocusNode.requestFocus(); // 请求焦点
+                        },
+                      ),
                     Row(
                       children: [
                         const Text(
@@ -315,7 +384,9 @@ class _EditRecipeState extends State<EditRecipe> {
 class TagList extends StatelessWidget {
   final List<String> tags;
   final void Function(String)? onDoubleTap;
-  const TagList({super.key, required this.tags, this.onDoubleTap});
+  final void Function(String)? onDeleted;
+  const TagList(
+      {super.key, required this.tags, this.onDeleted, this.onDoubleTap});
 
   @override
   Widget build(BuildContext context) {
@@ -330,15 +401,18 @@ class TagList extends StatelessWidget {
                 onDoubleTap!(item);
               }
             },
-            child: Container(
-              padding: const EdgeInsets.symmetric(horizontal: 5),
-              decoration: BoxDecoration(
-                border: Border.all(
-                  color: Theme.of(context).colorScheme.primary,
-                ),
-                borderRadius: BorderRadius.circular(4), // 设置圆角半径
+            child: Chip(
+              label: Text(item),
+              labelStyle: TextStyle(color: Color(0xffd4939d)),
+              shape: RoundedRectangleBorder(
+                side: BorderSide(color: Color(0xffd4939d), width: 1),
+                borderRadius: BorderRadius.circular(4),
               ),
-              child: Text(item),
+              deleteIcon: const Iconify(MdiLight.minus_circle,
+                  color: Color(0xffd4939d)),
+              onDeleted: () {
+                onDeleted!(item);
+              },
             ),
           );
         }).toList(),
