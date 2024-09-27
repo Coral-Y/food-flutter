@@ -4,8 +4,9 @@ import 'package:iconify_flutter/icons/cil.dart';
 
 class Header extends StatelessWidget {
   final String title;
+  final Widget? icon;
 
-  const Header({super.key, required this.title});
+  const Header({super.key, required this.title, this.icon});
 
   @override
   Widget build(BuildContext context) {
@@ -23,10 +24,20 @@ class Header extends StatelessWidget {
               size: 20,
             ),
           ),
-          Text(
-            title,
-            style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
-          )
+          Row(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              if (icon != null) ...[
+                icon!,
+                const SizedBox(width: 2),
+              ],
+              Text(
+                title,
+                style:
+                    const TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
+              ),
+            ],
+          ),
         ],
       ),
     );

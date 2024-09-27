@@ -545,6 +545,7 @@ class _PickerBottomSheetState extends State<PickerBottomSheet> {
                 child: TextField(
                   controller: _nameController,
                   decoration: InputDecoration(
+                    label: Text(widget.title!),
                     border: OutlineInputBorder(),
                     hintText: '${widget.title}准备吃...',
                   ),

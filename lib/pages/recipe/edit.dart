@@ -20,6 +20,7 @@ class EditRecipe extends StatefulWidget {
 }
 
 class _EditRecipeState extends State<EditRecipe> {
+  String _title = '新增';
   final TextEditingController _ingredientController =
       TextEditingController(); //食材输入框控制器
   final FocusNode _ingredientFocusNode = FocusNode(); // 食材 FocusNode
@@ -28,7 +29,7 @@ class _EditRecipeState extends State<EditRecipe> {
   final FocusNode _seasoningFocusNode = FocusNode(); // 调料 FocusNode
   final TextEditingController _instructionController =
       TextEditingController(); //步骤输入框控制器
-  final FocusNode _instructionFocusNode = FocusNode(); // 步骤 FocusNode
+  final List<TextEditingController> _stepscontrollers = [];
   final Recipe recipe = Recipe(
     name: '',
     image: '',
@@ -40,6 +41,10 @@ class _EditRecipeState extends State<EditRecipe> {
     super.didChangeDependencies();
     final args =
         ModalRoute.of(context)!.settings.arguments as Map<String, dynamic>;
+    if (args['id'] != null) {
+      _title = '编辑';
+      return;
+    }
     if (args['kind'].name != '全部') {
       recipe.kind = args['kind'];
     }
@@ -112,7 +117,7 @@ class _EditRecipeState extends State<EditRecipe> {
           padding: const EdgeInsets.fromLTRB(15, 10, 15, 10),
           child: Column(
             children: [
-              const Header(title: '编辑食谱'),
+              Header(title: '$_title食谱'),
               Expanded(
                   child: SingleChildScrollView(
                 child: Column(
@@ -337,8 +342,8 @@ class _EditRecipeState extends State<EditRecipe> {
                         Expanded(
                           child: TextField(
                             controller: _instructionController,
-                            focusNode: _instructionFocusNode,
                             maxLines: null,
+                            textInputAction: TextInputAction.done,
                             decoration: const InputDecoration(
                                 border: OutlineInputBorder(),
                                 hintText: '请输入步骤'),
@@ -350,10 +355,13 @@ class _EditRecipeState extends State<EditRecipe> {
                         InkWell(
                           onTap: () {
                             if (_instructionController.text.isNotEmpty) {
+                              final controller = TextEditingController();
+                              controller.text = _instructionController.text;
                               setState(() {
                                 recipe.instructions ??= [];
                                 recipe.instructions
                                     ?.add(_instructionController.text);
+                                _stepscontrollers.add(controller); //添加步骤控制器
                               });
                               _instructionController.clear();
                             }
@@ -365,45 +373,48 @@ class _EditRecipeState extends State<EditRecipe> {
                     if (recipe.instructions != null)
                       StepList(
                         steps: recipe.instructions!,
+                        stepsController: _stepscontrollers,
                         onDeleted: (index) {
                           setState(() {
+                            _stepscontrollers[index].dispose(); // 释放步骤控制器
+                            _stepscontrollers.removeAt(index); // 移除步骤控制器
                             recipe.instructions!.removeAt(index);
                           });
                         },
-                        onDoubleTap: (item) {
+                        onChanged: (index, value) {
                           setState(() {
-                            print(item);
-                            _instructionController.text = item;
+                            recipe.instructions![index] = value; // 更新步骤内容
                           });
-                          _instructionFocusNode.requestFocus(); // 请求焦点
                         },
                       ),
                     const SizedBox(
-                      height: 25,
+                      height: 10,
                     ),
-                    Row(
-                      children: [
-                        Expanded(
-                          child: CButton(
-                            onPressed: () {},
-                            text: '取消',
-                            type: 'secondary',
-                          ),
-                        ),
-                        const SizedBox(
-                          width: 25,
-                        ),
-                        Expanded(
-                          child: CButton(
-                            onPressed: () {},
-                            text: '确认',
-                          ),
-                        ),
-                      ],
-                    )
                   ],
                 ),
-              ))
+              )),
+              Container(
+                  padding: const EdgeInsets.all(10),
+                  child: Row(
+                    children: [
+                      Expanded(
+                        child: CButton(
+                          onPressed: () {},
+                          text: '取消',
+                          type: 'secondary',
+                        ),
+                      ),
+                      const SizedBox(
+                        width: 25,
+                      ),
+                      Expanded(
+                        child: CButton(
+                          onPressed: () {},
+                          text: '确认',
+                        ),
+                      ),
+                    ],
+                  )),
             ],
           ),
         ),
@@ -452,41 +463,57 @@ class TagList extends StatelessWidget {
   }
 }
 
-class StepList extends StatelessWidget {
+class StepList extends StatefulWidget {
   final List<String> steps;
-  final void Function(String)? onDoubleTap;
+  final List<TextEditingController> stepsController;
   final void Function(int)? onDeleted;
+  final Function(int, String) onChanged;
 
-  const StepList(
-      {super.key, required this.steps, this.onDeleted, this.onDoubleTap});
+  const StepList({
+    super.key,
+    required this.steps,
+    required this.stepsController,
+    this.onDeleted,
+    required this.onChanged,
+  });
 
+  @override
+  State<StepList> createState() => _StepListState();
+}
+
+class _StepListState extends State<StepList> {
   @override
   Widget build(BuildContext context) {
     return Column(
       children: [
-        for (int index = 0; index < steps.length; index++)
+        for (int index = 0; index < widget.steps.length; index++)
           Container(
-            key: ValueKey(steps[index]),
-            padding: const EdgeInsets.all(8.0),
-            decoration: BoxDecoration(
-              borderRadius: BorderRadius.circular(4),
-            ),
+            padding: const EdgeInsets.all(2.0),
             child: InkWell(
-              onDoubleTap: () {
-                if (onDoubleTap != null) {
-                  onDoubleTap!(steps[index]);
-                }
-              },
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
+                  Text('${index + 1}. '),
                   Expanded(
-                    child: Text('${index + 1}. ${steps[index]}'),
+                    child: TextField(
+                      controller: widget.stepsController[index],
+                      maxLines: null,
+                      textInputAction: TextInputAction.done,
+                      decoration: InputDecoration(
+                        hintText: '请输入步骤 ${index + 1}',
+                        border: InputBorder.none,
+                      ),
+                      onEditingComplete: () {
+                        widget.onChanged(
+                            index, widget.stepsController[index].text);
+                      },
+                    ),
                   ),
                   IconButton(
-                    icon: const Iconify(MdiLight.minus_circle),
-                    onPressed: () => onDeleted!(index),
-                  ),
+                      icon: const Iconify(MdiLight.minus_circle),
+                      onPressed: () {
+                        widget.onDeleted!(index);
+                      }),
                 ],
               ),
             ),
