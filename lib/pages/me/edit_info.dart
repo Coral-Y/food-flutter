@@ -94,7 +94,7 @@ class _EditInfoState extends State<EditInfo> {
             ),
             TextField(
               controller: _nicknameController,
-              decoration: InputDecoration(
+              decoration: const InputDecoration(
                   border: OutlineInputBorder(), labelText: '用户名'),
             ),
             const SizedBox(

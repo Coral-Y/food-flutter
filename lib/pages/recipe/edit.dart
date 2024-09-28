@@ -21,6 +21,8 @@ class EditRecipe extends StatefulWidget {
 
 class _EditRecipeState extends State<EditRecipe> {
   String _title = '新增';
+  final TextEditingController _nameController =
+      TextEditingController(); //名称输入框控制器
   final TextEditingController _ingredientController =
       TextEditingController(); //食材输入框控制器
   final FocusNode _ingredientFocusNode = FocusNode(); // 食材 FocusNode
@@ -29,8 +31,8 @@ class _EditRecipeState extends State<EditRecipe> {
   final FocusNode _seasoningFocusNode = FocusNode(); // 调料 FocusNode
   final TextEditingController _instructionController =
       TextEditingController(); //步骤输入框控制器
-  final List<TextEditingController> _stepscontrollers = [];
-  final Recipe recipe = Recipe(
+  List<TextEditingController> _stepscontrollers = [];
+  Recipe recipe = Recipe(
     name: '',
     image: '',
   );
@@ -43,6 +45,21 @@ class _EditRecipeState extends State<EditRecipe> {
         ModalRoute.of(context)!.settings.arguments as Map<String, dynamic>;
     if (args['id'] != null) {
       _title = '编辑';
+      //模拟接口返回
+
+      recipe = Recipe(
+          id: 1,
+          name: '沙拉',
+          image: 'assets/images/salad.png',
+          kind: Kind(name: '素菜', icon: Twemoji.green_salad),
+          ingredients: ['生菜', '黑椒猪肉肠', '鸡蛋'],
+          instructions: ['把鱿鱼表面清洗干净', '热油，放入蒜片和姜片', '热油', ' 搅拌均匀'],
+          seasonings: ["沙拉酱"]);
+
+      _nameController.text = recipe.name;
+      _stepscontrollers = recipe.instructions!
+          .map((instruction) => TextEditingController(text: instruction))
+          .toList();
       return;
     }
     if (args['kind'].name != '全部') {
@@ -123,9 +140,7 @@ class _EditRecipeState extends State<EditRecipe> {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    const SizedBox(
-                      height: 5,
-                    ),
+                    const SizedBox(height: 5),
                     Row(children: [
                       const Text(
                         '名称',
@@ -136,6 +151,7 @@ class _EditRecipeState extends State<EditRecipe> {
                       ),
                       Expanded(
                         child: TextField(
+                          controller: _nameController,
                           decoration: const InputDecoration(
                               border: OutlineInputBorder(), hintText: '请输入名称'),
                           onChanged: (value) {
@@ -144,9 +160,7 @@ class _EditRecipeState extends State<EditRecipe> {
                         ),
                       )
                     ]),
-                    const SizedBox(
-                      height: 15,
-                    ),
+                    const SizedBox(height: 15),
                     Row(
                       children: [
                         const Text(
@@ -171,9 +185,7 @@ class _EditRecipeState extends State<EditRecipe> {
                         )
                       ],
                     ),
-                    const SizedBox(
-                      height: 15,
-                    ),
+                    const SizedBox(height: 15),
                     Row(
                       children: [
                         const Text(
@@ -185,7 +197,9 @@ class _EditRecipeState extends State<EditRecipe> {
                         ),
                         InkWell(
                             onTap: _pickImage,
-                            child: _image == null
+                            child: (_image == null &&
+                                    (recipe.image == null ||
+                                        recipe.image!.isEmpty))
                                 ? DottedBorder(
                                     borderType: BorderType.RRect,
                                     radius: const Radius.circular(4),
@@ -194,7 +208,8 @@ class _EditRecipeState extends State<EditRecipe> {
                                     child: const Iconify(
                                       Cil.plus,
                                       size: 40,
-                                    ))
+                                    ),
+                                  )
                                 : Container(
                                     width: 160,
                                     height: 90,
@@ -204,12 +219,17 @@ class _EditRecipeState extends State<EditRecipe> {
                                             .colorScheme
                                             .primary,
                                       ),
-                                      borderRadius:
-                                          BorderRadius.circular(10.0), // 设置圆角半径
-                                      image: DecorationImage(
-                                        image: FileImage(_image!), // 替换为你的图片路径
-                                        fit: BoxFit.cover, // 控制图片的缩放和裁剪方式
-                                      ),
+                                      borderRadius: BorderRadius.circular(10.0),
+                                      image: _image == null
+                                          ? DecorationImage(
+                                              image: AssetImage(
+                                                  recipe.image), //网络图片
+                                              fit: BoxFit.cover, // 确保图片覆盖整个容器
+                                            )
+                                          : DecorationImage(
+                                              image: FileImage(_image!), //本地文件
+                                              fit: BoxFit.cover,
+                                            ),
                                     ),
                                   ))
                       ],
@@ -270,9 +290,7 @@ class _EditRecipeState extends State<EditRecipe> {
                           _ingredientFocusNode.requestFocus(); // 请求焦点
                         },
                       ),
-                    const SizedBox(
-                      height: 15,
-                    ),
+                    const SizedBox(height: 15),
                     Row(
                       children: [
                         const Text(
@@ -327,9 +345,7 @@ class _EditRecipeState extends State<EditRecipe> {
                           _seasoningFocusNode.requestFocus(); // 请求焦点
                         },
                       ),
-                    const SizedBox(
-                      height: 15,
-                    ),
+                    const SizedBox(height: 15),
                     Row(
                       children: [
                         const Text(
@@ -387,9 +403,7 @@ class _EditRecipeState extends State<EditRecipe> {
                           });
                         },
                       ),
-                    const SizedBox(
-                      height: 10,
-                    ),
+                    const SizedBox(height: 10),
                   ],
                 ),
               )),
@@ -404,15 +418,8 @@ class _EditRecipeState extends State<EditRecipe> {
                           type: 'secondary',
                         ),
                       ),
-                      const SizedBox(
-                        width: 25,
-                      ),
-                      Expanded(
-                        child: CButton(
-                          onPressed: () {},
-                          text: '确认',
-                        ),
-                      ),
+                      const SizedBox(width: 25),
+                      Expanded(child: CButton(onPressed: () {}, text: '确认')),
                     ],
                   )),
             ],
@@ -420,6 +427,20 @@ class _EditRecipeState extends State<EditRecipe> {
         ),
       ),
     );
+  }
+
+  @override
+  void dispose() {
+    // 释放所有控制器
+    _ingredientController.dispose();
+    _ingredientFocusNode.dispose();
+    _seasoningController.dispose();
+    _seasoningFocusNode.dispose();
+    _instructionController.dispose();
+    for (var controller in _stepscontrollers) {
+      controller.dispose();
+    }
+    super.dispose();
   }
 }
 

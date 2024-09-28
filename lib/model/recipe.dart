@@ -6,6 +6,7 @@ part 'recipe.g.dart';
 
 @JsonSerializable()
 class Recipe {
+  int? id;
   String name; // 名称
   String image; // 图片
   @JsonKey(
@@ -19,7 +20,8 @@ class Recipe {
   static Map<String, dynamic>? kindToJson(Kind? value) => value?.toJson();
 
   Recipe(
-      {required this.name,
+      {this.id,
+      required this.name,
       required this.image,
       List<String>? ingredients,
       this.seasonings,

@@ -8,6 +8,7 @@ import 'package:food/pages/me/index.dart';
 import 'package:food/pages/module/list.dart';
 import 'package:food/pages/recipe/detail.dart';
 import 'package:food/pages/recipe/edit.dart';
+import 'package:food/pages/recipe/step.dart';
 import 'package:food/pages/sign_in/index.dart';
 
 void main() {
@@ -37,6 +38,7 @@ class MyApp extends StatelessWidget {
         '/home': (context) => const Home(),
         '/recipeDetail': (context) => const RecipeDetail(),
         '/editRecipe': (context) => const EditRecipe(),
+        '/recipeStep': (context) => const StepPage(),
         '/me': (context) => const Me(),
         '/editInfo': (context) => const EditInfo(),
         '/contactUs': (context) => const ContactUs(),
