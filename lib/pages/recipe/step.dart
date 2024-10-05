@@ -58,16 +58,22 @@ class _StepPageState extends State<StepPage> {
                   ),
                   const SizedBox(height: 15),
                   // 显示步骤图片
-                  Container(
-                    width: 200,
-                    height: 200,
-                    decoration: BoxDecoration(
-                      image: DecorationImage(
-                        image: AssetImage(recipe.image),
-                        fit: BoxFit.cover,
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Container(
+                        width: 200,
+                        height: 200,
+                        decoration: BoxDecoration(
+                          image: DecorationImage(
+                            image: AssetImage(recipe.image),
+                            fit: BoxFit.cover,
+                          ),
+                        ),
                       ),
-                    ),
+                    ],
                   ),
+
                   const SizedBox(height: 20),
                   // 当前步骤
                   Expanded(

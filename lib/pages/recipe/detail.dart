@@ -113,8 +113,11 @@ class _RecipeDetailState extends State<RecipeDetail> {
                               (index) {
                             return Column(
                               children: [
-                                Text(
-                                    '${index + 1}. ${recipe.instructions![index]}'),
+                                Align(
+                                  alignment: Alignment.centerLeft, // 将文本对齐到左侧
+                                  child: Text(
+                                      '${index + 1}. ${recipe.instructions![index]}'),
+                                ),
                                 const SizedBox(height: 20),
                               ],
                             );
