@@ -11,16 +11,38 @@ class Request {
   // 创建Dio实例
   Dio _createDio(String baseUrl) {
     Dio instance = Dio(BaseOptions(
-        baseUrl: baseUrl, connectTimeout: const Duration(seconds: 10)));
+      baseUrl: baseUrl,
+      connectTimeout: const Duration(seconds: 10),
+      headers: {
+        'Authorization': '',
+        'Content-Type': 'application/json',
+      },
+    ));
 
     return instance;
   }
 
+  // 更新请求头
+  void setHeaders(Map<String, dynamic> headers) {
+    dio.options.headers.addAll(headers);
+  }
+
   // 发送请求
-  Future<T> request<T>(String path, {String method = 'get'}) async {
+  Future<T> request<T>(
+    String path, {
+    String method = 'get',
+    Map<String, dynamic>? params,
+    Map<String, dynamic>? data,
+    Map<String, dynamic>? headers,
+  }) async {
     try {
-      Response response =
-          await dio.request(path, options: Options(method: method));
+      Response response = await dio.request(path,
+          data: data,
+          queryParameters: params,
+          options: Options(
+            method: method,
+            headers: headers,
+          ));
       if (response.data is Map) {
         return response.data;
       }
@@ -41,5 +63,25 @@ class Request {
       // 处理其他异常
       return Future.error(e);
     }
+  }
+
+  Future<T> get<T>(String path,
+      {Map<String, dynamic>? params, Map<String, dynamic>? headers}) {
+    return request(path, method: 'GET', params: params);
+  }
+
+  Future<T> post<T>(String path,
+      {Map<String, dynamic>? data, Map<String, dynamic>? headers}) {
+    return request(path, method: 'POST', data: data);
+  }
+
+  Future<T> put<T>(String path,
+      {Map<String, dynamic>? data, Map<String, dynamic>? headers}) {
+    return request(path, method: 'PUT', data: data);
+  }
+
+  Future<T> delete<T>(String path,
+      {Map<String, dynamic>? data, Map<String, dynamic>? headers}) {
+    return request(path, method: 'DELETE', data: data);
   }
 }
