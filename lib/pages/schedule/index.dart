@@ -1,14 +1,13 @@
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/widgets.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:food/model/dish.dart';
 import 'package:food/widgets/c_button.dart';
 import 'package:reorderables/reorderables.dart';
-import 'package:food/api/icon.dart';
+import 'package:food/services/api/icon.dart';
 import 'package:food/model/common.dart';
 import 'package:food/model/icon.dart';
-import 'package:flutter_svg/flutter_svg.dart';
+import 'package:food/config.dart';
+import 'package:food/model/exception.dart';
 
 class WeeklySchedule extends StatefulWidget {
   const WeeklySchedule({super.key});
@@ -58,9 +57,17 @@ class _ScheduleState extends State<WeeklySchedule> {
   @override
   void didChangeDependencies() async {
     super.didChangeDependencies();
-    IconApi api = IconApi();
-    Pager<FoodIcon> data = await api.list('dish');
-    icons = data.list.map((icon) => icon.enName).toList();
+    try {
+      IconApi api = IconApi();
+      Pager<FoodIcon> data = await api.list('dish');
+      icons = data.list.map((icon) => icon.enName).toList();
+    } catch (e) {
+      if (e is ApiException) {
+        print("错误码 ： ${e.code}, 错误 ：  ${e.message}");
+      } else {
+        print("其他错误: $e");
+      }
+    }
   }
 
   // 更新当前日期
@@ -537,7 +544,7 @@ class _PickerBottomSheetState extends State<PickerBottomSheet> {
             children: [
               if (selectedIcon != null && selectedIcon!.isNotEmpty) ...[
                 SvgPicture.network(
-                  'http://192.168.0.193:7001/public/icon/$selectedIcon.svg',
+                  '$ICON_SERVER_URI$selectedIcon.svg',
                   width: 40,
                   height: 40,
                 )
@@ -610,7 +617,7 @@ class _PickerBottomSheetState extends State<PickerBottomSheet> {
                                         });
                                       },
                                       child: SvgPicture.network(
-                                        'http://192.168.0.193:7001/public/icon/$item.svg',
+                                        '$ICON_SERVER_URI$item.svg',
                                         placeholderBuilder: (BuildContext
                                                 context) =>
                                             const CircularProgressIndicator(),

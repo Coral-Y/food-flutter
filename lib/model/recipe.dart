@@ -32,4 +32,9 @@ class Recipe {
   factory Recipe.fromJson(Map<String, dynamic> json) => _$RecipeFromJson(json);
 
   Map<String, dynamic> toJson() => _$RecipeToJson(this);
+
+  @override
+  String toString() {
+    return 'Recipe{id: $id, name: $name, image: $image, ingredients: $ingredients, seasonings: $seasonings, kind: $kind, instructions: $instructions}';
+  }
 }
