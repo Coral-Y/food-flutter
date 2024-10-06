@@ -53,6 +53,7 @@ dependencies:
   json_annotation: ^4.9.0
   # 拖拽
   reorderables: ^0.6.0
+  
 
 dev_dependencies:
   flutter_test:

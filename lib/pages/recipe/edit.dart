@@ -33,6 +33,7 @@ class _EditRecipeState extends State<EditRecipe> {
       TextEditingController(); //步骤输入框控制器
   List<TextEditingController> _stepscontrollers = [];
   Recipe recipe = Recipe(
+    id: 0,
     name: '',
     image: '',
   );

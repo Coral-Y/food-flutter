@@ -5,6 +5,10 @@ import 'package:flutter_svg/flutter_svg.dart';
 import 'package:food/model/dish.dart';
 import 'package:food/widgets/c_button.dart';
 import 'package:reorderables/reorderables.dart';
+import 'package:food/api/icon.dart';
+import 'package:food/model/common.dart';
+import 'package:food/model/icon.dart';
+import 'package:flutter_svg/flutter_svg.dart';
 
 class WeeklySchedule extends StatefulWidget {
   const WeeklySchedule({super.key});
@@ -49,6 +53,15 @@ class _ScheduleState extends State<WeeklySchedule> {
         type: 1,
         date: DateTime(2024, 8, 27)),
   ];
+  List<String> icons = [];
+
+  @override
+  void didChangeDependencies() async {
+    super.didChangeDependencies();
+    IconApi api = IconApi();
+    Pager<FoodIcon> data = await api.list('dish');
+    icons = data.list.map((icon) => icon.enName).toList();
+  }
 
   // 更新当前日期
   void updateCurrent(DateTime newDate) {
@@ -88,9 +101,6 @@ class _ScheduleState extends State<WeeklySchedule> {
 
   //更新排序
   void reordering(int oldIndex, int newIndex) {
-    print(oldIndex);
-    print(newIndex);
-
     setState(() {
       Dish row = breakfast.removeAt(oldIndex);
       breakfast.insert(newIndex, row);
@@ -129,6 +139,7 @@ class _ScheduleState extends State<WeeklySchedule> {
             icon: icon,
             name: name,
             id: id,
+            icons: icons,
             onAddPlan: addPlan,
             onUpdatePlan: updatePlan,
             onDelete: deletePlan);
@@ -429,6 +440,7 @@ class PickerBottomSheet extends StatefulWidget {
   final Function({String? name, String? icon}) onAddPlan;
   final Function({String? name, String? icon, int? id}) onUpdatePlan;
   final Function(int id) onDelete;
+  final List<String> icons;
   const PickerBottomSheet(
       {Key? key,
       this.title,
@@ -436,6 +448,7 @@ class PickerBottomSheet extends StatefulWidget {
       this.name,
       this.id,
       required this.onAddPlan,
+      required this.icons,
       required this.onUpdatePlan,
       required this.onDelete})
       : super(key: key);
@@ -459,7 +472,6 @@ class _PickerBottomSheetState extends State<PickerBottomSheet> {
   Widget build(BuildContext context) {
     var tabs = ['assets/icons/emoji.svg', 'assets/icons/recipe.svg'];
     var recipes = ['水煮牛肉', '拆骨肉荷包蛋', '鸡翅包饭'];
-    var icons = ['egg', 'cookie', 'bread', 'peach', 'pear'];
 
     return Container(
       height: 500,
@@ -524,8 +536,8 @@ class _PickerBottomSheetState extends State<PickerBottomSheet> {
           Row(
             children: [
               if (selectedIcon != null && selectedIcon!.isNotEmpty) ...[
-                SvgPicture.asset(
-                  'assets/icons/ingredients/$selectedIcon.svg',
+                SvgPicture.network(
+                  'http://192.168.0.193:7001/public/icon/$selectedIcon.svg',
                   width: 40,
                   height: 40,
                 )
@@ -590,15 +602,18 @@ class _PickerBottomSheetState extends State<PickerBottomSheet> {
                             crossAxisCount: 10,
                             mainAxisSpacing: 4,
                             crossAxisSpacing: 8,
-                            children: icons
+                            children: widget.icons
                                 .map((item) => GestureDetector(
                                       onTap: () {
                                         setState(() {
                                           selectedIcon = item;
-                                        }); // 刷新界面以显示选中的图标
+                                        });
                                       },
-                                      child: SvgPicture.asset(
-                                        'assets/icons/ingredients/$item.svg',
+                                      child: SvgPicture.network(
+                                        'http://192.168.0.193:7001/public/icon/$item.svg',
+                                        placeholderBuilder: (BuildContext
+                                                context) =>
+                                            const CircularProgressIndicator(),
                                       ),
                                     ))
                                 .toList(),

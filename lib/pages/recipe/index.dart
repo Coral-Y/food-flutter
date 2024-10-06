@@ -4,6 +4,7 @@ import 'package:food/model/recipe.dart';
 import 'package:iconify_flutter/iconify_flutter.dart';
 import 'package:iconify_flutter/icons/cil.dart';
 import 'package:colorful_iconify_flutter/icons/twemoji.dart';
+import 'package:food/api/recipe.dart';
 
 class RecipeList extends StatefulWidget {
   const RecipeList({super.key});
@@ -22,9 +23,19 @@ class _RecipeListState extends State<RecipeList> {
     Kind(name: '汤羹', icon: Twemoji.pot_of_food),
   ];
   final List<Recipe> recipes = [
-    Recipe(name: '沙拉', image: 'assets/images/salad.png'),
-    Recipe(name: '汉堡', image: 'assets/images/hamburger.png')
+    Recipe(id: 1, name: '沙拉', image: 'assets/images/salad.png'),
+    Recipe(id: 1, name: '汉堡', image: 'assets/images/hamburger.png')
   ];
+
+  @override
+  void didChangeDependencies() async {
+    super.didChangeDependencies();
+    print('获取食谱列表');
+    RecipeApi api = RecipeApi();
+    var data = await api.list();
+    print(data);
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(

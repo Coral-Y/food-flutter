@@ -14,11 +14,9 @@ class Request {
       baseUrl: baseUrl,
       connectTimeout: const Duration(seconds: 10),
       headers: {
-        'Authorization': '',
         'Content-Type': 'application/json',
       },
     ));
-
     return instance;
   }
 
@@ -44,7 +42,10 @@ class Request {
             headers: headers,
           ));
       if (response.data is Map) {
-        return response.data;
+        var dataMap = response.data as Map<String, dynamic>;
+        if (dataMap.containsKey('data')) {
+          return dataMap['data'];
+        }
       }
       return Future.value();
     } on DioException catch (e) {
