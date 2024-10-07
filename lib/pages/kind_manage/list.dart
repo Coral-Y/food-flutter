@@ -14,11 +14,12 @@ class KindManage extends StatefulWidget {
 
 class _KindManageState extends State<KindManage> {
   final List<Kind> kinds = [
-    Kind(name: '荤菜', icon: Twemoji.shallow_pan_of_food),
-    Kind(name: '素菜', icon: Twemoji.green_salad),
-    Kind(name: '主食', icon: Twemoji.cooked_rice),
-    Kind(name: '汤羹', icon: Twemoji.pot_of_food),
+    Kind(id: 1, name: '荤菜', icon: Twemoji.shallow_pan_of_food),
+    Kind(id: 2, name: '素菜', icon: Twemoji.green_salad),
+    Kind(id: 3, name: '主食', icon: Twemoji.cooked_rice),
+    Kind(id: 4, name: '汤羹', icon: Twemoji.pot_of_food),
   ];
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(

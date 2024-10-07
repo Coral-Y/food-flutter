@@ -16,9 +16,7 @@ Recipe _$RecipeFromJson(Map<String, dynamic> json) => Recipe(
       seasonings: (json['seasonings'] as List<dynamic>?)
           ?.map((e) => e as String)
           .toList(),
-      kind: json['kind'] == null
-          ? null
-          : Kind.fromJson(json['kind'] as Map<String, dynamic>),
+      kind: Recipe.kindFromJson(json['kind'] as Map<String, dynamic>?),
       instructions: (json['instructions'] as List<dynamic>?)
           ?.map((e) => e as String)
           .toList(),

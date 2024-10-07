@@ -1,10 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:iconify_flutter/iconify_flutter.dart';
 import 'package:iconify_flutter/icons/cil.dart';
+import 'package:flutter_svg/flutter_svg.dart';
+import 'package:food/config.dart';
 
 class Header extends StatelessWidget {
   final String title;
-  final Widget? icon;
+  final String? icon;
 
   const Header({super.key, required this.title, this.icon});
 
@@ -28,7 +30,11 @@ class Header extends StatelessWidget {
             mainAxisSize: MainAxisSize.min,
             children: [
               if (icon != null) ...[
-                icon!,
+                SvgPicture.network(
+                  '$ICON_SERVER_URI$icon.svg',
+                  placeholderBuilder: (BuildContext context) =>
+                      const CircularProgressIndicator(),
+                ),
                 const SizedBox(width: 2),
               ],
               Text(

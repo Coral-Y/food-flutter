@@ -7,11 +7,13 @@ part of 'kind.dart';
 // **************************************************************************
 
 Kind _$KindFromJson(Map<String, dynamic> json) => Kind(
+      id: (json['id'] as num).toInt(),
       name: json['name'] as String,
       icon: json['icon'] as String,
     );
 
 Map<String, dynamic> _$KindToJson(Kind instance) => <String, dynamic>{
+      'id': instance.id,
       'name': instance.name,
       'icon': instance.icon,
     };

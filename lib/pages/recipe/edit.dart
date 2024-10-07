@@ -11,6 +11,9 @@ import 'package:food/widgets/header.dart';
 import 'package:iconify_flutter/iconify_flutter.dart';
 import 'package:iconify_flutter/icons/cil.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:flutter_svg/flutter_svg.dart';
+import 'package:food/config.dart';
+import 'package:food/api/kind.dart';
 
 class EditRecipe extends StatefulWidget {
   const EditRecipe({super.key});
@@ -33,38 +36,25 @@ class _EditRecipeState extends State<EditRecipe> {
       TextEditingController(); //步骤输入框控制器
   List<TextEditingController> _stepscontrollers = [];
   Recipe recipe = Recipe(
-    id: 0,
-    name: '',
-    image: '',
-  );
-  File? _image;
+      id: 0,
+      name: '',
+      image: '',
+      kind: Kind(id: 0, name: '全部', icon: Twemoji.shallow_pan_of_food));
+  List<Kind> kinds = []; //分类
+  File? _image; //图片文件
 
   @override
   void didChangeDependencies() {
     super.didChangeDependencies();
-    final args =
-        ModalRoute.of(context)!.settings.arguments as Map<String, dynamic>;
-    if (args['id'] != null) {
+    final args = ModalRoute.of(context)!.settings.arguments as Recipe;
+    recipe = args;
+    if (args.id != 0) {
       _title = '编辑';
-      //模拟接口返回
-
-      recipe = Recipe(
-          id: 1,
-          name: '沙拉',
-          image: 'assets/images/salad.png',
-          kind: Kind(name: '素菜', icon: Twemoji.green_salad),
-          ingredients: ['生菜', '黑椒猪肉肠', '鸡蛋'],
-          instructions: ['把鱿鱼表面清洗干净', '热油，放入蒜片和姜片', '热油', ' 搅拌均匀'],
-          seasonings: ["沙拉酱"]);
-
       _nameController.text = recipe.name;
       _stepscontrollers = recipe.instructions!
           .map((instruction) => TextEditingController(text: instruction))
           .toList();
       return;
-    }
-    if (args['kind'].name != '全部') {
-      recipe.kind = args['kind'];
     }
   }
 
@@ -81,13 +71,17 @@ class _EditRecipeState extends State<EditRecipe> {
     });
   }
 
-  _bottomSheet() {
-    final List<Kind> kinds = [
-      Kind(name: '荤菜', icon: Twemoji.shallow_pan_of_food),
-      Kind(name: '素菜', icon: Twemoji.green_salad),
-      Kind(name: '主食', icon: Twemoji.cooked_rice),
-      Kind(name: '汤羹', icon: Twemoji.pot_of_food),
-    ];
+  Future<void> getKindList() async {
+    try {
+      var res = await KindApi().list();
+      setState(() {
+        kinds = res.list;
+      });
+    } catch (e) {}
+  }
+
+  _bottomSheet() async {
+    await getKindList();
     showModalBottomSheet(
         context: context,
         builder: (BuildContext context) {
@@ -111,7 +105,11 @@ class _EditRecipeState extends State<EditRecipe> {
                             ),
                         itemBuilder: (BuildContext context, int index) {
                           return CListTile(
-                            leading: Iconify(kinds[index].icon),
+                            leading: SvgPicture.network(
+                              '$ICON_SERVER_URI${kinds[index].icon}.svg',
+                              placeholderBuilder: (BuildContext context) =>
+                                  const CircularProgressIndicator(),
+                            ),
                             title: kinds[index].name,
                             onTap: () {
                               setState(() {
@@ -174,11 +172,16 @@ class _EditRecipeState extends State<EditRecipe> {
                         InkWell(
                           onTap: _bottomSheet,
                           child: Chip(
-                            avatar: recipe.kind == null
+                            avatar: recipe.kind!.name == "全部"
                                 ? const CircleAvatar(
                                     backgroundColor: Color(0xfff5f5f5),
                                   )
-                                : Iconify(recipe.kind!.icon),
+                                : SvgPicture.network(
+                                    '$ICON_SERVER_URI${recipe.kind!.icon}.svg',
+                                    placeholderBuilder:
+                                        (BuildContext context) =>
+                                            const CircularProgressIndicator(),
+                                  ),
                             label: Text(recipe.kind != null
                                 ? recipe.kind!.name
                                 : '选择分类'),
@@ -414,13 +417,24 @@ class _EditRecipeState extends State<EditRecipe> {
                     children: [
                       Expanded(
                         child: CButton(
-                          onPressed: () {},
+                          onPressed: () {
+                            Navigator.of(context).pop();
+                          },
                           text: '取消',
                           type: 'secondary',
                         ),
                       ),
                       const SizedBox(width: 25),
-                      Expanded(child: CButton(onPressed: () {}, text: '确认')),
+                      Expanded(
+                          child: CButton(
+                              onPressed: () {
+                                if (recipe.id == 0) {
+                                  print('添加');
+                                  return;
+                                }
+                                print('修改');
+                              },
+                              text: '确认')),
                     ],
                   )),
             ],
@@ -467,9 +481,9 @@ class TagList extends StatelessWidget {
             },
             child: Chip(
               label: Text(item),
-              labelStyle: TextStyle(color: Color(0xffd4939d)),
+              labelStyle: const TextStyle(color: Color(0xffd4939d)),
               shape: RoundedRectangleBorder(
-                side: BorderSide(color: Color(0xffd4939d), width: 1),
+                side: const BorderSide(color: Color(0xffd4939d), width: 1),
                 borderRadius: BorderRadius.circular(4),
               ),
               deleteIcon: const Iconify(MdiLight.minus_circle,

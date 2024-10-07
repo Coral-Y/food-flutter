@@ -3,8 +3,10 @@ import 'package:food/model/kind.dart';
 import 'package:food/model/recipe.dart';
 import 'package:iconify_flutter/iconify_flutter.dart';
 import 'package:iconify_flutter/icons/cil.dart';
-import 'package:colorful_iconify_flutter/icons/twemoji.dart';
 import 'package:food/api/recipe.dart';
+import 'package:food/api/kind.dart';
+import 'package:flutter_svg/flutter_svg.dart';
+import 'package:food/config.dart';
 
 class RecipeList extends StatefulWidget {
   const RecipeList({super.key});
@@ -14,26 +16,41 @@ class RecipeList extends StatefulWidget {
 }
 
 class _RecipeListState extends State<RecipeList> {
-  Kind kind = Kind(name: '全部', icon: Twemoji.shallow_pan_of_food); //当前分类
-  final List<Kind> kinds = [
-    Kind(name: '全部', icon: Twemoji.shallow_pan_of_food),
-    Kind(name: '荤菜', icon: Twemoji.shallow_pan_of_food),
-    Kind(name: '素菜', icon: Twemoji.green_salad),
-    Kind(name: '主食', icon: Twemoji.cooked_rice),
-    Kind(name: '汤羹', icon: Twemoji.pot_of_food),
-  ];
-  final List<Recipe> recipes = [
-    Recipe(id: 1, name: '沙拉', image: 'assets/images/salad.png'),
-    Recipe(id: 1, name: '汉堡', image: 'assets/images/hamburger.png')
-  ];
+  Kind kind = Kind(id: 0, name: '全部', icon: "meat"); //当前分类
+  List<Kind> kinds = [];
+  List<Recipe> recipes = []; //食谱列表
+  int current = 0; //当前页码
+  int totalPage = 0; //总页数
+
+  Future<void> getRecipeList() async {
+    try {
+      var res = await RecipeApi().list();
+      setState(() {
+        current = res.current;
+        totalPage = res.totalPage;
+        recipes = res.list;
+      });
+    } catch (e) {
+      print(e);
+    }
+  }
+
+  Future<void> getKindList() async {
+    try {
+      var res = await KindApi().list();
+      setState(() {
+        Kind all = Kind(id: 0, name: '全部', icon: "meat");
+        kinds = res.list;
+        kinds.insert(0, all);
+      });
+    } catch (e) {}
+  }
 
   @override
-  void didChangeDependencies() async {
-    super.didChangeDependencies();
-    print('获取食谱列表');
-    RecipeApi api = RecipeApi();
-    var data = await api.list();
-    print(data);
+  void initState() {
+    super.initState();
+    getRecipeList();
+    getKindList();
   }
 
   @override
@@ -79,8 +96,13 @@ class _RecipeListState extends State<RecipeList> {
                             child: Row(
                               crossAxisAlignment: CrossAxisAlignment.center,
                               children: [
-                                Iconify(
-                                  kinds[index].icon,
+                                SvgPicture.network(
+                                  width: 20,
+                                  height: 20,
+                                  '$ICON_SERVER_URI${kinds[index].icon}.svg',
+                                  placeholderBuilder: (BuildContext context) =>
+                                      const CircularProgressIndicator(
+                                          strokeWidth: 3.0),
                                 ),
                                 const SizedBox(
                                   width: 4,
@@ -134,7 +156,15 @@ class _RecipeListState extends State<RecipeList> {
                       FilledButton.icon(
                         onPressed: () {
                           Navigator.of(context).pushNamed('/editRecipe',
-                              arguments: {"kind": kind});
+                              arguments: Recipe(
+                                id: 0,
+                                name: '',
+                                image: '',
+                                kind: kind,
+                                ingredients: [],
+                                seasonings: [],
+                                instructions: [],
+                              ));
                         },
                         label: const Text('添加'),
                         icon: const Iconify(
@@ -171,9 +201,9 @@ class _RecipeListState extends State<RecipeList> {
                 itemCount: recipes.length,
                 itemBuilder: (context, index) {
                   return RecipeCard(
-                    name: recipes[index].name,
-                    image: recipes[index].image,
-                  );
+                      name: recipes[index].name,
+                      image: recipes[index].image,
+                      id: recipes[index].id);
                 },
               ))
             ],
@@ -185,13 +215,16 @@ class _RecipeListState extends State<RecipeList> {
 class RecipeCard extends StatelessWidget {
   final String name;
   final String image;
-  const RecipeCard({super.key, required this.name, required this.image});
+  final int id;
+
+  const RecipeCard(
+      {super.key, required this.name, required this.image, required this.id});
 
   @override
   Widget build(BuildContext context) {
     return InkWell(
       onTap: () {
-        Navigator.of(context).pushNamed('/recipeDetail', arguments: name);
+        Navigator.of(context).pushNamed('/recipeDetail', arguments: {"id": id});
       },
       child: Card(
         elevation: 0, // 去除阴影

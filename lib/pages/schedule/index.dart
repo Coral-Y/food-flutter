@@ -3,7 +3,7 @@ import 'package:flutter_svg/flutter_svg.dart';
 import 'package:food/model/dish.dart';
 import 'package:food/widgets/c_button.dart';
 import 'package:reorderables/reorderables.dart';
-import 'package:food/services/api/icon.dart';
+import 'package:food/api/icon.dart';
 import 'package:food/model/common.dart';
 import 'package:food/model/icon.dart';
 import 'package:food/config.dart';
@@ -58,8 +58,7 @@ class _ScheduleState extends State<WeeklySchedule> {
   void didChangeDependencies() async {
     super.didChangeDependencies();
     try {
-      IconApi api = IconApi();
-      Pager<FoodIcon> data = await api.list('dish');
+      Pager<FoodIcon> data = await IconApi().list('dish');
       icons = data.list.map((icon) => icon.enName).toList();
     } catch (e) {
       if (e is ApiException) {
@@ -547,6 +546,8 @@ class _PickerBottomSheetState extends State<PickerBottomSheet> {
                   '$ICON_SERVER_URI$selectedIcon.svg',
                   width: 40,
                   height: 40,
+                  placeholderBuilder: (BuildContext context) =>
+                      const CircularProgressIndicator(),
                 )
               ] else ...[
                 Container(

@@ -54,7 +54,7 @@ class _StepPageState extends State<StepPage> {
                 children: [
                   Header(
                     title: recipe.name,
-                    icon: Iconify(recipe.kind!.icon),
+                    icon: recipe.kind!.icon,
                   ),
                   const SizedBox(height: 15),
                   // 显示步骤图片

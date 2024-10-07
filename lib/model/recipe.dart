@@ -9,15 +9,18 @@ class Recipe {
   int id;
   String name; // 名称
   String image; // 图片
-  @JsonKey(
-    toJson: kindToJson,
-  )
+  @JsonKey(toJson: kindToJson, fromJson: kindFromJson)
   Kind? kind; // 分类
   List<String> ingredients; // 食材
   List<String>? seasonings; // 调味品
   List<String>? instructions; // 步骤
 
   static Map<String, dynamic>? kindToJson(Kind? value) => value?.toJson();
+
+  static Kind? kindFromJson(Map<String, dynamic>? json) {
+    // 确保 null 安全
+    return json == null ? null : Kind.fromJson(json);
+  }
 
   Recipe(
       {required this.id,
