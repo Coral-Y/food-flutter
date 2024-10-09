@@ -7,6 +7,7 @@ import 'package:food/api/recipe.dart';
 import 'package:food/api/kind.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:food/config.dart';
+import 'package:food/widgets/c_snackbar.dart';
 
 class RecipeList extends StatefulWidget {
   const RecipeList({super.key});
@@ -16,20 +17,23 @@ class RecipeList extends StatefulWidget {
 }
 
 class _RecipeListState extends State<RecipeList> {
+  final GlobalKey<RefreshIndicatorState> _refreshKey = GlobalKey();
   Kind kind = Kind(id: 0, name: '全部', icon: "meat"); //当前分类
   List<Kind> kinds = [];
   List<Recipe> recipes = []; //食谱列表
   int current = 0; //当前页码
   int totalPage = 0; //总页数
 
-  Future<void> getRecipeList() async {
+  Future<void> getRecipeList(int page) async {
     try {
-      var res = await RecipeApi().list();
+      var res = await RecipeApi().list(current: page);
       setState(() {
         current = res.current;
         totalPage = res.totalPage;
         recipes = res.list;
       });
+      print('当前页${current}');
+      print("获取列表");
     } catch (e) {
       print(e);
     }
@@ -49,7 +53,7 @@ class _RecipeListState extends State<RecipeList> {
   @override
   void initState() {
     super.initState();
-    getRecipeList();
+    getRecipeList(1);
     getKindList();
   }
 
@@ -193,19 +197,42 @@ class _RecipeListState extends State<RecipeList> {
 
               // 食谱列表
               Expanded(
-                  child: GridView.builder(
-                gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                  childAspectRatio: 1.3,
-                  crossAxisCount: 2, // 每行两列
+                child: NotificationListener<ScrollEndNotification>(
+                  onNotification: (ScrollNotification notification) {
+                    ScrollMetrics scrollMetrics = notification.metrics;
+                    double pixels = scrollMetrics.pixels;
+                    double maxPixels = scrollMetrics.maxScrollExtent;
+                    // 滚动超过内容的2/3
+                    if (pixels >= maxPixels / 3 * 2) {
+                      if (totalPage > current) {
+                        getRecipeList(current + 1); // 加载更多数据
+                      } else {
+                        CSnackBar(message: '没有更多').show(context);
+                      }
+                    }
+                    return true;
+                  },
+                  child: RefreshIndicator(
+                    key: _refreshKey,
+                    onRefresh: () => getRecipeList(1), // 下拉刷新数据
+                    child: GridView.builder(
+                      gridDelegate:
+                          const SliverGridDelegateWithFixedCrossAxisCount(
+                        childAspectRatio: 1.3,
+                        crossAxisCount: 2, // 每行两列
+                      ),
+                      itemCount: recipes.length, // 显示的条目数
+                      itemBuilder: (context, index) {
+                        return RecipeCard(
+                          name: recipes[index].name,
+                          image: recipes[index].image,
+                          id: recipes[index].id,
+                        );
+                      },
+                    ),
+                  ),
                 ),
-                itemCount: recipes.length,
-                itemBuilder: (context, index) {
-                  return RecipeCard(
-                      name: recipes[index].name,
-                      image: recipes[index].image,
-                      id: recipes[index].id);
-                },
-              ))
+              )
             ],
           ),
         )));
