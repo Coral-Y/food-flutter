@@ -93,7 +93,7 @@ class RecipeApi {
   }
 
   //修改食谱
-  Future<bool> changed(int id, Recipe recipe) async {
+  Future<bool> changed(Recipe recipe) async {
     try {
       var data = {
         "name": recipe.name,
@@ -103,7 +103,7 @@ class RecipeApi {
         "seasonings": recipe.seasonings,
         "instructions": recipe.instructions,
       };
-      await BaseApi.request.put("/recipes/$id", data: data);
+      await BaseApi.request.put("/recipes/${recipe.id}", data: data);
       return true;
     } catch (e) {
       rethrow;

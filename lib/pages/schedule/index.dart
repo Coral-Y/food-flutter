@@ -476,175 +476,182 @@ class _PickerBottomSheetState extends State<PickerBottomSheet> {
 
   @override
   Widget build(BuildContext context) {
+    // 获取键盘的高度
+    double keyboardHeight = MediaQuery.of(context).viewInsets.bottom;
     var tabs = ['assets/icons/emoji.svg', 'assets/icons/recipe.svg'];
     var recipes = ['水煮牛肉', '拆骨肉荷包蛋', '鸡翅包饭'];
 
-    return Container(
-      height: 500,
-      padding: const EdgeInsets.fromLTRB(15, 8, 15, 8),
-      decoration: const BoxDecoration(
-          color: Colors.white,
-          borderRadius: BorderRadius.only(
-              topLeft: Radius.circular(10), topRight: Radius.circular(10))),
-      child: Column(
-        children: [
-          // 按钮
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+    return Padding(
+        padding: EdgeInsets.only(
+          bottom: keyboardHeight, // 当键盘弹出时，BottomSheet会跟着上移
+        ),
+        child: Container(
+          height: 300, //默认高度
+          padding: const EdgeInsets.fromLTRB(15, 8, 15, 8),
+          decoration: const BoxDecoration(
+              color: Colors.white,
+              borderRadius: BorderRadius.only(
+                  topLeft: Radius.circular(10), topRight: Radius.circular(10))),
+          child: Column(
             children: [
-              if (widget.name != null && widget.name!.isNotEmpty) ...[
-                SizedBox(
-                  width: 60,
-                  height: 30,
-                  child: CButton(
-                    onPressed: () {
-                      // 按钮点击事件
-                      widget.onDelete(widget.id!);
-                    },
-                    text: '删除',
-                    type: 'secondary',
-                    size: 'small',
-                  ),
-                ),
-              ] else ...[
-                SizedBox(width: 60),
-              ],
-              SizedBox(
-                width: 60,
-                height: 30,
-                child: CButton(
-                  onPressed: () {
-                    if (widget.id == null) {
-                      //添加
-                      widget.onAddPlan(
-                        name: _nameController.text,
-                        icon: selectedIcon,
-                      );
-                    } else {
-                      //修改
-                      widget.onUpdatePlan(
-                          name: _nameController.text,
-                          icon: selectedIcon,
-                          id: widget.id);
-                    }
-                    Navigator.pop(context);
-                  },
-                  text: '确认',
-                  size: 'small',
-                ),
-              )
-            ],
-          ),
-          const SizedBox(
-            height: 10,
-          ),
-          // 输入框
-          Row(
-            children: [
-              if (selectedIcon != null && selectedIcon!.isNotEmpty) ...[
-                SvgPicture.network(
-                  '$ICON_SERVER_URI$selectedIcon.svg',
-                  width: 40,
-                  height: 40,
-                  placeholderBuilder: (BuildContext context) =>
-                      const CircularProgressIndicator(),
-                )
-              ] else ...[
-                Container(
-                  width: 40,
-                  height: 40,
-                  decoration: BoxDecoration(
-                      color: const Color(0xFFF5F5F5),
-                      borderRadius: BorderRadius.circular(20)),
-                ),
-              ],
-              const SizedBox(
-                width: 10,
-              ),
-              Expanded(
-                child: TextField(
-                  controller: _nameController,
-                  decoration: InputDecoration(
-                    label: Text(widget.title!),
-                    border: OutlineInputBorder(),
-                    hintText: '${widget.title}准备吃...',
-                  ),
-                  onTap: () {
-                    // 滚动到输入框位置
-                    // FocusScope.of(context).requestFocus(FocusNode());
-                  },
-                ),
-              ),
-            ],
-          ),
-          const SizedBox(
-            height: 10,
-          ),
-          // Tab
-          Expanded(
-              child: DefaultTabController(
-                  length: 2,
-                  child: Column(
-                    children: [
-                      Align(
-                        alignment: Alignment.centerLeft,
-                        child: SizedBox(
-                          width: 120,
-                          child: TabBar(
-                              dividerHeight: 0,
-                              tabs: tabs
-                                  .map((item) => Tab(
-                                        icon: SvgPicture.asset(
-                                          item,
-                                          width: 25,
-                                          height: 25,
-                                        ),
-                                      ))
-                                  .toList()),
-                        ),
+              // 按钮
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  if (widget.name != null && widget.name!.isNotEmpty) ...[
+                    SizedBox(
+                      width: 60,
+                      height: 30,
+                      child: CButton(
+                        onPressed: () {
+                          // 按钮点击事件
+                          widget.onDelete(widget.id!);
+                        },
+                        text: '删除',
+                        type: 'secondary',
+                        size: 'small',
                       ),
-                      Expanded(
-                        child: TabBarView(children: [
-                          GridView.count(
-                            padding: const EdgeInsets.only(top: 10),
-                            crossAxisCount: 10,
-                            mainAxisSpacing: 4,
-                            crossAxisSpacing: 8,
-                            children: widget.icons
-                                .map((item) => GestureDetector(
+                    ),
+                  ] else ...[
+                    SizedBox(width: 60),
+                  ],
+                  SizedBox(
+                    width: 60,
+                    height: 30,
+                    child: CButton(
+                      onPressed: () {
+                        if (widget.id == null) {
+                          //添加
+                          widget.onAddPlan(
+                            name: _nameController.text,
+                            icon: selectedIcon,
+                          );
+                        } else {
+                          //修改
+                          widget.onUpdatePlan(
+                              name: _nameController.text,
+                              icon: selectedIcon,
+                              id: widget.id);
+                        }
+                        Navigator.pop(context);
+                      },
+                      text: '确认',
+                      size: 'small',
+                    ),
+                  )
+                ],
+              ),
+              const SizedBox(
+                height: 10,
+              ),
+              // 输入框
+              Row(
+                children: [
+                  if (selectedIcon != null && selectedIcon!.isNotEmpty) ...[
+                    SvgPicture.network(
+                      '$ICON_SERVER_URI$selectedIcon.svg',
+                      width: 40,
+                      height: 40,
+                      placeholderBuilder: (BuildContext context) =>
+                          const CircularProgressIndicator(),
+                    )
+                  ] else ...[
+                    Container(
+                      width: 40,
+                      height: 40,
+                      decoration: BoxDecoration(
+                          color: const Color(0xFFF5F5F5),
+                          borderRadius: BorderRadius.circular(20)),
+                    ),
+                  ],
+                  const SizedBox(
+                    width: 10,
+                  ),
+                  Expanded(
+                    child: TextField(
+                      controller: _nameController,
+                      decoration: InputDecoration(
+                        label: Text(widget.title!),
+                        border: OutlineInputBorder(),
+                        hintText: '${widget.title}准备吃...',
+                      ),
+                      onTap: () {
+                        // 滚动到输入框位置
+                        // FocusScope.of(context).requestFocus(FocusNode());
+                      },
+                    ),
+                  ),
+                ],
+              ),
+              const SizedBox(
+                height: 10,
+              ),
+              // Tab
+              Expanded(
+                  child: DefaultTabController(
+                      length: 2,
+                      child: Column(
+                        children: [
+                          Align(
+                            alignment: Alignment.centerLeft,
+                            child: SizedBox(
+                              width: 120,
+                              child: TabBar(
+                                  dividerHeight: 0,
+                                  tabs: tabs
+                                      .map((item) => Tab(
+                                            icon: SvgPicture.asset(
+                                              item,
+                                              width: 25,
+                                              height: 25,
+                                            ),
+                                          ))
+                                      .toList()),
+                            ),
+                          ),
+                          Expanded(
+                            child: TabBarView(children: [
+                              GridView.count(
+                                padding: const EdgeInsets.only(top: 10),
+                                crossAxisCount: 10,
+                                mainAxisSpacing: 4,
+                                crossAxisSpacing: 8,
+                                children: widget.icons
+                                    .map((item) => GestureDetector(
+                                          onTap: () {
+                                            setState(() {
+                                              selectedIcon = item;
+                                            });
+                                          },
+                                          child: SvgPicture.network(
+                                            '$ICON_SERVER_URI$item.svg',
+                                            placeholderBuilder: (BuildContext
+                                                    context) =>
+                                                const CircularProgressIndicator(),
+                                          ),
+                                        ))
+                                    .toList(),
+                              ),
+                              ListView.builder(
+                                  itemCount: recipes.length,
+                                  itemBuilder:
+                                      (BuildContext context, int index) {
+                                    return ListTile(
+                                      title: Text(recipes[index]),
                                       onTap: () {
                                         setState(() {
-                                          selectedIcon = item;
+                                          _nameController.text = recipes[index];
                                         });
                                       },
-                                      child: SvgPicture.network(
-                                        '$ICON_SERVER_URI$item.svg',
-                                        placeholderBuilder: (BuildContext
-                                                context) =>
-                                            const CircularProgressIndicator(),
-                                      ),
-                                    ))
-                                .toList(),
-                          ),
-                          ListView.builder(
-                              itemCount: recipes.length,
-                              itemBuilder: (BuildContext context, int index) {
-                                return ListTile(
-                                  title: Text(recipes[index]),
-                                  onTap: () {
-                                    setState(() {
-                                      _nameController.text = recipes[index];
-                                    });
-                                  },
-                                );
-                              })
-                        ]),
-                      )
-                    ],
-                  )))
-        ],
-      ),
-    );
+                                    );
+                                  })
+                            ]),
+                          )
+                        ],
+                      )))
+            ],
+          ),
+        ));
   }
 
   @override

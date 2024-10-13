@@ -14,6 +14,7 @@ import 'package:image_picker/image_picker.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:food/config.dart';
 import 'package:food/api/kind.dart';
+import 'package:food/api/recipe.dart';
 
 class EditRecipe extends StatefulWidget {
   const EditRecipe({super.key});
@@ -427,11 +428,13 @@ class _EditRecipeState extends State<EditRecipe> {
                       const SizedBox(width: 25),
                       Expanded(
                           child: CButton(
-                              onPressed: () {
+                              onPressed: () async {
                                 if (recipe.id == 0) {
                                   print('添加');
+                                  await RecipeApi().created(recipe);
                                   return;
                                 }
+                                await RecipeApi().changed(recipe);
                                 print('修改');
                               },
                               text: '确认')),
