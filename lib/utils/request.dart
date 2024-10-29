@@ -88,4 +88,10 @@ class Request {
       {Map<String, dynamic>? data, Map<String, dynamic>? headers}) {
     return request(path, method: 'DELETE', data: data);
   }
+
+  Future<T> patch<T>(String path,
+      {dynamic data, Map<String, dynamic>? headers, Options? options}) {
+    return request(path,
+        method: 'PATCH', data: data, headers: headers, options: options);
+  }
 }

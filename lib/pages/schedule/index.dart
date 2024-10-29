@@ -8,6 +8,7 @@ import 'package:food/model/common.dart';
 import 'package:food/model/icon.dart';
 import 'package:food/config.dart';
 import 'package:food/model/exception.dart';
+import 'package:food/api/schedules.dart';
 
 class WeeklySchedule extends StatefulWidget {
   const WeeklySchedule({super.key});
@@ -20,38 +21,11 @@ class _ScheduleState extends State<WeeklySchedule> {
   final List<String> week = <String>['周一', '周二', '周三', '周四', '周五', '周六', '周日'];
   final List<String> types = <String>['早餐', '中餐', '晚餐'];
   DateTime current = DateTime.now();
-  List<Dish> breakfast = <Dish>[
-    Dish(
-        recipeId: 1,
-        title: '拆骨肉荷包蛋',
-        icon: 'egg',
-        type: 1,
-        date: DateTime(2024, 8, 27)),
-    Dish(
-        recipeId: 2,
-        title: '牛奶',
-        icon: 'milk',
-        type: 1,
-        date: DateTime(2024, 8, 27)),
-    Dish(
-        recipeId: 3,
-        title: '鸡蛋',
-        icon: 'egg',
-        type: 1,
-        date: DateTime(2024, 8, 27)),
-    Dish(
-        recipeId: 4,
-        title: '牛奶',
-        icon: 'milk',
-        type: 1,
-        date: DateTime(2024, 8, 27)),
-    Dish(
-        recipeId: 1,
-        title: '拆骨肉荷包蛋',
-        icon: 'egg',
-        type: 1,
-        date: DateTime(2024, 8, 27)),
-  ];
+  Map<String, List<Dish>> schedules = {
+    'breakfast': [],
+    'lunch': [],
+    'dinner': [],
+  };
   List<String> icons = [];
 
   @override
@@ -60,6 +34,8 @@ class _ScheduleState extends State<WeeklySchedule> {
     try {
       Pager<FoodIcon> data = await IconApi().list('dish');
       icons = data.list.map((icon) => icon.enName).toList();
+
+      getScheduleData(DateTime.now());
     } catch (e) {
       if (e is ApiException) {
         print("错误码 ： ${e.code}, 错误 ：  ${e.message}");
@@ -69,63 +45,45 @@ class _ScheduleState extends State<WeeklySchedule> {
     }
   }
 
+  // 获取规划列表
+  Future<void> getScheduleData(DateTime date) async {
+    try {
+      var data = await SchedulesApi().getSchedules(date);
+      setState(() {
+        schedules = data;
+      });
+    } catch (e) {
+      print("Error: $e");
+    }
+  }
+
   // 更新当前日期
   void updateCurrent(DateTime newDate) {
     setState(() {
       current = newDate;
     });
-    //TODO:请求当前日期数据
-    setState(() {
-      breakfast = <Dish>[
-        Dish(
-            recipeId: 1,
-            title: '鸡蛋',
-            icon: 'egg',
-            type: 1,
-            date: DateTime(2024, 8, 27)),
-        Dish(
-            recipeId: 2,
-            title: '牛奶',
-            icon: 'milk',
-            type: 1,
-            date: DateTime(2024, 8, 27)),
-        Dish(
-            recipeId: 3,
-            title: '鸡蛋',
-            icon: 'egg',
-            type: 1,
-            date: DateTime(2024, 8, 27)),
-        Dish(
-            recipeId: 4,
-            title: '牛奶',
-            icon: 'milk',
-            type: 1,
-            date: DateTime(2024, 8, 27)),
-      ];
-    });
+    getScheduleData(current);
   }
 
-  //更新排序
-  void reordering(int oldIndex, int newIndex) {
-    setState(() {
-      Dish row = breakfast.removeAt(oldIndex);
-      breakfast.insert(newIndex, row);
-    });
+  // 获取指定类型的菜品列表
+  List<Dish> getMealList(String type) {
+    String serverType = type == '早餐'
+        ? 'breakfast'
+        : type == '中餐'
+            ? 'lunch'
+            : 'dinner';
+    return schedules[serverType] ?? [];
   }
 
   // 添加计划
-  Future<void> addPlan({String? name, String? icon}) async {
-    //TODO:请求添加修改计划
-    print(name);
-    print(current);
+  Future<void> addPlan(Dish dish) async {
+    SchedulesApi().addSchedule(dish);
   }
 
   // 修改计划
-  Future<void> updatePlan({String? name, String? icon, int? id}) async {
+  Future<void> updatePlan(Dish dish) async {
     //TODO:请求添加修改计划
-    print(id);
-    print(name);
-    print(current);
+    SchedulesApi().addSchedule(dish);
   }
 
   //删除计划
@@ -229,10 +187,21 @@ class _ScheduleState extends State<WeeklySchedule> {
                 },
                 child: FoodCard(
                     title: types[index],
-                    foods: breakfast,
+                    foods: getMealList(types[index]),
                     onEdit: ({title, icon, name, id}) => _bottomSheet(
                         title: title, icon: icon, name: name, id: id),
-                    onReorder: reordering),
+                    onReorder: (oldIndex, newIndex) {
+                      //重新排序
+                      setState(() {
+                        var dishes = getMealList(types[index]);
+                        final item = dishes.removeAt(oldIndex);
+                        dishes.insert(newIndex, item);
+                        // 更新排序
+                        List<int> dishIds =
+                            dishes.map((dish) => dish.id).toList();
+                        SchedulesApi().updateSchedules(dishIds);
+                      });
+                    }),
               );
             },
           ))
@@ -408,8 +377,8 @@ class FoodCard extends StatelessWidget {
                                   borderRadius: BorderRadius.circular(4)),
                               child: Row(
                                 children: [
-                                  SvgPicture.asset(
-                                    'assets/icons/ingredients/${item.icon}.svg',
+                                  SvgPicture.network(
+                                    '$ICON_SERVER_URI${item.icon}.svg',
                                     width: 13,
                                     height: 13,
                                   ),
@@ -421,7 +390,7 @@ class FoodCard extends StatelessWidget {
                                     item.title,
                                     overflow: TextOverflow.ellipsis,
                                     maxLines: 1,
-                                    style: const TextStyle(fontSize: 10),
+                                    style: const TextStyle(fontSize: 12),
                                   ))
                                 ],
                               ),
@@ -443,8 +412,8 @@ class PickerBottomSheet extends StatefulWidget {
   final String? icon;
   final String? name;
   final int? id;
-  final Function({String? name, String? icon}) onAddPlan;
-  final Function({String? name, String? icon, int? id}) onUpdatePlan;
+  final Function(Dish) onAddPlan;
+  final Function(Dish) onUpdatePlan;
   final Function(int id) onDelete;
   final List<String> icons;
   const PickerBottomSheet(
@@ -520,18 +489,23 @@ class _PickerBottomSheetState extends State<PickerBottomSheet> {
                     height: 30,
                     child: CButton(
                       onPressed: () {
+                        final dish = Dish(
+                          id: widget.id == null ? 0 : widget.id!, // 新建时 id 为 0
+                          title: _nameController.text,
+                          icon: selectedIcon!,
+                          type: widget.title == '早餐'
+                              ? 'breakfast'
+                              : widget.title == '中餐'
+                                  ? 'lunch'
+                                  : 'dinner',
+                          date: DateTime.now(), // 或者使用当前选中的日期
+                        );
                         if (widget.id == null) {
                           //添加
-                          widget.onAddPlan(
-                            name: _nameController.text,
-                            icon: selectedIcon,
-                          );
+                          widget.onAddPlan(dish);
                         } else {
                           //修改
-                          widget.onUpdatePlan(
-                              name: _nameController.text,
-                              icon: selectedIcon,
-                              id: widget.id);
+                          widget.onUpdatePlan(dish);
                         }
                         Navigator.pop(context);
                       },
