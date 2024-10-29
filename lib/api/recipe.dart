@@ -1,8 +1,8 @@
-import 'package:flutter/material.dart';
 import 'package:food/api/base.dart';
-import 'package:food/model/exception.dart';
 import 'package:food/model/common.dart';
 import 'package:food/model/recipe.dart';
+import 'package:dio/dio.dart';
+import 'package:food/utils/common.dart';
 
 class RecipeApi {
   RecipeApi._();
@@ -13,49 +13,26 @@ class RecipeApi {
     return _instance;
   }
 
-  var rlist = {
-    "list": [
-      {
-        "id": 2,
-        "accountId": 1,
-        "kindId": 3,
-        "name": "小龙虾",
-        "image": "assets/images/salad.png",
-        "ingredients": [],
-        "seasonings": [],
-        "instructions": []
-      }
-    ],
-    "total": 1,
-    "current": 1,
-    "pageSize": 10,
-    "totalPage": 1
-  };
-  var rDetail = {
-    "id": 2,
-    "accountId": 1,
-    "kind": {
-      'id': 1,
-      "name": '荤菜',
-      "icon": "meat",
-    },
-    "name": "小龙虾",
-    "image": "assets/images/salad.png",
-    "ingredients": ['小龙虾', '洋葱', '姜'],
-    "seasonings": [],
-    "instructions": ['把鱿鱼表面清洗干净', '热油，放入蒜片和姜片', '热油', ' 搅拌均匀']
-  };
-
   //食谱列表
   Future<Pager<Recipe>> list(
       {int? current, int? pageSize, int? kindId, String? keyword}) async {
     try {
-      // var response = await BaseApi.request.get("/recipes", params: {
-      //   'accountId': 1,
-      //   'current': current ?? 1,
-      //   'pageSize': pageSize ?? 10,
-      // });
-      var response = rlist;
+      Map<String, dynamic> params = {
+        'accountId': 1,
+        'current': current ?? 1,
+        'pageSize': pageSize ?? 10,
+      };
+
+      if (kindId != null && kindId != 0) {
+        params['kindId'] = kindId;
+      }
+
+      if (keyword != null && keyword != '') {
+        params['keyword'] = keyword;
+      }
+
+      var response = await BaseApi.request.get("/recipes", params: params);
+      print('Detail response: $response');
       return Pager<Recipe>.fromJson(
           response, (json) => Recipe.fromJson(json as Map<String, dynamic>));
     } catch (e) {
@@ -66,8 +43,8 @@ class RecipeApi {
   //获取食谱详情
   Future<Recipe> detail(int id) async {
     try {
-      // var response = await BaseApi.request.get("/recipes/$id");
-      var response = rDetail;
+      var response = await BaseApi.request.get("/recipes/$id");
+      // var response = rDetail;
       return Recipe.fromJson(response);
     } catch (e) {
       rethrow;
@@ -77,17 +54,25 @@ class RecipeApi {
   //创建食谱
   Future<bool> created(Recipe recipe) async {
     try {
-      var data = {
+      var formData = FormData.fromMap({
         "name": recipe.name,
-        "image": recipe.image,
-        "ingredients": recipe.ingredients,
         "kindId": recipe.kind!.id,
-        "seasonings": recipe.seasonings,
-        "instructions": recipe.instructions,
-      };
-      await BaseApi.request.post("/recipes", data: data);
+        "accountId": 1,
+        "ingredients": arrayToString(recipe.ingredients),
+        "seasonings": arrayToString(recipe.seasonings),
+        "instructions": arrayToString(recipe.instructions),
+      });
+      formData.files.add(MapEntry(
+        "image",
+        await MultipartFile.fromFile(recipe.image, filename: "image.jpg"),
+      ));
+
+      print("FormData fields: ${formData.fields}");
+      // 发送请求
+      await BaseApi.request.post("/recipes", data: formData);
       return true;
     } catch (e) {
+      print(e);
       rethrow;
     }
   }
@@ -95,17 +80,38 @@ class RecipeApi {
   //修改食谱
   Future<bool> changed(Recipe recipe) async {
     try {
-      var data = {
+      print(recipe.image);
+      var formData = FormData.fromMap({
+        'id': recipe.id,
         "name": recipe.name,
-        "image": recipe.image,
-        "ingredients": recipe.ingredients,
+        if (recipe.image.isNotEmpty) "image": recipe.image,
+        "ingredients": arrayToString(recipe.ingredients),
+        "seasonings": arrayToString(recipe.seasonings),
+        "instructions": arrayToString(recipe.instructions),
         "kindId": recipe.kind!.id,
-        "seasonings": recipe.seasonings,
-        "instructions": recipe.instructions,
-      };
-      await BaseApi.request.put("/recipes/${recipe.id}", data: data);
+        "accountId": 1
+      });
+      // 处理图片
+      // 修改图片处理逻辑
+      if (recipe.image.isNotEmpty) {
+        if (recipe.image.startsWith('http://') ||
+            recipe.image.startsWith('https://')) {
+          print('使用现有网络图片'); // 添加日志
+        } else {
+          print('添加新的本地图片'); // 添加日志
+          formData.files.add(MapEntry(
+            "image",
+            await MultipartFile.fromFile(recipe.image, filename: "image.jpg"),
+          ));
+        }
+      }
+      await BaseApi.request.put(
+          "/recipes/${recipe.id is String ? int.parse(recipe.id.toString()) : recipe.id}",
+          data: formData);
+
       return true;
     } catch (e) {
+      print(e);
       rethrow;
     }
   }

@@ -15,6 +15,8 @@ import 'package:flutter_svg/flutter_svg.dart';
 import 'package:food/config.dart';
 import 'package:food/api/kind.dart';
 import 'package:food/api/recipe.dart';
+import 'package:food/model/exception.dart';
+import 'package:food/widgets/c_snackbar.dart';
 
 class EditRecipe extends StatefulWidget {
   const EditRecipe({super.key});
@@ -55,6 +57,9 @@ class _EditRecipeState extends State<EditRecipe> {
       _stepscontrollers = recipe.instructions!
           .map((instruction) => TextEditingController(text: instruction))
           .toList();
+      if (recipe.image.isNotEmpty) {
+        recipe.image = IMG_SERVER_URI + recipe.image;
+      }
       return;
     }
   }
@@ -66,6 +71,7 @@ class _EditRecipeState extends State<EditRecipe> {
     setState(() {
       if (pickedFile != null) {
         _image = File(pickedFile.path);
+        recipe.image = pickedFile.path;
       } else {
         print('No image selected.');
       }
@@ -79,6 +85,39 @@ class _EditRecipeState extends State<EditRecipe> {
         kinds = res.list;
       });
     } catch (e) {}
+  }
+
+  Future<void> _handleSubmit() async {
+    try {
+      if (recipe.id == 0) {
+        await _addRecipe();
+      } else {
+        await _updateRecipe();
+      }
+      Navigator.of(context).pop(true);
+    } catch (e) {
+      _handleError(e);
+    }
+  }
+
+  Future<void> _addRecipe() async {
+    await RecipeApi().created(recipe);
+    CSnackBar(message: '添加成功').show(context);
+  }
+
+  Future<void> _updateRecipe() async {
+    await RecipeApi().changed(recipe);
+    CSnackBar(message: '修改成功').show(context);
+  }
+
+  void _handleError(dynamic e) {
+    String errorMessage = '操作失败';
+    if (e is ApiException) {
+      errorMessage = '错误: ${e.message}, 代码: ${e.code}';
+    } else {
+      errorMessage = '发生未知错误: $e';
+    }
+    CSnackBar(message: errorMessage).show(context);
   }
 
   _bottomSheet() async {
@@ -201,42 +240,74 @@ class _EditRecipeState extends State<EditRecipe> {
                           width: 25,
                         ),
                         InkWell(
-                            onTap: _pickImage,
-                            child: (_image == null &&
-                                    (recipe.image == null ||
-                                        recipe.image!.isEmpty))
-                                ? DottedBorder(
-                                    borderType: BorderType.RRect,
-                                    radius: const Radius.circular(4),
-                                    padding: const EdgeInsets.fromLTRB(
-                                        40, 25, 40, 25),
-                                    child: const Iconify(
-                                      Cil.plus,
-                                      size: 40,
+                          onTap: _pickImage,
+                          child: (_image == null &&
+                                  (recipe.image == null ||
+                                      recipe.image!.isEmpty))
+                              ? DottedBorder(
+                                  borderType: BorderType.RRect,
+                                  radius: const Radius.circular(4),
+                                  padding:
+                                      const EdgeInsets.fromLTRB(40, 25, 40, 25),
+                                  child: const Iconify(
+                                    Cil.plus,
+                                    size: 40,
+                                  ),
+                                )
+                              : Container(
+                                  width: 160,
+                                  height: 90,
+                                  decoration: BoxDecoration(
+                                    border: Border.all(
+                                      color:
+                                          Theme.of(context).colorScheme.primary,
                                     ),
-                                  )
-                                : Container(
-                                    width: 160,
-                                    height: 90,
-                                    decoration: BoxDecoration(
-                                      border: Border.all(
-                                        color: Theme.of(context)
-                                            .colorScheme
-                                            .primary,
-                                      ),
-                                      borderRadius: BorderRadius.circular(10.0),
-                                      image: _image == null
-                                          ? DecorationImage(
-                                              image: AssetImage(
-                                                  recipe.image), //网络图片
-                                              fit: BoxFit.cover, // 确保图片覆盖整个容器
-                                            )
-                                          : DecorationImage(
-                                              image: FileImage(_image!), //本地文件
-                                              fit: BoxFit.cover,
-                                            ),
-                                    ),
-                                  ))
+                                    borderRadius: BorderRadius.circular(10.0),
+                                  ),
+                                  child: _image != null
+                                      ? ClipRRect(
+                                          borderRadius:
+                                              BorderRadius.circular(10.0),
+                                          child: Image.file(
+                                            _image!,
+                                            fit: BoxFit.cover,
+                                          ))
+                                      : ClipRRect(
+                                          borderRadius:
+                                              BorderRadius.circular(10.0),
+                                          child: Image.network(
+                                            recipe.image!,
+                                            fit: BoxFit.cover,
+                                            errorBuilder:
+                                                (context, error, stackTrace) {
+                                              return Container(
+                                                color: Colors.grey[300],
+                                                child: const Icon(Icons.error,
+                                                    color: Colors.red),
+                                              );
+                                            },
+                                            loadingBuilder: (context, child,
+                                                loadingProgress) {
+                                              if (loadingProgress == null)
+                                                return child;
+                                              return Center(
+                                                child:
+                                                    CircularProgressIndicator(
+                                                  value: loadingProgress
+                                                              .expectedTotalBytes !=
+                                                          null
+                                                      ? loadingProgress
+                                                              .cumulativeBytesLoaded /
+                                                          loadingProgress
+                                                              .expectedTotalBytes!
+                                                      : null,
+                                                ),
+                                              );
+                                            },
+                                          ),
+                                        ),
+                                ),
+                        )
                       ],
                     ),
                     const SizedBox(
@@ -427,17 +498,7 @@ class _EditRecipeState extends State<EditRecipe> {
                       ),
                       const SizedBox(width: 25),
                       Expanded(
-                          child: CButton(
-                              onPressed: () async {
-                                if (recipe.id == 0) {
-                                  print('添加');
-                                  await RecipeApi().created(recipe);
-                                  return;
-                                }
-                                await RecipeApi().changed(recipe);
-                                print('修改');
-                              },
-                              text: '确认')),
+                          child: CButton(onPressed: _handleSubmit, text: '确认')),
                     ],
                   )),
             ],

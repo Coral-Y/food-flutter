@@ -1,6 +1,7 @@
 // 自制食谱
 import 'package:food/model/kind.dart';
 import 'package:json_annotation/json_annotation.dart';
+import 'package:food/config.dart';
 
 part 'recipe.g.dart';
 
@@ -32,9 +33,43 @@ class Recipe {
       this.instructions})
       : ingredients = ingredients ?? [];
 
-  factory Recipe.fromJson(Map<String, dynamic> json) => _$RecipeFromJson(json);
+  factory Recipe.fromJson(Map<String, dynamic> json) {
+    return Recipe(
+      id: json['id'] is String ? int.parse(json['id']) : json['id'] as int,
+      name: json['name'] as String,
+      image: json['image'] as String,
+      ingredients: _parseStringOrList(json['ingredients']),
+      seasonings: _parseStringOrList(json['seasonings']),
+      instructions: _parseStringOrList(json['instructions']),
+      kind: kindFromJson(json['kind'] as Map<String, dynamic>?),
+    );
+  }
 
-  Map<String, dynamic> toJson() => _$RecipeToJson(this);
+// 添加一个静态方法来处理字符串或列表的解析
+  static List<String> _parseStringOrList(dynamic value) {
+    if (value == null) {
+      return [];
+    }
+    if (value is String) {
+      return value.isEmpty ? [] : value.split('^');
+    }
+    if (value is List) {
+      return value.map((e) => e.toString()).toList();
+    }
+    return [];
+  }
+
+  Map<String, dynamic> toJson() {
+    return {
+      'id': id,
+      'name': name,
+      'image': image,
+      'ingredients': ingredients,
+      'seasonings': seasonings,
+      'instructions': instructions,
+      'kind': kindToJson(kind),
+    };
+  }
 
   @override
   String toString() {

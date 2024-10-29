@@ -4,6 +4,7 @@ import 'package:food/widgets/c_button.dart';
 import 'package:iconify_flutter/iconify_flutter.dart';
 import 'package:iconify_flutter/icons/mdi_light.dart';
 import 'package:food/model/recipe.dart';
+import 'package:food/config.dart';
 
 class StepPage extends StatefulWidget {
   const StepPage({super.key});
@@ -64,13 +65,31 @@ class _StepPageState extends State<StepPage> {
                       Container(
                         width: 200,
                         height: 200,
-                        decoration: BoxDecoration(
-                          image: DecorationImage(
-                            image: AssetImage(recipe.image),
-                            fit: BoxFit.cover,
-                          ),
+                        child: Image.network(
+                          IMG_SERVER_URI + recipe.image,
+                          fit: BoxFit.cover,
+                          loadingBuilder: (BuildContext context, Widget child,
+                              ImageChunkEvent? loadingProgress) {
+                            if (loadingProgress == null) return child;
+                            return Center(
+                              child: CircularProgressIndicator(
+                                value: loadingProgress.expectedTotalBytes !=
+                                        null
+                                    ? loadingProgress.cumulativeBytesLoaded /
+                                        loadingProgress.expectedTotalBytes!
+                                    : null,
+                              ),
+                            );
+                          },
+                          errorBuilder: (BuildContext context, Object exception,
+                              StackTrace? stackTrace) {
+                            return Container(
+                              color: Colors.grey[300],
+                              child: Icon(Icons.error, color: Colors.red),
+                            );
+                          },
                         ),
-                      ),
+                      )
                     ],
                   ),
 

@@ -1,7 +1,11 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:food/widgets/c_button.dart';
 import 'package:iconify_flutter/iconify_flutter.dart';
 import 'package:iconify_flutter/icons/cib.dart';
+import 'package:flutter/services.dart';
+import 'package:food/widgets/c_snackbar.dart';
 
 class Login extends StatefulWidget {
   const Login({super.key});
@@ -11,7 +15,53 @@ class Login extends StatefulWidget {
 }
 
 class _LoginState extends State<Login> {
+  final TextEditingController _phoneController = TextEditingController();
+  final TextEditingController _codeController = TextEditingController();
   bool agreed = false;
+  bool canGetCode = true; // 是否可以获取验证码
+  int _countdown = 60; // 倒计时秒数
+  Timer? _timer; // 倒计时计时器
+
+  @override
+  void dispose() {
+    _phoneController.dispose();
+    _codeController.dispose();
+    _timer?.cancel();
+    super.dispose();
+  }
+
+  // 开始倒计时
+  void startCountdown() {
+    setState(() {
+      canGetCode = false;
+      _countdown = 60;
+    });
+
+    _timer = Timer.periodic(const Duration(seconds: 1), (timer) {
+      setState(() {
+        if (_countdown > 0) {
+          _countdown--;
+        } else {
+          canGetCode = true;
+          timer.cancel();
+        }
+      });
+    });
+  }
+
+  // 发送验证码
+  void sendCode() {
+    if (!canGetCode) return;
+    // 验证手机号格式
+    String phone = _phoneController.text;
+    if (phone.length != 11) {
+      CSnackBar(message: '请输入正确的手机号').show(context);
+      return;
+    }
+
+    //请求发送验证码
+    startCountdown();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -27,35 +77,54 @@ class _LoginState extends State<Login> {
             height: 320,
             fit: BoxFit.cover,
           ),
-          const Padding(
-            padding: EdgeInsets.only(top: 25, left: 15, right: 15),
+          Padding(
+            padding: const EdgeInsets.only(top: 25, left: 15, right: 15),
             child: TextField(
-              decoration: InputDecoration(
+              controller: _phoneController,
+              keyboardType: TextInputType.phone,
+              maxLength: 11,
+              decoration: const InputDecoration(
                 fillColor: Colors.white,
                 filled: true,
                 contentPadding:
                     EdgeInsets.symmetric(horizontal: 15, vertical: 3),
                 label: Text('手机号'),
                 border: OutlineInputBorder(),
+                counterText: "", // 隐藏字符计数器
               ),
             ),
           ),
-          const Padding(
-            padding: EdgeInsets.only(top: 10, left: 15, right: 15),
-            child: TextField(
-              obscureText: true,
-              decoration: InputDecoration(
-                fillColor: Colors.white,
-                filled: true,
-                contentPadding:
-                    EdgeInsets.symmetric(horizontal: 15, vertical: 3),
-                label: Text('密码'),
-                border: OutlineInputBorder(),
-              ),
+          Padding(
+            padding: const EdgeInsets.only(top: 10, left: 15, right: 15),
+            child: Row(
+              children: [
+                Expanded(
+                  child: TextField(
+                    controller: _codeController,
+                    keyboardType: TextInputType.number,
+                    maxLength: 6,
+                    decoration: const InputDecoration(
+                      fillColor: Colors.white,
+                      filled: true,
+                      contentPadding:
+                          EdgeInsets.symmetric(horizontal: 15, vertical: 3),
+                      label: Text('验证码'),
+                      border: OutlineInputBorder(),
+                      counterText: "", // 隐藏字符计数器
+                    ),
+                  ),
+                ),
+                const SizedBox(width: 10),
+                SizedBox(
+                  width: 120,
+                  child: CButton(
+                    onPressed: canGetCode ? sendCode : () => {},
+                    text: canGetCode ? '获取验证码' : '${_countdown}s后重试',
+                  ),
+                ),
+              ],
             ),
           ),
-
-          // 协议
           Row(
             children: [
               Checkbox(
@@ -93,6 +162,19 @@ class _LoginState extends State<Login> {
               width: double.infinity,
               child: CButton(
                   onPressed: () {
+                    if (!agreed) {
+                      CSnackBar(message: '请先同意用户协议和隐私协议').show(context);
+                      return;
+                    }
+                    if (_phoneController.text.length != 11) {
+                      CSnackBar(message: '请输入正确的手机号').show(context);
+                      return;
+                    }
+                    if (_codeController.text.length != 6) {
+                      CSnackBar(message: '请输入6位验证码').show(context);
+                      return;
+                    }
+                    // TODO: 调用登录API
                     Navigator.of(context).pushNamed('/home');
                   },
                   text: '登录'),

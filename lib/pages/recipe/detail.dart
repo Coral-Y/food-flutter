@@ -6,6 +6,7 @@ import 'package:food/widgets/c_button.dart';
 import 'package:iconify_flutter/iconify_flutter.dart';
 import 'package:iconify_flutter/icons/mdi_light.dart';
 import 'package:food/api/recipe.dart';
+import 'package:food/config.dart';
 
 class RecipeDetail extends StatefulWidget {
   const RecipeDetail({super.key});
@@ -105,11 +106,35 @@ class _RecipeDetailState extends State<RecipeDetail> {
                                   child: Container(
                                 width: double.infinity,
                                 height: 100,
-                                decoration: BoxDecoration(
-                                  image: DecorationImage(
-                                    image: AssetImage(recipe!.image),
-                                    fit: BoxFit.fill,
-                                  ),
+                                child: Image.network(
+                                  IMG_SERVER_URI + recipe!.image,
+                                  fit: BoxFit.cover,
+                                  loadingBuilder: (BuildContext context,
+                                      Widget child,
+                                      ImageChunkEvent? loadingProgress) {
+                                    if (loadingProgress == null) return child;
+                                    return Center(
+                                      child: CircularProgressIndicator(
+                                        value: loadingProgress
+                                                    .expectedTotalBytes !=
+                                                null
+                                            ? loadingProgress
+                                                    .cumulativeBytesLoaded /
+                                                loadingProgress
+                                                    .expectedTotalBytes!
+                                            : null,
+                                      ),
+                                    );
+                                  },
+                                  errorBuilder: (BuildContext context,
+                                      Object exception,
+                                      StackTrace? stackTrace) {
+                                    return Container(
+                                      color: Colors.grey[300],
+                                      child:
+                                          Icon(Icons.error, color: Colors.red),
+                                    );
+                                  },
                                 ),
                               ))
                             ],

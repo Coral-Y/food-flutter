@@ -30,8 +30,9 @@ class Request {
     String path, {
     String method = 'get',
     Map<String, dynamic>? params,
-    Map<String, dynamic>? data,
+    dynamic data,
     Map<String, dynamic>? headers,
+    Options? options,
   }) async {
     try {
       Response response = await dio.request(path,
@@ -72,13 +73,15 @@ class Request {
   }
 
   Future<T> post<T>(String path,
-      {Map<String, dynamic>? data, Map<String, dynamic>? headers}) {
-    return request(path, method: 'POST', data: data);
+      {dynamic data, Map<String, dynamic>? headers, Options? options}) {
+    return request(path,
+        method: 'POST', data: data, headers: headers, options: options);
   }
 
   Future<T> put<T>(String path,
-      {Map<String, dynamic>? data, Map<String, dynamic>? headers}) {
-    return request(path, method: 'PUT', data: data);
+      {dynamic data, Map<String, dynamic>? headers, Options? options}) {
+    return request(path,
+        method: 'PUT', data: data, headers: headers, options: options);
   }
 
   Future<T> delete<T>(String path,
