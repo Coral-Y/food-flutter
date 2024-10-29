@@ -18,7 +18,6 @@ class RecipeApi {
       {int? current, int? pageSize, int? kindId, String? keyword}) async {
     try {
       Map<String, dynamic> params = {
-        'accountId': 1,
         'current': current ?? 1,
         'pageSize': pageSize ?? 10,
       };
@@ -44,7 +43,6 @@ class RecipeApi {
   Future<Recipe> detail(int id) async {
     try {
       var response = await BaseApi.request.get("/recipes/$id");
-      // var response = rDetail;
       return Recipe.fromJson(response);
     } catch (e) {
       rethrow;
@@ -57,7 +55,6 @@ class RecipeApi {
       var formData = FormData.fromMap({
         "name": recipe.name,
         "kindId": recipe.kind!.id,
-        "accountId": 1,
         "ingredients": arrayToString(recipe.ingredients),
         "seasonings": arrayToString(recipe.seasonings),
         "instructions": arrayToString(recipe.instructions),
@@ -89,7 +86,6 @@ class RecipeApi {
         "seasonings": arrayToString(recipe.seasonings),
         "instructions": arrayToString(recipe.instructions),
         "kindId": recipe.kind!.id,
-        "accountId": 1
       });
       // 处理图片
       // 修改图片处理逻辑

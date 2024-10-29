@@ -6,6 +6,7 @@ import 'package:iconify_flutter/iconify_flutter.dart';
 import 'package:iconify_flutter/icons/cib.dart';
 import 'package:flutter/services.dart';
 import 'package:food/widgets/c_snackbar.dart';
+import 'package:food/api/auth.dart';
 
 class Login extends StatefulWidget {
   const Login({super.key});
@@ -23,6 +24,14 @@ class _LoginState extends State<Login> {
   Timer? _timer; // 倒计时计时器
 
   @override
+  void didChangeDependencies() async {
+    super.didChangeDependencies();
+    _phoneController.text = '15900158829';
+    _codeController.text = '000000';
+    agreed = true;
+  }
+
+  @override
   void dispose() {
     _phoneController.dispose();
     _codeController.dispose();
@@ -30,7 +39,7 @@ class _LoginState extends State<Login> {
     super.dispose();
   }
 
-  // 开始倒计时
+  // 开始验证码倒计时
   void startCountdown() {
     setState(() {
       canGetCode = false;
@@ -50,7 +59,7 @@ class _LoginState extends State<Login> {
   }
 
   // 发送验证码
-  void sendCode() {
+  void sendCode() async {
     if (!canGetCode) return;
     // 验证手机号格式
     String phone = _phoneController.text;
@@ -58,9 +67,39 @@ class _LoginState extends State<Login> {
       CSnackBar(message: '请输入正确的手机号').show(context);
       return;
     }
+    bool isSuccess = await AuthApi().getCode(phone);
+    if (isSuccess) {
+      startCountdown(); // 倒计时
+      CSnackBar(message: '验证码已发送').show(context);
+    } else {
+      CSnackBar(message: '验证码发送失败').show(context);
+    }
+  }
 
-    //请求发送验证码
-    startCountdown();
+  // 登录
+  void signIn() async {
+    if (!agreed) {
+      CSnackBar(message: '请先同意用户协议和隐私协议').show(context);
+      return;
+    }
+    if (_phoneController.text.length != 11) {
+      CSnackBar(message: '请输入正确的手机号').show(context);
+      return;
+    }
+    if (_codeController.text.length != 6) {
+      CSnackBar(message: '请输入6位验证码').show(context);
+      return;
+    }
+
+    bool isLogin = await AuthApi().signIn(
+      _phoneController.text,
+      _codeController.text,
+    );
+    if (isLogin) {
+      Navigator.of(context).pushReplacementNamed('/home');
+    } else {
+      CSnackBar(message: '登录失败').show(context);
+    }
   }
 
   @override
@@ -160,24 +199,7 @@ class _LoginState extends State<Login> {
             padding: const EdgeInsets.fromLTRB(15, 0, 15, 40),
             child: SizedBox(
               width: double.infinity,
-              child: CButton(
-                  onPressed: () {
-                    if (!agreed) {
-                      CSnackBar(message: '请先同意用户协议和隐私协议').show(context);
-                      return;
-                    }
-                    if (_phoneController.text.length != 11) {
-                      CSnackBar(message: '请输入正确的手机号').show(context);
-                      return;
-                    }
-                    if (_codeController.text.length != 6) {
-                      CSnackBar(message: '请输入6位验证码').show(context);
-                      return;
-                    }
-                    // TODO: 调用登录API
-                    Navigator.of(context).pushNamed('/home');
-                  },
-                  text: '登录'),
+              child: CButton(onPressed: signIn, text: '登录'),
             ),
           ),
           const Padding(

@@ -10,8 +10,10 @@ import 'package:food/pages/recipe/detail.dart';
 import 'package:food/pages/recipe/edit.dart';
 import 'package:food/pages/recipe/step.dart';
 import 'package:food/pages/sign_in/index.dart';
+import 'package:food/api/auth.dart';
 
 void main() {
+  WidgetsFlutterBinding.ensureInitialized();
   runApp(const MyApp());
 }
 
@@ -61,6 +63,19 @@ class MyHomePage extends StatefulWidget {
 }
 
 class _MyHomePageState extends State<MyHomePage> {
+  @override
+  void initState() {
+    super.initState();
+    checkLoginStatus();
+  }
+
+  void checkLoginStatus() async {
+    bool isLoggedIn = await AuthApi().checkLogin();
+    if (isLoggedIn) {
+      Navigator.of(context).pushReplacementNamed('/home');
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return const Login();

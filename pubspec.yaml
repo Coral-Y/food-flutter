@@ -53,6 +53,8 @@ dependencies:
   json_annotation: ^4.9.0
   # 拖拽
   reorderables: ^0.6.0
+  # 持久化存储
+  shared_preferences: ^2.2.3
   
 
 dev_dependencies:
