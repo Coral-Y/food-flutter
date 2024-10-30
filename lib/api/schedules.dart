@@ -95,7 +95,13 @@ class SchedulesApi {
     try {
       await BaseApi.request.put(
         "/dishes/${dish.id}",
-        data: dish.toJson(),
+        data: {
+          "title": dish.title,
+          "type": dish.type,
+          "icon": dish.icon,
+          "date":
+              "${dish.date.year}-${dish.date.month.toString().padLeft(2, '0')}-${dish.date.day.toString().padLeft(2, '0')}"
+        },
       );
       return true;
     } catch (e) {

@@ -81,6 +81,7 @@ class _EditRecipeState extends State<EditRecipe> {
   Future<void> getKindList() async {
     try {
       var res = await KindApi().list();
+      print(res.list);
       setState(() {
         kinds = res.list;
       });

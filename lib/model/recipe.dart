@@ -12,6 +12,7 @@ class Recipe {
   String image; // 图片
   @JsonKey(toJson: kindToJson, fromJson: kindFromJson)
   Kind? kind; // 分类
+  String? kindIcon; //菜谱图标
   List<String> ingredients; // 食材
   List<String>? seasonings; // 调味品
   List<String>? instructions; // 步骤
@@ -30,6 +31,7 @@ class Recipe {
       List<String>? ingredients,
       this.seasonings,
       this.kind,
+      this.kindIcon,
       this.instructions})
       : ingredients = ingredients ?? [];
 
@@ -42,6 +44,7 @@ class Recipe {
       seasonings: _parseStringOrList(json['seasonings']),
       instructions: _parseStringOrList(json['instructions']),
       kind: kindFromJson(json['kind'] as Map<String, dynamic>?),
+      kindIcon: json['kindIcon'] as String,
     );
   }
 
@@ -68,11 +71,12 @@ class Recipe {
       'seasonings': seasonings,
       'instructions': instructions,
       'kind': kindToJson(kind),
+      'kindIcon': kindIcon,
     };
   }
 
   @override
   String toString() {
-    return 'Recipe{id: $id, name: $name, image: $image, ingredients: $ingredients, seasonings: $seasonings, kind: $kind, instructions: $instructions}';
+    return 'Recipe{id: $id, name: $name, image: $image, ingredients: $ingredients, seasonings: $seasonings, kind: $kind, instructions: $instructions,kindIcon: $kindIcon}';
   }
 }

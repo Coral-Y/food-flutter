@@ -33,7 +33,11 @@ class _RecipeListState extends State<RecipeList> {
       setState(() {
         current = res.current;
         totalPage = res.totalPage;
-        recipes = res.list;
+        if (page == 1) {
+          recipes = res.list;
+        } else {
+          recipes.addAll(res.list);
+        }
       });
     } catch (e) {
       print(e);
@@ -54,7 +58,6 @@ class _RecipeListState extends State<RecipeList> {
   @override
   void initState() {
     super.initState();
-    print('初始化');
     getRecipeList(1, 0);
     getKindList();
   }

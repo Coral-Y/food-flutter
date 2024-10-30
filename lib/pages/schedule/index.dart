@@ -1,7 +1,10 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:food/model/dish.dart';
 import 'package:food/widgets/c_button.dart';
+import 'package:food/widgets/c_snackbar.dart';
 import 'package:reorderables/reorderables.dart';
 import 'package:food/api/icon.dart';
 import 'package:food/model/common.dart';
@@ -9,6 +12,8 @@ import 'package:food/model/icon.dart';
 import 'package:food/config.dart';
 import 'package:food/model/exception.dart';
 import 'package:food/api/schedules.dart';
+import 'package:food/model/recipe.dart';
+import 'package:food/api/recipe.dart';
 
 class WeeklySchedule extends StatefulWidget {
   const WeeklySchedule({super.key});
@@ -32,9 +37,7 @@ class _ScheduleState extends State<WeeklySchedule> {
   void didChangeDependencies() async {
     super.didChangeDependencies();
     try {
-      Pager<FoodIcon> data = await IconApi().list('dish');
-      icons = data.list.map((icon) => icon.enName).toList();
-
+      getIconList();
       getScheduleData(DateTime.now());
     } catch (e) {
       if (e is ApiException) {
@@ -57,6 +60,14 @@ class _ScheduleState extends State<WeeklySchedule> {
     }
   }
 
+  // 获取图标列表
+  Future<void> getIconList() async {
+    Pager<FoodIcon> data = await IconApi().list('dish');
+    setState(() {
+      icons = data.list.map((icon) => icon.enName).toList();
+    });
+  }
+
   // 更新当前日期
   void updateCurrent(DateTime newDate) {
     setState(() {
@@ -77,20 +88,35 @@ class _ScheduleState extends State<WeeklySchedule> {
 
   // 添加计划
   Future<void> addPlan(Dish dish) async {
-    SchedulesApi().addSchedule(dish);
+    bool isOk = await SchedulesApi().addSchedule(dish);
+    if (isOk) {
+      getScheduleData(current);
+      CSnackBar(message: '添加成功').show(context);
+    } else {
+      CSnackBar(message: '添加失败').show(context);
+    }
   }
 
   // 修改计划
   Future<void> updatePlan(Dish dish) async {
-    //TODO:请求添加修改计划
-    SchedulesApi().addSchedule(dish);
+    bool isOk = await SchedulesApi().updateSchedule(dish);
+    if (isOk) {
+      getScheduleData(current);
+      CSnackBar(message: '修改成功').show(context);
+    } else {
+      CSnackBar(message: '修改失败').show(context);
+    }
   }
 
   //删除计划
   Future<void> deletePlan(id) async {
-    //TODO:请求删除计划
-    print(id);
-    print(current);
+    bool isOk = await SchedulesApi().deletSchedule(id);
+    if (isOk) {
+      getScheduleData(current);
+      CSnackBar(message: '删除成功').show(context);
+    } else {
+      CSnackBar(message: '删除失败').show(context);
+    }
   }
 
   _bottomSheet({String? title, String? icon, String? name, int? id}) {
@@ -103,6 +129,7 @@ class _ScheduleState extends State<WeeklySchedule> {
             icon: icon,
             name: name,
             id: id,
+            current: current,
             icons: icons,
             onAddPlan: addPlan,
             onUpdatePlan: updatePlan,
@@ -357,12 +384,11 @@ class FoodCard extends StatelessWidget {
                         .map(
                           (item) => InkWell(
                             onTap: () {
-                              print('编辑');
                               onEdit(
                                   title: title,
                                   icon: item.icon,
                                   name: item.title,
-                                  id: item.recipeId);
+                                  id: item.id);
                             },
                             child: Container(
                               width: 100,
@@ -412,6 +438,7 @@ class PickerBottomSheet extends StatefulWidget {
   final String? icon;
   final String? name;
   final int? id;
+  final DateTime current;
   final Function(Dish) onAddPlan;
   final Function(Dish) onUpdatePlan;
   final Function(int id) onDelete;
@@ -422,6 +449,7 @@ class PickerBottomSheet extends StatefulWidget {
       this.icon,
       this.name,
       this.id,
+      required this.current,
       required this.onAddPlan,
       required this.icons,
       required this.onUpdatePlan,
@@ -435,12 +463,37 @@ class PickerBottomSheet extends StatefulWidget {
 class _PickerBottomSheetState extends State<PickerBottomSheet> {
   late TextEditingController _nameController;
   String? selectedIcon;
+  List<Recipe> recipes = []; //食谱列表
+  int _selectedTabIndex = 0; // 添加选项卡索引
+  Timer? _debounce; // 用于搜索防抖
 
   @override
   void initState() {
     super.initState();
     _nameController = TextEditingController(text: widget.name ?? '');
     selectedIcon = widget.icon;
+    //TODO：查看是否有recipeId
+    getRecipeList();
+  }
+
+  //获取账号食谱列表
+  Future<void> getRecipeList({int? current, String? keyword}) async {
+    try {
+      var res = await RecipeApi().list(current: current, keyword: keyword);
+      setState(() {
+        recipes = res.list;
+      });
+    } catch (e) {
+      print('Error fetching recipes: $e');
+    }
+  }
+
+  // 搜索食谱
+  void _onSearchChanged(String query) {
+    if (_debounce?.isActive ?? false) _debounce!.cancel();
+    _debounce = Timer(const Duration(milliseconds: 500), () {
+      getRecipeList(keyword: query);
+    });
   }
 
   @override
@@ -448,7 +501,6 @@ class _PickerBottomSheetState extends State<PickerBottomSheet> {
     // 获取键盘的高度
     double keyboardHeight = MediaQuery.of(context).viewInsets.bottom;
     var tabs = ['assets/icons/emoji.svg', 'assets/icons/recipe.svg'];
-    var recipes = ['水煮牛肉', '拆骨肉荷包蛋', '鸡翅包饭'];
 
     return Padding(
         padding: EdgeInsets.only(
@@ -473,8 +525,8 @@ class _PickerBottomSheetState extends State<PickerBottomSheet> {
                       height: 30,
                       child: CButton(
                         onPressed: () {
-                          // 按钮点击事件
                           widget.onDelete(widget.id!);
+                          Navigator.pop(context);
                         },
                         text: '删除',
                         type: 'secondary',
@@ -498,9 +550,9 @@ class _PickerBottomSheetState extends State<PickerBottomSheet> {
                               : widget.title == '中餐'
                                   ? 'lunch'
                                   : 'dinner',
-                          date: DateTime.now(), // 或者使用当前选中的日期
+                          date: widget.current,
                         );
-                        if (widget.id == null) {
+                        if (widget.id == null && widget.id != 0) {
                           //添加
                           widget.onAddPlan(dish);
                         } else {
@@ -549,10 +601,7 @@ class _PickerBottomSheetState extends State<PickerBottomSheet> {
                         border: OutlineInputBorder(),
                         hintText: '${widget.title}准备吃...',
                       ),
-                      onTap: () {
-                        // 滚动到输入框位置
-                        // FocusScope.of(context).requestFocus(FocusNode());
-                      },
+                      onTap: () {},
                     ),
                   ),
                 ],
@@ -563,6 +612,7 @@ class _PickerBottomSheetState extends State<PickerBottomSheet> {
               // Tab
               Expanded(
                   child: DefaultTabController(
+                      initialIndex: _selectedTabIndex,
                       length: 2,
                       child: Column(
                         children: [
@@ -572,6 +622,11 @@ class _PickerBottomSheetState extends State<PickerBottomSheet> {
                               width: 120,
                               child: TabBar(
                                   dividerHeight: 0,
+                                  onTap: (index) {
+                                    setState(() {
+                                      _selectedTabIndex = index;
+                                    });
+                                  },
                                   tabs: tabs
                                       .map((item) => Tab(
                                             icon: SvgPicture.asset(
@@ -607,18 +662,25 @@ class _PickerBottomSheetState extends State<PickerBottomSheet> {
                                     .toList(),
                               ),
                               ListView.builder(
-                                  itemCount: recipes.length,
-                                  itemBuilder:
-                                      (BuildContext context, int index) {
-                                    return ListTile(
-                                      title: Text(recipes[index]),
-                                      onTap: () {
-                                        setState(() {
-                                          _nameController.text = recipes[index];
-                                        });
-                                      },
-                                    );
-                                  })
+                                itemCount: recipes.length,
+                                itemBuilder: (context, index) {
+                                  final recipe = recipes[index];
+                                  return ListTile(
+                                    leading: SvgPicture.network(
+                                      '$ICON_SERVER_URI${recipe.kindIcon}.svg',
+                                      width: 24,
+                                      height: 24,
+                                    ),
+                                    title: Text(recipe.name),
+                                    onTap: () {
+                                      setState(() {
+                                        _nameController.text = recipe.name;
+                                        selectedIcon = recipe.kindIcon;
+                                      });
+                                    },
+                                  );
+                                },
+                              ),
                             ]),
                           )
                         ],
@@ -631,6 +693,7 @@ class _PickerBottomSheetState extends State<PickerBottomSheet> {
   @override
   void dispose() {
     _nameController.dispose();
+    _debounce?.cancel();
     super.dispose();
   }
 }
