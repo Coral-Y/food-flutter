@@ -119,7 +119,8 @@ class _ScheduleState extends State<WeeklySchedule> {
     }
   }
 
-  _bottomSheet({String? title, String? icon, String? name, int? id}) {
+  _bottomSheet(
+      {String? title, String? icon, String? name, int? id, int? recipeId}) {
     showModalBottomSheet(
       context: context,
       isScrollControlled: true,
@@ -129,6 +130,7 @@ class _ScheduleState extends State<WeeklySchedule> {
             icon: icon,
             name: name,
             id: id,
+            recipeId: recipeId,
             current: current,
             icons: icons,
             onAddPlan: addPlan,
@@ -215,19 +217,37 @@ class _ScheduleState extends State<WeeklySchedule> {
                 child: FoodCard(
                     title: types[index],
                     foods: getMealList(types[index]),
-                    onEdit: ({title, icon, name, id}) => _bottomSheet(
-                        title: title, icon: icon, name: name, id: id),
-                    onReorder: (oldIndex, newIndex) {
-                      //重新排序
+                    onEdit: ({title, icon, name, id, recipeId}) => _bottomSheet(
+                        title: title,
+                        icon: icon,
+                        name: name,
+                        id: id,
+                        recipeId: recipeId),
+                    onReorder: (oldIndex, newIndex) async {
+                      var dishes = getMealList(types[index]);
+                      var newDishes = List<Dish>.from(dishes);
+                      final item = newDishes.removeAt(oldIndex);
+                      newDishes.insert(newIndex, item);
                       setState(() {
-                        var dishes = getMealList(types[index]);
-                        final item = dishes.removeAt(oldIndex);
-                        dishes.insert(newIndex, item);
-                        // 更新排序
-                        List<int> dishIds =
-                            dishes.map((dish) => dish.id).toList();
-                        SchedulesApi().updateSchedules(dishIds);
+                        // 更新本地数据
+                        if (types[index] == '早餐') {
+                          schedules['breakfast'] = newDishes;
+                        } else if (types[index] == '中餐') {
+                          schedules['lunch'] = newDishes;
+                        } else {
+                          schedules['dinner'] = newDishes;
+                        }
                       });
+                      // 获取排序后的 id 列表
+                      List<int> dishIds =
+                          newDishes.map((dish) => dish.id).toList();
+                      bool isOk = await SchedulesApi().updateSchedules(dishIds);
+                      if (isOk) {
+                        CSnackBar(message: '排序更新成功').show(context);
+                      } else {
+                        getScheduleData(current);
+                        CSnackBar(message: '排序更新失败').show(context);
+                      }
                     }),
               );
             },
@@ -347,7 +367,12 @@ class WeekView extends StatelessWidget {
 class FoodCard extends StatelessWidget {
   final String title;
   final List<Dish> foods;
-  final Function({String? title, String? icon, String? name, int? id}) onEdit;
+  final Function(
+      {String? title,
+      String? icon,
+      String? name,
+      int? id,
+      int? recipeId}) onEdit;
   final Function(int oldIndex, int newIndex) onReorder;
 
   const FoodCard(
@@ -388,7 +413,8 @@ class FoodCard extends StatelessWidget {
                                   title: title,
                                   icon: item.icon,
                                   name: item.title,
-                                  id: item.id);
+                                  id: item.id,
+                                  recipeId: item.recipeId);
                             },
                             child: Container(
                               width: 100,
@@ -438,6 +464,7 @@ class PickerBottomSheet extends StatefulWidget {
   final String? icon;
   final String? name;
   final int? id;
+  final int? recipeId;
   final DateTime current;
   final Function(Dish) onAddPlan;
   final Function(Dish) onUpdatePlan;
@@ -449,6 +476,7 @@ class PickerBottomSheet extends StatefulWidget {
       this.icon,
       this.name,
       this.id,
+      this.recipeId,
       required this.current,
       required this.onAddPlan,
       required this.icons,
@@ -466,6 +494,13 @@ class _PickerBottomSheetState extends State<PickerBottomSheet> {
   List<Recipe> recipes = []; //食谱列表
   int _selectedTabIndex = 0; // 添加选项卡索引
   Timer? _debounce; // 用于搜索防抖
+  int? recipeId;
+
+  // 加载食谱分页
+  int current = 1;
+  int totalPage = 1;
+  bool isLoading = false;
+  final ScrollController _scrollController = ScrollController();
 
   @override
   void initState() {
@@ -473,18 +508,31 @@ class _PickerBottomSheetState extends State<PickerBottomSheet> {
     _nameController = TextEditingController(text: widget.name ?? '');
     selectedIcon = widget.icon;
     //TODO：查看是否有recipeId
+    widget.recipeId != null ? _selectedTabIndex = 1 : _selectedTabIndex = 0;
+    recipeId = widget.recipeId;
+    // 添加滚动监听
+    _scrollController.addListener(_onScroll);
     getRecipeList();
   }
 
   //获取账号食谱列表
-  Future<void> getRecipeList({int? current, String? keyword}) async {
+  Future<void> getRecipeList({String? keyword}) async {
+    setState(() {
+      isLoading = true;
+    });
     try {
-      var res = await RecipeApi().list(current: current, keyword: keyword);
+      var res = await RecipeApi().list(current: 1, keyword: keyword);
       setState(() {
         recipes = res.list;
+        current = res.current;
+        totalPage = res.totalPage;
       });
     } catch (e) {
       print('Error fetching recipes: $e');
+    } finally {
+      setState(() {
+        isLoading = false;
+      });
     }
   }
 
@@ -494,6 +542,36 @@ class _PickerBottomSheetState extends State<PickerBottomSheet> {
     _debounce = Timer(const Duration(milliseconds: 500), () {
       getRecipeList(keyword: query);
     });
+  }
+
+  // 滚动监听函数
+  void _onScroll() {
+    if (_scrollController.position.pixels >=
+        _scrollController.position.maxScrollExtent * 0.8) {
+      _loadMore();
+    }
+  }
+
+  // 加载更多
+  Future<void> _loadMore({String? keyword}) async {
+    if (isLoading || current >= totalPage) return;
+    setState(() {
+      isLoading = true;
+    });
+    try {
+      var res = await RecipeApi().list(current: current + 1, keyword: keyword);
+      setState(() {
+        current = res.current;
+        totalPage = res.totalPage;
+        recipes.addAll(res.list);
+      });
+    } catch (e) {
+      print('Error loading more recipes: $e');
+    } finally {
+      setState(() {
+        isLoading = false;
+      });
+    }
   }
 
   @override
@@ -542,16 +620,16 @@ class _PickerBottomSheetState extends State<PickerBottomSheet> {
                     child: CButton(
                       onPressed: () {
                         final dish = Dish(
-                          id: widget.id == null ? 0 : widget.id!, // 新建时 id 为 0
-                          title: _nameController.text,
-                          icon: selectedIcon!,
-                          type: widget.title == '早餐'
-                              ? 'breakfast'
-                              : widget.title == '中餐'
-                                  ? 'lunch'
-                                  : 'dinner',
-                          date: widget.current,
-                        );
+                            id: widget.id == null ? 0 : widget.id!,
+                            title: _nameController.text,
+                            icon: selectedIcon!,
+                            type: widget.title == '早餐'
+                                ? 'breakfast'
+                                : widget.title == '中餐'
+                                    ? 'lunch'
+                                    : 'dinner',
+                            date: widget.current,
+                            recipeId: recipeId);
                         if (widget.id == null && widget.id != 0) {
                           //添加
                           widget.onAddPlan(dish);
@@ -650,6 +728,7 @@ class _PickerBottomSheetState extends State<PickerBottomSheet> {
                                           onTap: () {
                                             setState(() {
                                               selectedIcon = item;
+                                              recipeId = null;
                                             });
                                           },
                                           child: SvgPicture.network(
@@ -662,8 +741,19 @@ class _PickerBottomSheetState extends State<PickerBottomSheet> {
                                     .toList(),
                               ),
                               ListView.builder(
-                                itemCount: recipes.length,
+                                controller: _scrollController,
+                                itemCount: recipes.length + 1, // 增加1用于显示加载状态
                                 itemBuilder: (context, index) {
+                                  if (index == recipes.length) {
+                                    // 显示加载状态
+                                    return isLoading
+                                        ? const Center(
+                                            child: CircularProgressIndicator())
+                                        : current >= totalPage
+                                            ? const Center(
+                                                child: Text('没有更多数据了'))
+                                            : const SizedBox();
+                                  }
                                   final recipe = recipes[index];
                                   return ListTile(
                                     leading: SvgPicture.network(
@@ -676,11 +766,12 @@ class _PickerBottomSheetState extends State<PickerBottomSheet> {
                                       setState(() {
                                         _nameController.text = recipe.name;
                                         selectedIcon = recipe.kindIcon;
+                                        recipeId = recipe.id;
                                       });
                                     },
                                   );
                                 },
-                              ),
+                              )
                             ]),
                           )
                         ],
@@ -694,6 +785,7 @@ class _PickerBottomSheetState extends State<PickerBottomSheet> {
   void dispose() {
     _nameController.dispose();
     _debounce?.cancel();
+    _scrollController.dispose();
     super.dispose();
   }
 }

@@ -78,9 +78,18 @@ class SchedulesApi {
   Future<bool> addSchedule(Dish dish) async {
     print(dish.toJson());
     try {
+      Map<String, dynamic> data = {
+        "title": dish.title,
+        "type": dish.type,
+        "icon": dish.icon,
+        "date":
+            "${dish.date.year}-${dish.date.month.toString().padLeft(2, '0')}-${dish.date.day.toString().padLeft(2, '0')}",
+        "recipeId": dish.recipeId
+      };
+
       await BaseApi.request.post(
         "/dishes",
-        data: dish.toJson(),
+        data: data,
       );
       return true;
     } catch (e) {
@@ -93,15 +102,18 @@ class SchedulesApi {
   Future<bool> updateSchedule(Dish dish) async {
     print(dish.toJson());
     try {
+      Map<String, dynamic> data = {
+        "title": dish.title,
+        "type": dish.type,
+        "icon": dish.icon,
+        "date":
+            "${dish.date.year}-${dish.date.month.toString().padLeft(2, '0')}-${dish.date.day.toString().padLeft(2, '0')}",
+        "recipeId": dish.recipeId
+      };
+
       await BaseApi.request.put(
         "/dishes/${dish.id}",
-        data: {
-          "title": dish.title,
-          "type": dish.type,
-          "icon": dish.icon,
-          "date":
-              "${dish.date.year}-${dish.date.month.toString().padLeft(2, '0')}-${dish.date.day.toString().padLeft(2, '0')}"
-        },
+        data: data,
       );
       return true;
     } catch (e) {

@@ -42,7 +42,9 @@ class RecipeApi {
   //获取食谱详情
   Future<Recipe> detail(int id) async {
     try {
+      print(id);
       var response = await BaseApi.request.get("/recipes/$id");
+      print(Recipe.fromJson(response));
       return Recipe.fromJson(response);
     } catch (e) {
       rethrow;
@@ -51,6 +53,7 @@ class RecipeApi {
 
   //创建食谱
   Future<bool> created(Recipe recipe) async {
+    print(recipe.ingredients);
     try {
       var formData = FormData.fromMap({
         "name": recipe.name,

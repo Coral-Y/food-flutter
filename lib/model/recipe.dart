@@ -44,7 +44,7 @@ class Recipe {
       seasonings: _parseStringOrList(json['seasonings']),
       instructions: _parseStringOrList(json['instructions']),
       kind: kindFromJson(json['kind'] as Map<String, dynamic>?),
-      kindIcon: json['kindIcon'] as String,
+      kindIcon: json['kindIcon'] as String?,
     );
   }
 
