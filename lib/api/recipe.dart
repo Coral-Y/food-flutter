@@ -84,7 +84,6 @@ class RecipeApi {
       var formData = FormData.fromMap({
         'id': recipe.id,
         "name": recipe.name,
-        if (recipe.image.isNotEmpty) "image": recipe.image,
         "ingredients": arrayToString(recipe.ingredients),
         "seasonings": arrayToString(recipe.seasonings),
         "instructions": arrayToString(recipe.instructions),

@@ -60,6 +60,7 @@ class _ScheduleState extends State<WeeklySchedule> {
       setState(() {
         imagePath =
             userInfo.avatar.isNotEmpty ? IMG_SERVER_URI + userInfo.avatar : '';
+        print(imagePath);
       });
     }
   }
@@ -70,6 +71,7 @@ class _ScheduleState extends State<WeeklySchedule> {
       var data = await SchedulesApi().getSchedules(date);
       setState(() {
         schedules = data;
+        print(schedules);
       });
     } catch (e) {
       print("Error: $e");
@@ -184,7 +186,7 @@ class _ScheduleState extends State<WeeklySchedule> {
                       borderRadius: BorderRadius.circular(25),
                       child: imagePath.isEmpty
                           ? Image.asset(
-                              'assets/images/avatar.png',
+                              'assets/icons/cookie_color.png',
                               width: 50,
                               height: 50,
                               fit: BoxFit.cover,

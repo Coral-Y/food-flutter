@@ -5,7 +5,7 @@ class Dish {
   String icon;
   String type; //类型 breakfast：早餐 lunch：中餐 dinner：晚餐
   int? recipeId; // 食谱id
-  int sort; // 排序
+  int? sort; // 排序
   DateTime date; // 日期
 
   Dish({
@@ -15,7 +15,7 @@ class Dish {
     required this.type,
     required this.date,
     this.recipeId,
-    this.sort = 0,
+    this.sort,
   });
 
   factory Dish.fromJson(Map<String, dynamic> json) {
@@ -24,7 +24,7 @@ class Dish {
       title: json['title'] as String,
       icon: json['icon'] as String,
       type: json['type'] as String,
-      sort: json['sort'] as int,
+      sort: json['sort'] as int? ?? 0,
       date: DateTime.parse(json['date'] as String),
       recipeId: json['recipeId'] as int?,
     );

@@ -98,7 +98,7 @@ class _MeState extends State<Me> {
                             borderRadius: BorderRadius.circular(25),
                             child: imagePath.isEmpty
                                 ? Image.asset(
-                                    'assets/images/avatar.png',
+                                    'assets/icons/cookie_color.png',
                                     width: 50,
                                     height: 50,
                                     fit: BoxFit.cover,

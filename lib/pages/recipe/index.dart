@@ -56,8 +56,8 @@ class _RecipeListState extends State<RecipeList> {
   }
 
   @override
-  void initState() {
-    super.initState();
+  void didChangeDependencies() {
+    super.didChangeDependencies();
     getRecipeList(1, 0);
     getKindList();
   }

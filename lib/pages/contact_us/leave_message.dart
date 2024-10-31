@@ -17,6 +17,11 @@ class _LeaveMessageState extends State<LeaveMessage> {
   TextEditingController _titleController = TextEditingController();
   String content = '';
   TextEditingController _contentController = TextEditingController();
+  final Map<int, String> typeMap = {
+    1: 'issue', // 使用问题
+    2: 'recommendation', // 优化建议
+    3: 'feature', // 新功能需求
+  };
 
   Future<void> _submit() async {
     FocusScope.of(context).unfocus();
@@ -30,7 +35,7 @@ class _LeaveMessageState extends State<LeaveMessage> {
     } else {
       bool isOk = await MessageApi().create(
         title: _titleController.text,
-        type: 'issue',
+        type: typeMap[type] ?? 'issue',
         content: _contentController.text,
       );
       if (isOk) {
@@ -52,52 +57,64 @@ class _LeaveMessageState extends State<LeaveMessage> {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               const Header(title: '我要留言'),
-              const Text(
-                '反馈类型',
-                style: TextStyle(fontSize: 16),
-              ),
-              Row(
-                children: [
-                  Radio(
-                      value: 1,
-                      groupValue: type,
-                      onChanged: (value) => setState(() => type = value ?? 1)),
-                  const Text('使用问题'),
-                  Radio(
-                      value: 2,
-                      groupValue: type,
-                      onChanged: (value) => setState(() => type = value ?? 1)),
-                  const Text('优化建议'),
-                  Radio(
-                      value: 3,
-                      groupValue: type,
-                      onChanged: (value) => setState(() => type = value ?? 1)),
-                  const Text('新功能需求'),
-                ],
-              ),
-              const SizedBox(
-                height: 10,
-              ),
-              const TextField(
-                obscureText: true,
-                decoration: InputDecoration(
-                    border: OutlineInputBorder(), labelText: '标题'),
-              ),
-              const SizedBox(
-                height: 15,
-              ),
-              const TextField(
-                maxLines: 4,
-                decoration: InputDecoration(
-                    border: OutlineInputBorder(), labelText: '内容'),
-              ),
-              const SizedBox(
-                height: 20,
-              ),
-              SizedBox(
-                width: double.infinity,
-                child: CButton(onPressed: () {}, text: '提交'),
-              )
+              Expanded(
+                  child: SingleChildScrollView(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    const Text(
+                      '反馈类型',
+                      style: TextStyle(fontSize: 16),
+                    ),
+                    Row(
+                      children: [
+                        Radio(
+                            value: 1,
+                            groupValue: type,
+                            onChanged: (value) =>
+                                setState(() => type = value ?? 1)),
+                        const Text('使用问题'),
+                        Radio(
+                            value: 2,
+                            groupValue: type,
+                            onChanged: (value) =>
+                                setState(() => type = value ?? 1)),
+                        const Text('优化建议'),
+                        Radio(
+                            value: 3,
+                            groupValue: type,
+                            onChanged: (value) =>
+                                setState(() => type = value ?? 1)),
+                        const Text('新功能需求'),
+                      ],
+                    ),
+                    const SizedBox(
+                      height: 10,
+                    ),
+                    TextField(
+                      controller: _titleController,
+                      decoration: const InputDecoration(
+                          border: OutlineInputBorder(), labelText: '标题'),
+                    ),
+                    const SizedBox(
+                      height: 15,
+                    ),
+                    TextField(
+                      maxLines: 4,
+                      controller: _contentController,
+                      decoration: const InputDecoration(
+                          border: OutlineInputBorder(), labelText: '内容'),
+                    ),
+                    const SizedBox(
+                      height: 20,
+                    ),
+                    SizedBox(
+                      width: double.infinity,
+                      child: CButton(onPressed: _submit, text: '提交'),
+                    )
+                  ],
+                ),
+              ))
             ],
           ),
         ),
