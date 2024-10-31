@@ -25,8 +25,6 @@ class AuthApi {
         "phone": phone,
         "code": code,
       });
-      print('这个token是$response');
-
       if (response == null) {
         print('登录响应为空');
         return false;
@@ -71,8 +69,14 @@ class AuthApi {
   }
 
   // 退出登录
-  Future<void> logout() async {
-    final prefs = await SharedPreferences.getInstance();
-    await prefs.remove('token');
+  Future<bool> logout() async {
+    try {
+      await BaseApi.request.get("/auth/signOut");
+      final prefs = await SharedPreferences.getInstance();
+      await prefs.remove('token');
+      return true;
+    } catch (e) {
+      return false;
+    }
   }
 }

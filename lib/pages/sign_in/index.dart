@@ -7,6 +7,10 @@ import 'package:iconify_flutter/icons/cib.dart';
 import 'package:flutter/services.dart';
 import 'package:food/widgets/c_snackbar.dart';
 import 'package:food/api/auth.dart';
+import 'package:food/api/accounts.dart';
+import 'package:food/model/user_info.dart';
+import 'package:food/providers/user_provider.dart';
+import 'package:provider/provider.dart';
 
 class Login extends StatefulWidget {
   const Login({super.key});
@@ -96,7 +100,15 @@ class _LoginState extends State<Login> {
       _codeController.text,
     );
     if (isLogin) {
-      Navigator.of(context).pushReplacementNamed('/home');
+      try {
+        UserInfo userInfo = await AccountsApi().getUserInfo();
+        if (!mounted) return;
+        context.read<UserProvider>().setUserInfo(userInfo);
+        Navigator.of(context).pushReplacementNamed('/home');
+      } catch (e) {
+        print("Error loading user info: $e");
+        CSnackBar(message: '获取用户信息失败').show(context);
+      }
     } else {
       CSnackBar(message: '登录失败').show(context);
     }

@@ -55,6 +55,8 @@ dependencies:
   reorderables: ^0.6.0
   # 持久化存储
   shared_preferences: ^2.2.3
+  # 状态管理
+  provider: ^6.0.5
   
 
 dev_dependencies:

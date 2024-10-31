@@ -14,6 +14,9 @@ import 'package:food/model/exception.dart';
 import 'package:food/api/schedules.dart';
 import 'package:food/model/recipe.dart';
 import 'package:food/api/recipe.dart';
+import 'package:food/config.dart';
+import 'package:provider/provider.dart';
+import 'package:food/providers/user_provider.dart';
 
 class WeeklySchedule extends StatefulWidget {
   const WeeklySchedule({super.key});
@@ -32,11 +35,13 @@ class _ScheduleState extends State<WeeklySchedule> {
     'dinner': [],
   };
   List<String> icons = [];
+  String imagePath = '';
 
   @override
   void didChangeDependencies() async {
     super.didChangeDependencies();
     try {
+      _getUserInfo();
       getIconList();
       getScheduleData(DateTime.now());
     } catch (e) {
@@ -45,6 +50,17 @@ class _ScheduleState extends State<WeeklySchedule> {
       } else {
         print("其他错误: $e");
       }
+    }
+  }
+
+  //获取用户信息
+  Future<void> _getUserInfo() async {
+    final userInfo = context.watch<UserProvider>().userInfo;
+    if (userInfo != null) {
+      setState(() {
+        imagePath =
+            userInfo.avatar.isNotEmpty ? IMG_SERVER_URI + userInfo.avatar : '';
+      });
     }
   }
 
@@ -159,13 +175,37 @@ class _ScheduleState extends State<WeeklySchedule> {
                 top: 60,
                 left: 30,
                 child: InkWell(
-                    onTap: () {
-                      Navigator.of(context).pushNamed('/me');
-                    },
-                    child: const CircleAvatar(
-                        radius: 26, // 半径
-                        backgroundImage:
-                            AssetImage('assets/images/strawberry.png'))),
+                  onTap: () {
+                    Navigator.of(context).pushNamed('/me');
+                  },
+                  child: CircleAvatar(
+                    radius: 25,
+                    child: ClipRRect(
+                      borderRadius: BorderRadius.circular(25),
+                      child: imagePath.isEmpty
+                          ? Image.asset(
+                              'assets/images/avatar.png',
+                              width: 50,
+                              height: 50,
+                              fit: BoxFit.cover,
+                            )
+                          : Image.network(
+                              imagePath,
+                              width: 50,
+                              height: 50,
+                              fit: BoxFit.cover,
+                              errorBuilder: (context, error, stackTrace) {
+                                return Image.asset(
+                                  'assets/images/avatar.png',
+                                  width: 50,
+                                  height: 50,
+                                  fit: BoxFit.cover,
+                                );
+                              },
+                            ),
+                    ),
+                  ),
+                ),
               )
             ],
           ),

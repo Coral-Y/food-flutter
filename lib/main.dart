@@ -5,16 +5,29 @@ import 'package:food/pages/home.dart';
 import 'package:food/pages/kind_manage/list.dart';
 import 'package:food/pages/me/edit_info.dart';
 import 'package:food/pages/me/index.dart';
+import 'package:food/pages/me/setting.dart';
 import 'package:food/pages/module/list.dart';
 import 'package:food/pages/recipe/detail.dart';
 import 'package:food/pages/recipe/edit.dart';
 import 'package:food/pages/recipe/step.dart';
 import 'package:food/pages/sign_in/index.dart';
+import 'package:food/widgets/c_snackbar.dart';
 import 'package:food/api/auth.dart';
+import 'package:food/api/accounts.dart';
+import 'package:provider/provider.dart';
+import 'package:food/model/user_info.dart';
+import 'package:food/providers/user_provider.dart';
 
 void main() {
   WidgetsFlutterBinding.ensureInitialized();
-  runApp(const MyApp());
+  runApp(
+    MultiProvider(
+      providers: [
+        ChangeNotifierProvider(create: (_) => UserProvider()),
+      ],
+      child: const MyApp(),
+    ),
+  );
 }
 
 class MyApp extends StatelessWidget {
@@ -42,6 +55,7 @@ class MyApp extends StatelessWidget {
         '/editRecipe': (context) => const EditRecipe(),
         '/recipeStep': (context) => const StepPage(),
         '/me': (context) => const Me(),
+        '/settings': (context) => const Settings(),
         '/editInfo': (context) => const EditInfo(),
         '/contactUs': (context) => const ContactUs(),
         '/kindManage': (context) => const KindManage(),
@@ -72,7 +86,15 @@ class _MyHomePageState extends State<MyHomePage> {
   void checkLoginStatus() async {
     bool isLoggedIn = await AuthApi().checkLogin();
     if (isLoggedIn) {
-      Navigator.of(context).pushReplacementNamed('/home');
+      try {
+        UserInfo userInfo = await AccountsApi().getUserInfo(); // 这会自动缓存用户信息
+        if (!mounted) return;
+        context.read<UserProvider>().setUserInfo(userInfo);
+        Navigator.of(context).pushReplacementNamed('/home');
+      } catch (e) {
+        print("Error getting user info: $e");
+        CSnackBar(message: '获取用户信息失败').show(context);
+      }
     }
   }
 

@@ -2,6 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:iconify_flutter/iconify_flutter.dart';
 import 'package:iconify_flutter/icons/cil.dart';
 import 'package:colorful_iconify_flutter/icons/twemoji.dart';
+import 'package:provider/provider.dart';
+import 'package:food/providers/user_provider.dart';
+import 'package:food/config.dart';
 
 class Me extends StatefulWidget {
   const Me({super.key});
@@ -11,6 +14,26 @@ class Me extends StatefulWidget {
 }
 
 class _MeState extends State<Me> {
+  String imagePath = '';
+  String nickname = '';
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    _getUserInfo();
+  }
+
+  Future<void> _getUserInfo() async {
+    final userInfo = context.watch<UserProvider>().userInfo;
+    if (userInfo != null) {
+      setState(() {
+        imagePath =
+            userInfo.avatar.isNotEmpty ? IMG_SERVER_URI + userInfo.avatar : '';
+        nickname = userInfo.name;
+      });
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -34,7 +57,7 @@ class _MeState extends State<Me> {
                 ),
                 InkWell(
                   onTap: () {
-                    // TODO:跳转到设置页
+                    Navigator.of(context).pushNamed('/settings');
                   },
                   child: const Iconify(
                     Cil.settings,
@@ -60,25 +83,48 @@ class _MeState extends State<Me> {
                     Navigator.of(context).pushNamed(
                       '/editInfo',
                       arguments: {
-                        'imagePath': 'assets/images/strawberry.png', // 头像
-                        'nickname': '曲奇', // 传入昵称
+                        'imagePath': imagePath, // 头像
+                        'nickname': nickname, // 传入昵称
                       },
                     );
                   },
-                  child: const Row(
+                  child: Row(
                       mainAxisAlignment: MainAxisAlignment.center,
                       crossAxisAlignment: CrossAxisAlignment.center,
                       children: [
                         CircleAvatar(
-                            radius: 25, // 半径
-                            backgroundImage:
-                                AssetImage('assets/images/strawberry.png')),
-                        SizedBox(
+                          radius: 25,
+                          child: ClipRRect(
+                            borderRadius: BorderRadius.circular(25),
+                            child: imagePath.isEmpty
+                                ? Image.asset(
+                                    'assets/images/avatar.png',
+                                    width: 50,
+                                    height: 50,
+                                    fit: BoxFit.cover,
+                                  )
+                                : Image.network(
+                                    imagePath,
+                                    width: 50,
+                                    height: 50,
+                                    fit: BoxFit.cover,
+                                    errorBuilder: (context, error, stackTrace) {
+                                      return Image.asset(
+                                        'assets/images/avatar.png',
+                                        width: 50,
+                                        height: 50,
+                                        fit: BoxFit.cover,
+                                      );
+                                    },
+                                  ),
+                          ),
+                        ),
+                        const SizedBox(
                           width: 10,
                         ),
                         Text(
-                          '曲奇',
-                          style: TextStyle(fontWeight: FontWeight.bold),
+                          nickname,
+                          style: const TextStyle(fontWeight: FontWeight.bold),
                         )
                       ]),
                 )),

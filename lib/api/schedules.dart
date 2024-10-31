@@ -16,13 +16,11 @@ class SchedulesApi {
               "${date.year}-${date.month.toString().padLeft(2, '0')}-${date.day.toString().padLeft(2, '0')}"
         },
       );
-
       Map<String, List<Dish>> result = {
         'breakfast': [],
         'lunch': [],
         'dinner': [],
       };
-
       if (response != null && response is Map) {
         // 处理早餐数据
         if (response['breakfast'] != null) {
@@ -30,14 +28,12 @@ class SchedulesApi {
               .map((item) => Dish.fromJson(item))
               .toList();
         }
-
         // 处理午餐数据
         if (response['lunch'] != null) {
           result['lunch'] = (response['lunch'] as List)
               .map((item) => Dish.fromJson(item))
               .toList();
         }
-
         // 处理晚餐数据
         if (response['dinner'] != null) {
           result['dinner'] = (response['dinner'] as List)

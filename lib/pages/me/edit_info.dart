@@ -1,12 +1,13 @@
 import 'dart:io';
-import 'package:dotted_border/dotted_border.dart';
+import 'package:food/model/user_info.dart';
+import 'package:food/providers/user_provider.dart';
 import 'package:food/widgets/c_button.dart';
 import 'package:food/widgets/c_snackbar.dart';
-import 'package:iconify_flutter/iconify_flutter.dart';
-import 'package:iconify_flutter/icons/cil.dart';
 import 'package:flutter/material.dart';
 import 'package:food/widgets/header.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:food/api/accounts.dart';
+import 'package:provider/provider.dart';
 
 class EditInfo extends StatefulWidget {
   const EditInfo({super.key});
@@ -27,7 +28,7 @@ class _EditInfoState extends State<EditInfo> {
         ModalRoute.of(context)!.settings.arguments as Map<String, dynamic>;
     imagePath = args['imagePath'];
     nickname = args['nickname'];
-    _nicknameController.text = nickname; // 初始化文本框
+    _nicknameController.text = nickname;
   }
 
   File? _image;
@@ -35,9 +36,9 @@ class _EditInfoState extends State<EditInfo> {
   Future<void> _pickImage() async {
     final pickedFile =
         await ImagePicker().pickImage(source: ImageSource.gallery);
-
     setState(() {
       if (pickedFile != null) {
+        imagePath = pickedFile.path;
         _image = File(pickedFile.path);
       } else {
         print('No image selected.');
@@ -45,15 +46,26 @@ class _EditInfoState extends State<EditInfo> {
     });
   }
 
-  void _submit() {
-    //收起键盘
+  Future<void> _submit() async {
     FocusScope.of(context).unfocus();
-    final nickname = _nicknameController.text;
-    if (nickname.isEmpty) {
+    if (_nicknameController.text.isEmpty) {
       CSnackBar(message: '用户名不能为空').show(context);
     } else {
-      //TODO:提交请求
-      Navigator.of(context).pop();
+      bool isOk = await AccountsApi().updateUserInfo(
+          name: _nicknameController.text, avatarPath: imagePath);
+      if (isOk) {
+        if (context != null) {
+          context.read<UserProvider>().clearUserInfo();
+        }
+        UserInfo info = await AccountsApi().getUserInfo();
+        if (context != null) {
+          context.read<UserProvider>().setUserInfo(info);
+        }
+        CSnackBar(message: '修改成功').show(context);
+        Navigator.of(context).pop();
+      } else {
+        CSnackBar(message: '修改失败').show(context);
+      }
     }
   }
 
@@ -79,13 +91,59 @@ class _EditInfoState extends State<EditInfo> {
                     onTap: _pickImage,
                     child: _image == null
                         ? CircleAvatar(
-                            radius: 40, // 半径
-                            backgroundImage: AssetImage(imagePath))
-                        : Image.file(
-                            _image!,
-                            width: 100,
-                            height: 100,
-                            fit: BoxFit.cover,
+                            radius: 40,
+                            child: ClipRRect(
+                              borderRadius:
+                                  BorderRadius.circular(40), // 与 radius 相同的值
+                              child: imagePath.isEmpty
+                                  ? Image.asset(
+                                      'assets/icons/cookie_color.png', // 默认头像图片
+                                      width: 80,
+                                      height: 80,
+                                      fit: BoxFit.cover,
+                                    )
+                                  : Image.network(
+                                      imagePath,
+                                      width: 80, // radius * 2
+                                      height: 80, // radius * 2
+                                      fit: BoxFit.cover,
+                                      errorBuilder:
+                                          (context, error, stackTrace) {
+                                        return Container(
+                                          color: Colors.grey[300],
+                                          child: const Icon(Icons.error,
+                                              color: Colors.red),
+                                        );
+                                      },
+                                      loadingBuilder:
+                                          (context, child, loadingProgress) {
+                                        if (loadingProgress == null)
+                                          return child;
+                                        return Center(
+                                          child: CircularProgressIndicator(
+                                            value: loadingProgress
+                                                        .expectedTotalBytes !=
+                                                    null
+                                                ? loadingProgress
+                                                        .cumulativeBytesLoaded /
+                                                    loadingProgress
+                                                        .expectedTotalBytes!
+                                                : null,
+                                          ),
+                                        );
+                                      },
+                                    ),
+                            ),
+                          )
+                        : ClipRRect(
+                            borderRadius:
+                                BorderRadius.circular(40), // 与 radius 相同的值
+                            child: Image.file(
+                              _image!,
+                              width: 80, // radius * 2
+                              height: 80, // radius * 2
+                              fit: BoxFit.cover,
+                            ),
                           ))
               ],
             ),
