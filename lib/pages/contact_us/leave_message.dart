@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:food/widgets/c_button.dart';
 import 'package:food/widgets/header.dart';
+import 'package:food/widgets/c_snackbar.dart';
+import 'package:food/api/message.dart';
 
 class LeaveMessage extends StatefulWidget {
   const LeaveMessage({super.key});
@@ -12,7 +14,33 @@ class LeaveMessage extends StatefulWidget {
 class _LeaveMessageState extends State<LeaveMessage> {
   int type = 1;
   String title = '';
+  TextEditingController _titleController = TextEditingController();
   String content = '';
+  TextEditingController _contentController = TextEditingController();
+
+  Future<void> _submit() async {
+    FocusScope.of(context).unfocus();
+    if (_titleController.text.isEmpty) {
+      CSnackBar(message: '标题不能为空').show(context);
+      return;
+    }
+    if (_contentController.text.isEmpty) {
+      CSnackBar(message: '内容不能为空').show(context);
+      return;
+    } else {
+      bool isOk = await MessageApi().create(
+        title: _titleController.text,
+        type: 'issue',
+        content: _contentController.text,
+      );
+      if (isOk) {
+        CSnackBar(message: '提交成功').show(context);
+        Navigator.of(context).pop();
+      } else {
+        CSnackBar(message: '提交失败').show(context);
+      }
+    }
+  }
 
   @override
   Widget build(BuildContext context) {

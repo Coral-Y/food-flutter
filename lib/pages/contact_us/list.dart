@@ -2,9 +2,48 @@ import 'package:flutter/material.dart';
 import 'package:food/widgets/header.dart';
 import 'package:iconify_flutter/iconify_flutter.dart';
 import 'package:iconify_flutter/icons/cil.dart';
+import 'package:food/model/message.dart';
+import 'package:food/model/common.dart';
+import 'package:food/api/message.dart';
+import 'package:food/widgets/c_snackbar.dart';
 
-class ContactUs extends StatelessWidget {
+class ContactUs extends StatefulWidget {
   const ContactUs({super.key});
+
+  @override
+  State<ContactUs> createState() => _ContactUsState();
+}
+
+class _ContactUsState extends State<ContactUs> {
+  final GlobalKey<RefreshIndicatorState> _refreshKey = GlobalKey();
+  List<Message> messages = [];
+  int current = 1;
+  int totalPage = 1;
+
+  @override
+  void initState() {
+    super.initState();
+    getMessageList(1);
+  }
+
+  // 获取留言列表
+  Future<void> getMessageList(int page) async {
+    try {
+      Pager<Message> res = await MessageApi().list(current: page);
+      setState(() {
+        current = res.current;
+        totalPage = res.totalPage;
+        if (page == 1) {
+          messages = res.list;
+        } else {
+          messages.addAll(res.list);
+        }
+      });
+    } catch (e) {
+      print(e);
+      CSnackBar(message: '获取留言列表失败').show(context);
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -14,15 +53,39 @@ class ContactUs extends StatelessWidget {
                 padding: const EdgeInsets.fromLTRB(15, 10, 15, 10),
                 child: Stack(
                   children: [
-                    const Column(
+                    Column(
                       children: [
                         Header(title: '联系我们'),
-                        MessageCard(
-                          title: '我是标题',
-                          senderName: 'Cookie',
-                          time: '2024-7-24 9:37',
-                          content:
-                              '我是内容我是内容我是内容我是内容我是内容我是内容我是内容我是内容我是内容我是内容我是内容',
+                        Expanded(
+                          child: NotificationListener<ScrollEndNotification>(
+                            onNotification:
+                                (ScrollEndNotification scrollEndNotification) {
+                              if (scrollEndNotification.metrics.pixels >=
+                                  scrollEndNotification
+                                      .metrics.maxScrollExtent) {
+                                if (current < totalPage) {
+                                  getMessageList(current + 1);
+                                }
+                              }
+                              return true;
+                            },
+                            child: RefreshIndicator(
+                              key: _refreshKey,
+                              onRefresh: () => getMessageList(1), // 下拉刷新数据
+                              child: ListView.builder(
+                                itemCount: messages.length,
+                                itemBuilder: (context, index) {
+                                  return MessageCard(
+                                    title: messages[index].title,
+                                    senderName: messages[index].publisher.name,
+                                    avatar: messages[index].publisher.avatar,
+                                    content: messages[index].content,
+                                    time: messages[index].createdAt,
+                                  );
+                                },
+                              ),
+                            ),
+                          ),
                         )
                       ],
                     ),
@@ -44,6 +107,7 @@ class ContactUs extends StatelessWidget {
 }
 
 class MessageCard extends StatelessWidget {
+  final String avatar;
   final String title;
   final String senderName;
   final String content;
@@ -51,6 +115,7 @@ class MessageCard extends StatelessWidget {
 
   const MessageCard(
       {super.key,
+      required this.avatar,
       required this.title,
       required this.senderName,
       required this.content,
@@ -75,7 +140,10 @@ class MessageCard extends StatelessWidget {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(title),
-                Text(senderName,style: const TextStyle(fontSize: 12),),
+                Text(
+                  senderName,
+                  style: const TextStyle(fontSize: 12),
+                ),
               ],
             )
           ],
