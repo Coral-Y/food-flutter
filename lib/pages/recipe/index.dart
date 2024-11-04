@@ -8,6 +8,8 @@ import 'package:food/api/kind.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:food/config.dart';
 import 'package:food/widgets/c_snackbar.dart';
+import 'package:food/providers/recipe_provider.dart';
+import 'package:provider/provider.dart';
 
 class RecipeList extends StatefulWidget {
   const RecipeList({super.key});
@@ -20,29 +22,29 @@ class _RecipeListState extends State<RecipeList> {
   final GlobalKey<RefreshIndicatorState> _refreshKey = GlobalKey();
   Kind kind = Kind(id: 0, name: '全部', icon: "meat"); //当前分类
   List<Kind> kinds = [];
-  List<Recipe> recipes = []; //食谱列表
+  // List<Recipe> recipes = []; //食谱列表
   int current = 0; //当前页码
   int totalPage = 0; //总页数
 
   bool isDeleteMode = false; // 删除模式标志
 
-  Future<void> getRecipeList(int page, int kindId) async {
-    try {
-      var res = await RecipeApi().list(current: page, kindId: kindId);
-      print(res.list);
-      setState(() {
-        current = res.current;
-        totalPage = res.totalPage;
-        if (page == 1) {
-          recipes = res.list;
-        } else {
-          recipes.addAll(res.list);
-        }
-      });
-    } catch (e) {
-      print(e);
-    }
-  }
+  // Future<void> getRecipeList(int page, int kindId) async {
+  //   try {
+  //     var res = await RecipeApi().list(current: page, kindId: kindId);
+  //     print(res.list);
+  //     setState(() {
+  //       current = res.current;
+  //       totalPage = res.totalPage;
+  //       if (page == 1) {
+  //         recipes = res.list;
+  //       } else {
+  //         recipes.addAll(res.list);
+  //       }
+  //     });
+  //   } catch (e) {
+  //     print(e);
+  //   }
+  // }
 
   Future<void> getKindList() async {
     try {
@@ -56,15 +58,19 @@ class _RecipeListState extends State<RecipeList> {
   }
 
   @override
-  void didChangeDependencies() {
-    super.didChangeDependencies();
-    getRecipeList(1, 0);
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      Provider.of<RecipeProvider>(context, listen: false).getRecipeList(1, 0);
+    });
     getKindList();
   }
 
   @override
   Widget build(BuildContext context) {
+    final recipeProvider = Provider.of<RecipeProvider>(context);
     return Scaffold(
+        //分类列表
         drawer: Drawer(
             width: 150,
             shape: RoundedRectangleBorder(
@@ -100,7 +106,7 @@ class _RecipeListState extends State<RecipeList> {
                               setState(() {
                                 kind = kinds[index];
                               });
-                              getRecipeList(1, kind.id);
+                              recipeProvider.getRecipeList(1, kind.id);
                               Navigator.of(context).pop();
                             },
                             child: Row(
@@ -134,7 +140,7 @@ class _RecipeListState extends State<RecipeList> {
               padding: const EdgeInsets.fromLTRB(15, 0, 15, 10),
               child: Column(
                 children: [
-                  // 操作栏
+                  // 顶部操作栏
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
@@ -182,7 +188,7 @@ class _RecipeListState extends State<RecipeList> {
                                 ),
                               );
                               if (result == true) {
-                                getRecipeList(1, kind.id);
+                                recipeProvider.getRecipeList(1, kind.id);
                               }
                             },
                             label: const Text('添加'),
@@ -222,7 +228,7 @@ class _RecipeListState extends State<RecipeList> {
                         // 滚动超过内容的2/3
                         if (pixels >= maxPixels / 3 * 2) {
                           if (totalPage > current) {
-                            getRecipeList(current + 1, kind.id); // 加载更多数据
+                            recipeProvider.getNextPage(kind.id); // 加载更多数据
                           } else {
                             CSnackBar(message: '没有更多').show(context);
                           }
@@ -231,17 +237,18 @@ class _RecipeListState extends State<RecipeList> {
                       },
                       child: RefreshIndicator(
                         key: _refreshKey,
-                        onRefresh: () => getRecipeList(1, kind.id), // 下拉刷新数据
+                        onRefresh: () =>
+                            recipeProvider.getRecipeList(1, kind.id), // 下拉刷新数据
                         child: GridView.builder(
                           gridDelegate:
                               const SliverGridDelegateWithFixedCrossAxisCount(
                             childAspectRatio: 1.3,
                             crossAxisCount: 2, // 每行两列
                           ),
-                          itemCount: recipes.length, // 显示的条目数
+                          itemCount: recipeProvider.recipes.length, // 显示的条目数
                           itemBuilder: (context, index) {
                             return Draggable<Recipe>(
-                              data: recipes[index],
+                              data: recipeProvider.recipes[index],
                               feedback: Material(
                                 color: Colors.transparent,
                                 child: Transform.scale(
@@ -249,9 +256,10 @@ class _RecipeListState extends State<RecipeList> {
                                   child: Opacity(
                                     opacity: 0.5, // 50%的透明度
                                     child: RecipeCard(
-                                      name: recipes[index].name,
-                                      image: recipes[index].image,
-                                      id: recipes[index].id,
+                                      name: recipeProvider.recipes[index].name,
+                                      image:
+                                          recipeProvider.recipes[index].image,
+                                      id: recipeProvider.recipes[index].id,
                                     ),
                                   ),
                                 ),
@@ -259,14 +267,15 @@ class _RecipeListState extends State<RecipeList> {
                               childWhenDragging: Container(), // 拖动时不显示原始卡片
                               child: GestureDetector(
                                 onTap: () {
-                                  Navigator.of(context).pushNamed(
-                                      '/recipeDetail',
-                                      arguments: {"id": recipes[index].id});
+                                  Navigator.of(context)
+                                      .pushNamed('/recipeDetail', arguments: {
+                                    "id": recipeProvider.recipes[index].id
+                                  });
                                 },
                                 child: RecipeCard(
-                                  name: recipes[index].name,
-                                  image: recipes[index].image,
-                                  id: recipes[index].id,
+                                  name: recipeProvider.recipes[index].name,
+                                  image: recipeProvider.recipes[index].image,
+                                  id: recipeProvider.recipes[index].id,
                                 ),
                               ),
                               onDragStarted: () {
@@ -305,14 +314,11 @@ class _RecipeListState extends State<RecipeList> {
                   ),
                   child: DragTarget<Recipe>(
                     onAcceptWithDetails: (recipe) async {
-                      bool isDelete = await RecipeApi().delete(recipe.data.id);
+                      bool isDelete =
+                          await recipeProvider.deleteRecipe(recipe.data.id);
                       setState(() {
-                        if (isDelete) {
-                          recipes.remove(recipe.data);
-                        }
                         isDeleteMode = false;
                       });
-
                       CSnackBar(message: isDelete == true ? '删除成功' : '删除失败')
                           .show(context);
                     },

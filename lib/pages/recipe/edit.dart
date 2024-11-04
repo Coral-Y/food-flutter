@@ -17,6 +17,8 @@ import 'package:food/api/kind.dart';
 import 'package:food/api/recipe.dart';
 import 'package:food/model/exception.dart';
 import 'package:food/widgets/c_snackbar.dart';
+import 'package:food/providers/recipe_provider.dart';
+import 'package:provider/provider.dart';
 
 class EditRecipe extends StatefulWidget {
   const EditRecipe({super.key});
@@ -107,7 +109,8 @@ class _EditRecipeState extends State<EditRecipe> {
   }
 
   Future<void> _updateRecipe() async {
-    await RecipeApi().changed(recipe);
+    final recipeProvider = Provider.of<RecipeProvider>(context, listen: false);
+    await recipeProvider.updateRecipe(recipe);
     CSnackBar(message: '修改成功').show(context);
   }
 

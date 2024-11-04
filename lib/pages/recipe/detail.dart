@@ -172,9 +172,12 @@ class _RecipeDetailState extends State<RecipeDetail> {
                       startIcon: Iconify(MdiLight.pencil, color: Colors.white),
                       text: "编辑",
                       type: 'secondary',
-                      onPressed: () {
-                        Navigator.of(context)
+                      onPressed: () async {
+                        final result = await Navigator.of(context)
                             .pushNamed('/editRecipe', arguments: recipe);
+                        if (result == true) {
+                          getRecipeDetial();
+                        }
                       },
                     ),
                   ),

@@ -103,6 +103,7 @@ class RecipeApi {
           ));
         }
       }
+      print(formData.fields);
       await BaseApi.request.put(
           "/recipes/${recipe.id is String ? int.parse(recipe.id.toString()) : recipe.id}",
           data: formData);

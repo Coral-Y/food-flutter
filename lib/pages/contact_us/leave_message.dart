@@ -40,7 +40,7 @@ class _LeaveMessageState extends State<LeaveMessage> {
       );
       if (isOk) {
         CSnackBar(message: '提交成功').show(context);
-        Navigator.of(context).pop();
+        Navigator.of(context).pop(true);
       } else {
         CSnackBar(message: '提交失败').show(context);
       }
