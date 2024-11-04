@@ -6,6 +6,8 @@ import 'package:food/model/message.dart';
 import 'package:food/model/common.dart';
 import 'package:food/api/message.dart';
 import 'package:food/widgets/c_snackbar.dart';
+import 'package:intl/intl.dart';
+import 'package:food/config.dart';
 
 class ContactUs extends StatefulWidget {
   const ContactUs({super.key});
@@ -19,6 +21,7 @@ class _ContactUsState extends State<ContactUs> {
   List<Message> messages = [];
   int current = 1;
   int totalPage = 1;
+  bool hasMoreData = true;
 
   @override
   void initState() {
@@ -38,6 +41,7 @@ class _ContactUsState extends State<ContactUs> {
         } else {
           messages.addAll(res.list);
         }
+        hasMoreData = current < totalPage;
       });
     } catch (e) {
       print(e);
@@ -55,7 +59,7 @@ class _ContactUsState extends State<ContactUs> {
                   children: [
                     Column(
                       children: [
-                        Header(title: '联系我们'),
+                        const Header(title: '联系我们'),
                         Expanded(
                           child: NotificationListener<ScrollEndNotification>(
                             onNotification:
@@ -73,15 +77,34 @@ class _ContactUsState extends State<ContactUs> {
                               key: _refreshKey,
                               onRefresh: () => getMessageList(1), // 下拉刷新数据
                               child: ListView.builder(
-                                itemCount: messages.length,
+                                itemCount: messages.length + 1,
                                 itemBuilder: (context, index) {
-                                  return MessageCard(
-                                    title: messages[index].title,
-                                    senderName: messages[index].publisher.name,
-                                    avatar: messages[index].publisher.avatar,
-                                    content: messages[index].content,
-                                    time: messages[index].createdAt,
-                                  );
+                                  if (index < messages.length) {
+                                    // 显示消息卡片
+                                    return MessageCard(
+                                      title: messages[index].title,
+                                      senderName:
+                                          messages[index].publisher.name,
+                                      avatar: IMG_SERVER_URI +
+                                          messages[index].publisher.avatar,
+                                      content: messages[index].content,
+                                      time: messages[index].createdAt,
+                                    );
+                                  } else {
+                                    // 显示“没有更多”提示
+                                    return Padding(
+                                      padding: const EdgeInsets.all(16.0),
+                                      child: Center(
+                                        child: hasMoreData
+                                            ? const CircularProgressIndicator() // 如果有更多数据，显示加载中指示器
+                                            : const Text(
+                                                '没有更多数据',
+                                                style: TextStyle(
+                                                    color: Colors.grey),
+                                              ),
+                                      ),
+                                    );
+                                  }
                                 },
                               ),
                             ),
@@ -93,8 +116,12 @@ class _ContactUsState extends State<ContactUs> {
                       bottom: 60,
                       right: 0,
                       child: FilledButton(
-                          onPressed: () {
-                            Navigator.of(context).pushNamed('/leaveMessage');
+                          onPressed: () async {
+                            final result = await Navigator.of(context)
+                                .pushNamed('/leaveMessage');
+                            if (result == true) {
+                              getMessageList(1); // 刷新数据
+                            }
                           },
                           child: const Iconify(
                             Cil.pencil,
@@ -121,49 +148,95 @@ class MessageCard extends StatelessWidget {
       required this.content,
       required this.time});
 
+  // 计算显示的时间字符串
+  String getTimeDisplay(String time) {
+    DateTime parsedTime = DateTime.parse(time); // 将 String 转换为 DateTime
+    final now = DateTime.now();
+    final difference = now.difference(parsedTime);
+
+    if (difference.inDays == 1) {
+      return '昨天';
+    } else if (difference.inDays > 1) {
+      return DateFormat('MM-dd HH:mm').format(parsedTime);
+    } else if (difference.inHours >= 1) {
+      return '${difference.inHours}小时前';
+    } else if (difference.inMinutes >= 1) {
+      return '${difference.inMinutes}分钟前';
+    } else {
+      return '刚刚';
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Row(
-          children: [
-            Image.asset(
-              'assets/images/strawberry.png',
-              width: 50,
-              height: 50,
-            ),
-            const SizedBox(
-              width: 10,
-            ),
-            Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(title),
-                Text(
-                  senderName,
-                  style: const TextStyle(fontSize: 12),
-                ),
-              ],
-            )
-          ],
-        ),
         Padding(
-          padding: const EdgeInsets.only(left: 60, top: 10),
-          child: Column(
+          padding: const EdgeInsets.symmetric(vertical: 2.0, horizontal: 2.0),
+          child: Row(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Text(content),
-              const SizedBox(
-                height: 2,
+              // 头像
+              CircleAvatar(
+                radius: 25,
+                child: ClipRRect(
+                  borderRadius: BorderRadius.circular(25),
+                  child: avatar.isEmpty
+                      ? Image.asset(
+                          'assets/icons/cookie_color.png',
+                          width: 50,
+                          height: 50,
+                          fit: BoxFit.cover,
+                        )
+                      : Image.network(
+                          avatar,
+                          width: 50,
+                          height: 50,
+                          fit: BoxFit.cover,
+                          errorBuilder: (context, error, stackTrace) {
+                            return Image.asset(
+                              'assets/images/avatar.png',
+                              width: 50,
+                              height: 50,
+                              fit: BoxFit.cover,
+                            );
+                          },
+                        ),
+                ),
               ),
-              Text(
-                time,
-                style: const TextStyle(fontSize: 12, color: Color(0xFF999999)),
+              SizedBox(width: 12.0),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      senderName,
+                      style:
+                          TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
+                    ),
+                    SizedBox(height: 4.0),
+                    if (title.isNotEmpty) // 如果有标题，显示标题
+                      Text(
+                        title,
+                        style: TextStyle(fontSize: 14, color: Colors.grey[700]),
+                      ),
+                    SizedBox(height: 8.0),
+                    Text(
+                      content,
+                      style: TextStyle(fontSize: 14),
+                    ),
+                    SizedBox(height: 8.0),
+                    Text(
+                      getTimeDisplay(time),
+                      style: TextStyle(fontSize: 12, color: Colors.grey),
+                    ),
+                  ],
+                ),
               ),
             ],
           ),
-        )
+        ),
+        Divider(color: Colors.grey[300]), // 分隔符
       ],
     );
   }

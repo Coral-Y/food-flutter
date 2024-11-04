@@ -17,6 +17,7 @@ import 'package:food/api/accounts.dart';
 import 'package:provider/provider.dart';
 import 'package:food/model/user_info.dart';
 import 'package:food/providers/user_provider.dart';
+import 'package:food/providers/recipe_provider.dart';
 
 void main() {
   WidgetsFlutterBinding.ensureInitialized();
@@ -24,6 +25,7 @@ void main() {
     MultiProvider(
       providers: [
         ChangeNotifierProvider(create: (_) => UserProvider()),
+        ChangeNotifierProvider(create: (_) => RecipeProvider())
       ],
       child: const MyApp(),
     ),
