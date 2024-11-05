@@ -78,7 +78,7 @@ class RecipeApi {
   }
 
   //修改食谱
-  Future<bool> changed(Recipe recipe) async {
+  Future<String> changed(Recipe recipe) async {
     try {
       print(recipe.image);
       var formData = FormData.fromMap({
@@ -104,11 +104,11 @@ class RecipeApi {
         }
       }
       print(formData.fields);
-      await BaseApi.request.put(
+      var res = await BaseApi.request.put(
           "/recipes/${recipe.id is String ? int.parse(recipe.id.toString()) : recipe.id}",
           data: formData);
 
-      return true;
+      return res['image'];
     } catch (e) {
       print(e);
       rethrow;

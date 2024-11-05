@@ -22,29 +22,7 @@ class _RecipeListState extends State<RecipeList> {
   final GlobalKey<RefreshIndicatorState> _refreshKey = GlobalKey();
   Kind kind = Kind(id: 0, name: '全部', icon: "meat"); //当前分类
   List<Kind> kinds = [];
-  // List<Recipe> recipes = []; //食谱列表
-  int current = 0; //当前页码
-  int totalPage = 0; //总页数
-
   bool isDeleteMode = false; // 删除模式标志
-
-  // Future<void> getRecipeList(int page, int kindId) async {
-  //   try {
-  //     var res = await RecipeApi().list(current: page, kindId: kindId);
-  //     print(res.list);
-  //     setState(() {
-  //       current = res.current;
-  //       totalPage = res.totalPage;
-  //       if (page == 1) {
-  //         recipes = res.list;
-  //       } else {
-  //         recipes.addAll(res.list);
-  //       }
-  //     });
-  //   } catch (e) {
-  //     print(e);
-  //   }
-  // }
 
   Future<void> getKindList() async {
     try {
@@ -227,7 +205,8 @@ class _RecipeListState extends State<RecipeList> {
                         double maxPixels = scrollMetrics.maxScrollExtent;
                         // 滚动超过内容的2/3
                         if (pixels >= maxPixels / 3 * 2) {
-                          if (totalPage > current) {
+                          if (recipeProvider.totalPage >
+                              recipeProvider.current) {
                             recipeProvider.getNextPage(kind.id); // 加载更多数据
                           } else {
                             CSnackBar(message: '没有更多').show(context);

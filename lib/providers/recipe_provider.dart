@@ -24,11 +24,12 @@ class RecipeProvider with ChangeNotifier {
   // 更新食谱
   Future<void> updateRecipe(Recipe updatedRecipe) async {
     try {
-      await RecipeApi().changed(updatedRecipe);
+      String res = await RecipeApi().changed(updatedRecipe);
       final index =
           _recipes.indexWhere((recipe) => recipe.id == updatedRecipe.id);
       if (index != -1) {
         _recipes[index] = updatedRecipe;
+        _recipes[index].image = res;
         notifyListeners();
       }
     } catch (e) {
@@ -38,17 +39,14 @@ class RecipeProvider with ChangeNotifier {
 
   // 获取食谱列表
   Future<void> getRecipeList(int page, int kindId) async {
-    _isLoading = true; // 加载中
+    _isLoading = true; 
     _error = null;
     notifyListeners();
-
     try {
       var res =
-          await RecipeApi().list(current: page, kindId: kindId); // 调用API获取数据
-
+          await RecipeApi().list(current: page, kindId: kindId);
       _current = res.current;
       _totalPage = res.totalPage;
-
       if (page == 1) {
         _recipes = res.list;
       } else {

@@ -91,12 +91,11 @@ class _ContactUsState extends State<ContactUs> {
                                       time: messages[index].createdAt,
                                     );
                                   } else {
-                                    // 显示“没有更多”提示
                                     return Padding(
                                       padding: const EdgeInsets.all(16.0),
                                       child: Center(
                                         child: hasMoreData
-                                            ? const CircularProgressIndicator() // 如果有更多数据，显示加载中指示器
+                                            ? const CircularProgressIndicator() 
                                             : const Text(
                                                 '没有更多数据',
                                                 style: TextStyle(
