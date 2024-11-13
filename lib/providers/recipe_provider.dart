@@ -39,12 +39,11 @@ class RecipeProvider with ChangeNotifier {
 
   // 获取食谱列表
   Future<void> getRecipeList(int page, int kindId) async {
-    _isLoading = true; 
+    _isLoading = true;
     _error = null;
     notifyListeners();
     try {
-      var res =
-          await RecipeApi().list(current: page, kindId: kindId);
+      var res = await RecipeApi().list(current: page, kindId: kindId);
       _current = res.current;
       _totalPage = res.totalPage;
       if (page == 1) {
@@ -69,15 +68,32 @@ class RecipeProvider with ChangeNotifier {
 
   // 删除食谱
   Future<bool> deleteRecipe(int recipeId) async {
+    final index = _recipes.indexWhere((recipe) => recipe.id == recipeId);
+    if (index == -1) return false;
+
+    // 临时保存要删除的项
+    final Recipe removedRecipe = _recipes[index];
+    // 临时从UI列表中移除项
+    _recipes.removeAt(index);
+    notifyListeners();
+
     try {
+      // 发送删除请求
       bool isDeleted = await RecipeApi().delete(recipeId);
+
       if (isDeleted) {
-        _recipes.removeWhere((recipe) => recipe.id == recipeId);
+        return true;
+      } else {
+        // 请求失败，恢复项
+        _recipes.insert(index, removedRecipe);
         notifyListeners();
+        return false;
       }
-      return isDeleted;
     } catch (e) {
       print("Error deleting recipe: $e");
+      // 捕获异常，恢复项
+      _recipes.insert(index, removedRecipe);
+      notifyListeners();
       return false;
     }
   }

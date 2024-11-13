@@ -91,6 +91,18 @@ class _EditRecipeState extends State<EditRecipe> {
   }
 
   Future<void> _handleSubmit() async {
+    if (_nameController.text.isEmpty) {
+      CSnackBar(message: '名称不能为空').show(context);
+      return;
+    }
+    if (recipe.kind == null || recipe.kind!.name == "全部") {
+      CSnackBar(message: '请选择分类').show(context);
+      return;
+    }
+    if (_image == null && (recipe.image == null || recipe.image!.isEmpty)) {
+      CSnackBar(message: '请上传图片').show(context);
+      return;
+    }
     try {
       if (recipe.id == 0) {
         await _addRecipe();

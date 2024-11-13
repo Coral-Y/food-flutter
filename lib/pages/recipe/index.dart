@@ -224,16 +224,16 @@ class _RecipeListState extends State<RecipeList> {
                             childAspectRatio: 1.3,
                             crossAxisCount: 2, // 每行两列
                           ),
-                          itemCount: recipeProvider.recipes.length, // 显示的条目数
+                          itemCount: recipeProvider.recipes.length,
                           itemBuilder: (context, index) {
-                            return Draggable<Recipe>(
+                            return LongPressDraggable<Recipe>(
                               data: recipeProvider.recipes[index],
                               feedback: Material(
                                 color: Colors.transparent,
                                 child: Transform.scale(
-                                  scale: 0.8, // 缩小到原来的80%
+                                  scale: 0.6,
                                   child: Opacity(
-                                    opacity: 0.5, // 50%的透明度
+                                    opacity: 0.5,
                                     child: RecipeCard(
                                       name: recipeProvider.recipes[index].name,
                                       image:
@@ -278,10 +278,10 @@ class _RecipeListState extends State<RecipeList> {
             ),
             if (isDeleteMode)
               Positioned(
-                bottom: 20, // 距离底部20像素
+                bottom: 30,
                 right: 0,
-                width: 150,
-                height: 100,
+                width: 120,
+                height: 80,
                 child: Container(
                   decoration: BoxDecoration(
                     color:
