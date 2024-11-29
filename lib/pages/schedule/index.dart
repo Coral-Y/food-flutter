@@ -182,6 +182,7 @@ class _ScheduleState extends State<WeeklySchedule> {
                   },
                   child: CircleAvatar(
                     radius: 25,
+                    backgroundColor: Colors.transparent,
                     child: ClipRRect(
                       borderRadius: BorderRadius.circular(25),
                       child: imagePath.isEmpty

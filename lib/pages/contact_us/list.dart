@@ -95,7 +95,7 @@ class _ContactUsState extends State<ContactUs> {
                                       padding: const EdgeInsets.all(16.0),
                                       child: Center(
                                         child: hasMoreData
-                                            ? const CircularProgressIndicator() 
+                                            ? const CircularProgressIndicator()
                                             : const Text(
                                                 '没有更多数据',
                                                 style: TextStyle(
@@ -178,6 +178,7 @@ class MessageCard extends StatelessWidget {
               // 头像
               CircleAvatar(
                 radius: 25,
+                backgroundColor: Colors.transparent,
                 child: ClipRRect(
                   borderRadius: BorderRadius.circular(25),
                   child: avatar.isEmpty

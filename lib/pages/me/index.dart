@@ -94,6 +94,7 @@ class _MeState extends State<Me> {
                       children: [
                         CircleAvatar(
                           radius: 25,
+                          backgroundColor: Colors.transparent,
                           child: ClipRRect(
                             borderRadius: BorderRadius.circular(25),
                             child: imagePath.isEmpty
