@@ -30,7 +30,7 @@ class _LoginState extends State<Login> {
   @override
   void didChangeDependencies() async {
     super.didChangeDependencies();
-    _phoneController.text = '15900158829';
+    _phoneController.text = '13049363874';
     _codeController.text = '000000';
     agreed = true;
   }

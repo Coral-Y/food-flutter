@@ -18,7 +18,7 @@ class UserInfo {
     return UserInfo(
       id: json['id'] is String ? int.parse(json['id']) : json['id'] as int,
       name: json['name'] as String,
-      avatar: json['avatar'] as String,
+      avatar: json['avatar']?.toString() ?? "",
       phone: json['phone'] as String,
       type: json['type'] as String,
     );
