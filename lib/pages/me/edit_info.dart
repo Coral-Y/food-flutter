@@ -91,6 +91,7 @@ class _EditInfoState extends State<EditInfo> {
                     onTap: _pickImage,
                     child: _image == null
                         ? CircleAvatar(
+                            backgroundColor: Colors.transparent,
                             radius: 40,
                             child: ClipRRect(
                               borderRadius:

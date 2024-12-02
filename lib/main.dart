@@ -43,8 +43,6 @@ class MyApp extends StatelessWidget {
         colorScheme: ColorScheme.fromSeed(
           seedColor: Colors.white,
           primary: const Color(0xFF232946),
-          onBackground: const Color(0xFF333333),
-          background: const Color(0xFFF5F5F5),
           onSurface: const Color(0xFF333333),
           surface: const Color(0xFFF5F5F5),
         ),

@@ -20,7 +20,7 @@ class RecipeList extends StatefulWidget {
 
 class _RecipeListState extends State<RecipeList> {
   final GlobalKey<RefreshIndicatorState> _refreshKey = GlobalKey();
-  Kind kind = Kind(id: 0, name: '全部', icon: "meat"); //当前分类
+  Kind kind = Kind(id: 0, name: '全部', icon: "list"); //当前分类
   List<Kind> kinds = [];
   bool isDeleteMode = false; // 删除模式标志
 
@@ -28,7 +28,7 @@ class _RecipeListState extends State<RecipeList> {
     try {
       var res = await KindApi().list();
       setState(() {
-        Kind all = Kind(id: 0, name: '全部', icon: "meat");
+        Kind all = Kind(id: 0, name: '全部', icon: "list");
         kinds = res.list;
         kinds.insert(0, all);
       });
@@ -51,6 +51,7 @@ class _RecipeListState extends State<RecipeList> {
         //分类列表
         drawer: Drawer(
             width: 150,
+            backgroundColor: const Color(0xffffffff),
             shape: RoundedRectangleBorder(
               borderRadius: BorderRadius.circular(0),
             ),
@@ -80,34 +81,51 @@ class _RecipeListState extends State<RecipeList> {
                             ),
                         itemBuilder: (BuildContext context, int index) {
                           return InkWell(
-                            onTap: () {
-                              setState(() {
-                                kind = kinds[index];
-                              });
-                              recipeProvider.getRecipeList(1, kind.id);
-                              Navigator.of(context).pop();
-                            },
-                            child: Row(
-                              crossAxisAlignment: CrossAxisAlignment.center,
-                              children: [
-                                SvgPicture.network(
-                                  width: 20,
-                                  height: 20,
-                                  '$ICON_SERVER_URI${kinds[index].icon}.svg',
-                                  placeholderBuilder: (BuildContext context) =>
-                                      const CircularProgressIndicator(
-                                          strokeWidth: 3.0),
+                              onTap: () {
+                                setState(() {
+                                  kind = kinds[index];
+                                });
+                                recipeProvider.getRecipeList(1, kind.id);
+                                Navigator.of(context).pop();
+                              },
+                              child: Container(
+                                decoration: BoxDecoration(
+                                    color: Color(kinds[index].id == kind.id
+                                        ? 0xffd4939d
+                                        : 0xffffff),
+                                    borderRadius: BorderRadius.circular(4)),
+                                padding: const EdgeInsets.symmetric(
+                                    vertical: 5, horizontal: 5),
+                                child: Row(
+                                  crossAxisAlignment: CrossAxisAlignment.center,
+                                  children: [
+                                    SvgPicture.network(
+                                      width: 20,
+                                      height: 20,
+                                      '$ICON_SERVER_URI${kinds[index].icon}.svg',
+                                      placeholderBuilder:
+                                          (BuildContext context) =>
+                                              const CircularProgressIndicator(
+                                                  strokeWidth: 3.0),
+                                    ),
+                                    const SizedBox(
+                                      width: 4,
+                                    ),
+                                    Text(
+                                      kinds[index].name,
+                                      style: TextStyle(
+                                          fontSize: 16,
+                                          color: kinds[index].id == kind.id
+                                              ? Theme.of(context)
+                                                  .colorScheme
+                                                  .primary
+                                              : Theme.of(context)
+                                                  .colorScheme
+                                                  .onSurface),
+                                    )
+                                  ],
                                 ),
-                                const SizedBox(
-                                  width: 4,
-                                ),
-                                Text(
-                                  kinds[index].name,
-                                  style: TextStyle(fontSize: 16),
-                                )
-                              ],
-                            ),
-                          );
+                              ));
                         }))
               ],
             ))),

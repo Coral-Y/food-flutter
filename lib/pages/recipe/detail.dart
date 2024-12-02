@@ -46,6 +46,7 @@ class _RecipeDetailState extends State<RecipeDetail> {
       );
     }
     return Scaffold(
+      backgroundColor: Theme.of(context).colorScheme.surface,
       body: SafeArea(
         child: Column(
           children: [
@@ -76,14 +77,13 @@ class _RecipeDetailState extends State<RecipeDetail> {
                                       borderType: BorderType.RRect,
                                       radius: const Radius.circular(4),
                                       padding: const EdgeInsets.fromLTRB(
-                                          35, 20, 0, 20),
+                                          20, 20, 0, 20),
                                       child: Column(
                                         crossAxisAlignment:
                                             CrossAxisAlignment.start,
                                         children: [
                                           const Padding(
-                                            padding:
-                                                EdgeInsets.only(bottom: 10),
+                                            padding: EdgeInsets.only(bottom: 5),
                                             child: Text(
                                               '食材',
                                               style: TextStyle(
@@ -97,46 +97,76 @@ class _RecipeDetailState extends State<RecipeDetail> {
                                             return Text(
                                                 recipe!.ingredients[index]);
                                           }),
+                                          Visibility(
+                                              visible:
+                                                  recipe!.seasonings != null,
+                                              child: Column(
+                                                crossAxisAlignment:
+                                                    CrossAxisAlignment.start,
+                                                children: [
+                                                  const Padding(
+                                                    padding: EdgeInsets.only(
+                                                        top: 10, bottom: 5),
+                                                    child: Text(
+                                                      '调料',
+                                                      style: TextStyle(
+                                                          fontSize: 16,
+                                                          fontWeight:
+                                                              FontWeight.bold),
+                                                    ),
+                                                  ),
+                                                  ...List.generate(
+                                                      recipe!.seasonings!
+                                                          .length, (index) {
+                                                    return Text(recipe!
+                                                        .seasonings![index]);
+                                                  }),
+                                                ],
+                                              )),
                                         ],
                                       ))),
                               const SizedBox(
                                 width: 20,
                               ),
                               Expanded(
-                                  child: Container(
-                                width: double.infinity,
-                                height: 100,
-                                child: Image.network(
-                                  IMG_SERVER_URI + recipe!.image,
-                                  fit: BoxFit.cover,
-                                  loadingBuilder: (BuildContext context,
-                                      Widget child,
-                                      ImageChunkEvent? loadingProgress) {
-                                    if (loadingProgress == null) return child;
-                                    return Center(
-                                      child: CircularProgressIndicator(
-                                        value: loadingProgress
-                                                    .expectedTotalBytes !=
-                                                null
-                                            ? loadingProgress
-                                                    .cumulativeBytesLoaded /
-                                                loadingProgress
-                                                    .expectedTotalBytes!
-                                            : null,
-                                      ),
-                                    );
-                                  },
-                                  errorBuilder: (BuildContext context,
-                                      Object exception,
-                                      StackTrace? stackTrace) {
-                                    return Container(
-                                      color: Colors.grey[300],
-                                      child:
-                                          Icon(Icons.error, color: Colors.red),
-                                    );
-                                  },
-                                ),
-                              ))
+                                  child: SizedBox(
+                                      width: double.infinity,
+                                      height: 100,
+                                      child: ClipRRect(
+                                        borderRadius: BorderRadius.circular(4),
+                                        child: Image.network(
+                                          IMG_SERVER_URI + recipe!.image,
+                                          fit: BoxFit.cover,
+                                          loadingBuilder: (BuildContext context,
+                                              Widget child,
+                                              ImageChunkEvent?
+                                                  loadingProgress) {
+                                            if (loadingProgress == null)
+                                              return child;
+                                            return Center(
+                                              child: CircularProgressIndicator(
+                                                value: loadingProgress
+                                                            .expectedTotalBytes !=
+                                                        null
+                                                    ? loadingProgress
+                                                            .cumulativeBytesLoaded /
+                                                        loadingProgress
+                                                            .expectedTotalBytes!
+                                                    : null,
+                                              ),
+                                            );
+                                          },
+                                          errorBuilder: (BuildContext context,
+                                              Object exception,
+                                              StackTrace? stackTrace) {
+                                            return Container(
+                                              color: Colors.grey[300],
+                                              child: Icon(Icons.error,
+                                                  color: Colors.red),
+                                            );
+                                          },
+                                        ),
+                                      )))
                             ],
                           ),
                           const SizedBox(
