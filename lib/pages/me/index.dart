@@ -38,33 +38,36 @@ class _MeState extends State<Me> {
   Widget build(BuildContext context) {
     return Scaffold(
       body: SafeArea(
-          child: Padding(
-        padding: const EdgeInsets.fromLTRB(15, 5, 15, 10),
         child: Column(
           children: [
-            // 操作区
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                InkWell(
-                  onTap: () {
-                    Navigator.of(context).pop();
-                  },
-                  child: const Iconify(
-                    Cil.arrow_left,
-                    size: 20,
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 15, vertical: 10),
+              child:
+                  // 操作区
+                  Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  InkWell(
+                    onTap: () {
+                      Navigator.of(context).pop();
+                    },
+                    child: const Iconify(
+                      Cil.arrow_left,
+                      size: 20,
+                    ),
                   ),
-                ),
-                InkWell(
-                  onTap: () {
-                    Navigator.of(context).pushNamed('/settings');
-                  },
-                  child: const Iconify(
-                    Cil.settings,
-                    size: 20,
-                  ),
-                ),
-              ],
+                  // 设置页
+                  // InkWell(
+                  //   onTap: () {
+                  //     Navigator.of(context).pushNamed('/settings');
+                  //   },
+                  //   child: const Iconify(
+                  //     Cil.settings,
+                  //     size: 20,
+                  //   ),
+                  // ),
+                ],
+              ),
             ),
 
             const SizedBox(
@@ -73,6 +76,7 @@ class _MeState extends State<Me> {
 
             // 用户卡片
             Container(
+                margin: const EdgeInsets.symmetric(horizontal: 15),
                 decoration: BoxDecoration(
                   borderRadius: BorderRadius.circular(8),
                   color: Colors.white,
@@ -135,24 +139,24 @@ class _MeState extends State<Me> {
             ),
 
             // 模块
-            Container(
-              decoration: BoxDecoration(
-                borderRadius: BorderRadius.circular(8),
-                color: Colors.white,
-              ),
-              child: ListTile(
-                leading: const Iconify(Twemoji.package),
-                title: const Text('装备'),
-                subtitle: Text('2/4'),
-                trailing: const Icon(Icons.arrow_forward),
-                onTap: () {
-                  Navigator.of(context).pushNamed('/moduleList');
-                },
-              ),
-            ),
+            // Container(
+            //   decoration: BoxDecoration(
+            //     borderRadius: BorderRadius.circular(8),
+            //     color: Colors.white,
+            //   ),
+            //   child: ListTile(
+            //     leading: const Iconify(Twemoji.package),
+            //     title: const Text('装备'),
+            //     subtitle: Text('2/4'),
+            //     trailing: const Icon(Icons.arrow_forward),
+            //     onTap: () {
+            //       Navigator.of(context).pushNamed('/moduleList');
+            //     },
+            //   ),
+            // ),
 
             const SizedBox(
-              height: 30,
+              height: 50,
             ),
 
             // 功能区
@@ -160,19 +164,37 @@ class _MeState extends State<Me> {
                 child: GridView.count(
               crossAxisCount: 4,
               children: const [
-                Feature(
-                    name: '分类管理',
-                    icon: Twemoji.card_index_dividers,
-                    route: '/kindManage'),
+                // Feature(
+                //     name: '分类管理',
+                //     icon: Twemoji.card_index_dividers,
+                //     route: '/kindManage'),
                 Feature(
                     name: '联系我们',
                     icon: Twemoji.open_mailbox_with_raised_flag,
                     route: '/contactUs')
               ],
-            ))
+            )),
+            // 退出登录
+            Container(
+                width: double.infinity,
+                padding:
+                    const EdgeInsets.symmetric(vertical: 15,),
+                decoration: BoxDecoration(
+                  borderRadius: BorderRadius.circular(2),
+                  color: Colors.white,
+                ),
+                child: Center(
+                  child: InkWell(
+                    onTap: () {},
+                    child: const Text(
+                      '退出登录',
+                      style: TextStyle(fontSize: 16),
+                    ),
+                  ),
+                )),
           ],
         ),
-      )),
+      ),
     );
   }
 }
