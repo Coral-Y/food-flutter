@@ -57,15 +57,15 @@ class _MeState extends State<Me> {
                     ),
                   ),
                   // 设置页
-                  // InkWell(
-                  //   onTap: () {
-                  //     Navigator.of(context).pushNamed('/settings');
-                  //   },
-                  //   child: const Iconify(
-                  //     Cil.settings,
-                  //     size: 20,
-                  //   ),
-                  // ),
+                  InkWell(
+                    onTap: () {
+                      Navigator.of(context).pushNamed('/settings');
+                    },
+                    child: const Iconify(
+                      Cil.settings,
+                      size: 20,
+                    ),
+                  ),
                 ],
               ),
             ),
@@ -174,24 +174,6 @@ class _MeState extends State<Me> {
                     route: '/contactUs')
               ],
             )),
-            // 退出登录
-            Container(
-                width: double.infinity,
-                padding:
-                    const EdgeInsets.symmetric(vertical: 15,),
-                decoration: BoxDecoration(
-                  borderRadius: BorderRadius.circular(2),
-                  color: Colors.white,
-                ),
-                child: Center(
-                  child: InkWell(
-                    onTap: () {},
-                    child: const Text(
-                      '退出登录',
-                      style: TextStyle(fontSize: 16),
-                    ),
-                  ),
-                )),
           ],
         ),
       ),

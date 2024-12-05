@@ -11,6 +11,9 @@ import 'package:food/pages/recipe/detail.dart';
 import 'package:food/pages/recipe/edit.dart';
 import 'package:food/pages/recipe/step.dart';
 import 'package:food/pages/sign_in/index.dart';
+import 'package:food/pages/sign_in/privacyPolicy.dart';
+import 'package:food/pages/sign_in/register.dart';
+import 'package:food/pages/sign_in/userAgreement.dart';
 import 'package:food/widgets/c_snackbar.dart';
 import 'package:food/api/auth.dart';
 import 'package:food/api/accounts.dart';
@@ -50,6 +53,9 @@ class MyApp extends StatelessWidget {
       ),
       routes: {
         '/login': (context) => const Login(),
+        '/register': (context) => const Register(),
+        '/userAgreement': (context) => const UserAgreement(),
+        '/privacyPolicy': (context) => const PrivacyPolicy(),
         '/home': (context) => const Home(),
         '/recipeDetail': (context) => const RecipeDetail(),
         '/editRecipe': (context) => const EditRecipe(),

@@ -17,13 +17,21 @@ class AuthApi {
     }
   }
 
+  // 注册
+  Future<void> register(String phone, String code) async {
+    try {
+      await BaseApi.request
+          .post("/auth/register", data: {"phone": phone, "code": code});
+    } catch (e) {}
+  }
+
   // 登录
-  Future<bool> signIn(String phone, String code) async {
+  Future<bool> signIn(String phone, String password) async {
     try {
       print('登录');
       var response = await BaseApi.request.post("/auth/signIn", data: {
         "phone": phone,
-        "code": code,
+        "password": password,
       });
       if (response == null) {
         print('登录响应为空');
@@ -71,7 +79,7 @@ class AuthApi {
   // 退出登录
   Future<bool> logout() async {
     try {
-      await BaseApi.request.get("/auth/signOut");
+      await BaseApi.request.get("/accounts/signout");
       final prefs = await SharedPreferences.getInstance();
       await prefs.remove('token');
       return true;
