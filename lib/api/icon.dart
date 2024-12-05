@@ -13,14 +13,10 @@ class IconApi {
 
   //图标列表
   Future<Pager<FoodIcon>> list(String type) async {
-    try {
-      var response = await BaseApi.request.get("/icons", params: {
-        'type': type,
-      });
-      return Pager<FoodIcon>.fromJson(
-          response, (json) => FoodIcon.fromJson(json as Map<String, dynamic>));
-    } catch (e) {
-      rethrow;
-    }
+    var response = await BaseApi.request.get("/icons", params: {
+      'type': type,
+    });
+    return Pager<FoodIcon>.fromJson(
+        response, (json) => FoodIcon.fromJson(json as Map<String, dynamic>));
   }
 }

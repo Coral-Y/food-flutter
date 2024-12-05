@@ -76,63 +76,53 @@ class _MeState extends State<Me> {
 
             // 用户卡片
             Container(
-                margin: const EdgeInsets.symmetric(horizontal: 15),
-                decoration: BoxDecoration(
-                  borderRadius: BorderRadius.circular(8),
-                  color: Colors.white,
-                ),
-                height: 150,
-                child: InkWell(
-                  onTap: () {
-                    Navigator.of(context).pushNamed(
-                      '/editInfo',
-                      arguments: {
-                        'imagePath': imagePath, // 头像
-                        'nickname': nickname, // 传入昵称
-                      },
-                    );
-                  },
-                  child: Row(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      crossAxisAlignment: CrossAxisAlignment.center,
-                      children: [
-                        CircleAvatar(
-                          radius: 25,
-                          backgroundColor: Colors.transparent,
-                          child: ClipRRect(
-                            borderRadius: BorderRadius.circular(25),
-                            child: imagePath.isEmpty
-                                ? Image.asset(
-                                    'assets/icons/cookie_color.png',
+              margin: const EdgeInsets.symmetric(horizontal: 15),
+              decoration: BoxDecoration(
+                borderRadius: BorderRadius.circular(8),
+                color: Colors.white,
+              ),
+              height: 150,
+              child: Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  crossAxisAlignment: CrossAxisAlignment.center,
+                  children: [
+                    CircleAvatar(
+                      radius: 25,
+                      backgroundColor: Colors.transparent,
+                      child: ClipRRect(
+                        borderRadius: BorderRadius.circular(25),
+                        child: imagePath.isEmpty
+                            ? Image.asset(
+                                'assets/icons/cookie_color.png',
+                                width: 50,
+                                height: 50,
+                                fit: BoxFit.cover,
+                              )
+                            : Image.network(
+                                imagePath,
+                                width: 50,
+                                height: 50,
+                                fit: BoxFit.cover,
+                                errorBuilder: (context, error, stackTrace) {
+                                  return Image.asset(
+                                    'assets/images/avatar.png',
                                     width: 50,
                                     height: 50,
                                     fit: BoxFit.cover,
-                                  )
-                                : Image.network(
-                                    imagePath,
-                                    width: 50,
-                                    height: 50,
-                                    fit: BoxFit.cover,
-                                    errorBuilder: (context, error, stackTrace) {
-                                      return Image.asset(
-                                        'assets/images/avatar.png',
-                                        width: 50,
-                                        height: 50,
-                                        fit: BoxFit.cover,
-                                      );
-                                    },
-                                  ),
-                          ),
-                        ),
-                        const SizedBox(
-                          width: 10,
-                        ),
-                        Text(
-                          nickname,
-                          style: const TextStyle(fontWeight: FontWeight.bold),
-                        )
-                      ]),
-                )),
+                                  );
+                                },
+                              ),
+                      ),
+                    ),
+                    const SizedBox(
+                      width: 10,
+                    ),
+                    Text(
+                      nickname,
+                      style: const TextStyle(fontWeight: FontWeight.bold),
+                    )
+                  ]),
+            ),
 
             const SizedBox(
               height: 15,

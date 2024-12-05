@@ -28,7 +28,7 @@ class _LoginState extends State<Login> {
   void didChangeDependencies() async {
     super.didChangeDependencies();
     _phoneController.text = '13049363874';
-    _passwordController.text = 'Aa123456';
+    _passwordController.text = 'Aaaaa11111';
     agreed = true;
   }
 

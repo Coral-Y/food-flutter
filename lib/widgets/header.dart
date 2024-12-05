@@ -7,8 +7,10 @@ import 'package:food/config.dart';
 class Header extends StatelessWidget {
   final String title;
   final String? icon;
+  final bool showIcon;
 
-  const Header({super.key, required this.title, this.icon});
+  const Header(
+      {super.key, required this.title, this.icon, this.showIcon = true});
 
   @override
   Widget build(BuildContext context) {
@@ -17,13 +19,16 @@ class Header extends StatelessWidget {
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
-          InkWell(
-            onTap: () {
-              Navigator.of(context).pop();
-            },
-            child: const Iconify(
-              Cil.arrow_left,
-              size: 20,
+          Visibility(
+            visible: showIcon,
+            child: InkWell(
+              onTap: () {
+                Navigator.of(context).pop();
+              },
+              child: const Iconify(
+                Cil.arrow_left,
+                size: 20,
+              ),
             ),
           ),
           Row(

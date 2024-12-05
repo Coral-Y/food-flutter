@@ -80,10 +80,14 @@ class _ScheduleState extends State<WeeklySchedule> {
 
   // 获取图标列表
   Future<void> getIconList() async {
-    Pager<FoodIcon> data = await IconApi().list('dish');
-    setState(() {
-      icons = data.list.map((icon) => icon.enName).toList();
-    });
+    try {
+      Pager<FoodIcon> data = await IconApi().list('dish');
+      setState(() {
+        icons = data.list.map((icon) => icon.enName).toList();
+      });
+    } on ApiException catch (e) {
+      CSnackBar(message: e.message).show(context);
+    }
   }
 
   // 更新当前日期

@@ -1,10 +1,12 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
+import 'package:food/model/exception.dart';
 import 'package:food/widgets/c_button.dart';
 import 'package:food/widgets/header.dart';
 import 'package:flutter/services.dart';
 import 'package:food/widgets/c_snackbar.dart';
 import 'package:food/api/auth.dart';
+import 'package:food/widgets/verify_phone.dart';
 
 class Register extends StatefulWidget {
   const Register({super.key});
@@ -90,7 +92,10 @@ class _RegisterState extends State<Register> {
         _phoneController.text,
         _codeController.text,
       );
-      Navigator.of(context).pushReplacementNamed('/login');
+      Navigator.of(context).pushReplacementNamed('/setPassword',
+          arguments: {"phone": _phoneController.text});
+    } on ApiException catch (e) {
+      CSnackBar(message: e.message).show(context);
     } catch (e) {
       print("Error loading user info: $e");
       CSnackBar(message: '注册失败').show(context);
@@ -103,74 +108,10 @@ class _RegisterState extends State<Register> {
       resizeToAvoidBottomInset: false,
       body: SafeArea(
           child: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 15),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            const SizedBox(
-              height: 5,
-            ),
-            // 头部标题和返回按钮
-            const Header(title: '注册'),
-
-            Padding(
-              padding: const EdgeInsets.only(top: 20),
-              child: TextField(
-                controller: _phoneController,
-                keyboardType: TextInputType.phone,
-                maxLength: 11,
-                decoration: const InputDecoration(
-                  fillColor: Colors.white,
-                  filled: true,
-                  contentPadding:
-                      EdgeInsets.symmetric(horizontal: 15, vertical: 3),
-                  label: Text('手机号'),
-                  border: OutlineInputBorder(),
-                  counterText: "", // 隐藏字符计数器
-                ),
-              ),
-            ),
-            Padding(
-              padding: const EdgeInsets.only(top: 20),
-              child: Row(
-                children: [
-                  Expanded(
-                    child: TextField(
-                      controller: _codeController,
-                      keyboardType: TextInputType.number,
-                      maxLength: 6,
-                      decoration: const InputDecoration(
-                        fillColor: Colors.white,
-                        filled: true,
-                        contentPadding:
-                            EdgeInsets.symmetric(horizontal: 15, vertical: 3),
-                        label: Text('验证码'),
-                        border: OutlineInputBorder(),
-                        counterText: "", // 隐藏字符计数器
-                      ),
-                    ),
-                  ),
-                  const SizedBox(width: 10),
-                  SizedBox(
-                    width: 120,
-                    child: CButton(
-                      onPressed: canGetCode ? sendCode : () => {},
-                      text: canGetCode ? '获取验证码' : '${_countdown}s后重试',
-                    ),
-                  ),
-                ],
-              ),
-            ),
-            Padding(
-              padding: const EdgeInsets.only(top: 25, bottom: 40),
-              child: SizedBox(
-                width: double.infinity,
-                child: CButton(onPressed: register, text: '注册'),
-              ),
-            ),
-          ],
-        ),
-      )),
+              padding: const EdgeInsets.symmetric(horizontal: 15),
+              child: VerifyPhone(
+                submit: register,
+              ))),
     );
   }
 }

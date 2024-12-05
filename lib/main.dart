@@ -5,14 +5,16 @@ import 'package:food/pages/home.dart';
 import 'package:food/pages/kind_manage/list.dart';
 import 'package:food/pages/me/edit_info.dart';
 import 'package:food/pages/me/index.dart';
-import 'package:food/pages/me/setting.dart';
 import 'package:food/pages/module/list.dart';
 import 'package:food/pages/recipe/detail.dart';
 import 'package:food/pages/recipe/edit.dart';
 import 'package:food/pages/recipe/step.dart';
+import 'package:food/pages/settings/edit_password.dart';
+import 'package:food/pages/settings/index.dart';
 import 'package:food/pages/sign_in/index.dart';
 import 'package:food/pages/sign_in/privacyPolicy.dart';
 import 'package:food/pages/sign_in/register.dart';
+import 'package:food/pages/sign_in/set_password.dart';
 import 'package:food/pages/sign_in/userAgreement.dart';
 import 'package:food/widgets/c_snackbar.dart';
 import 'package:food/api/auth.dart';
@@ -21,6 +23,8 @@ import 'package:provider/provider.dart';
 import 'package:food/model/user_info.dart';
 import 'package:food/providers/user_provider.dart';
 import 'package:food/providers/recipe_provider.dart';
+
+final GlobalKey<NavigatorState> navigatorKey = GlobalKey<NavigatorState>();
 
 void main() {
   WidgetsFlutterBinding.ensureInitialized();
@@ -42,6 +46,7 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MaterialApp(
       title: 'Food',
+      navigatorKey: navigatorKey,
       theme: ThemeData(
         colorScheme: ColorScheme.fromSeed(
           seedColor: Colors.white,
@@ -54,6 +59,7 @@ class MyApp extends StatelessWidget {
       routes: {
         '/login': (context) => const Login(),
         '/register': (context) => const Register(),
+        '/setPassword': (context) => const SetPasswordord(),
         '/userAgreement': (context) => const UserAgreement(),
         '/privacyPolicy': (context) => const PrivacyPolicy(),
         '/home': (context) => const Home(),
@@ -62,6 +68,7 @@ class MyApp extends StatelessWidget {
         '/recipeStep': (context) => const StepPage(),
         '/me': (context) => const Me(),
         '/settings': (context) => const Settings(),
+        '/editPassword': (context) => const EditPassword(),
         '/editInfo': (context) => const EditInfo(),
         '/contactUs': (context) => const ContactUs(),
         '/kindManage': (context) => const KindManage(),

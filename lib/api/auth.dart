@@ -19,10 +19,15 @@ class AuthApi {
 
   // 注册
   Future<void> register(String phone, String code) async {
-    try {
-      await BaseApi.request
-          .post("/auth/register", data: {"phone": phone, "code": code});
-    } catch (e) {}
+    await BaseApi.request
+        .post("/auth/register", data: {"phone": phone, "code": code});
+  }
+
+  // 设置密码
+  Future<void> setPassword(
+      String phone, String password, String confirm) async {
+    await BaseApi.request.put("/auth/password",
+        data: {"phone": phone, "password": password, "confirm": confirm});
   }
 
   // 登录

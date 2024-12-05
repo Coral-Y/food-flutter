@@ -1,4 +1,5 @@
 import 'dart:io';
+import 'package:food/config.dart';
 import 'package:food/model/user_info.dart';
 import 'package:food/providers/user_provider.dart';
 import 'package:food/widgets/c_button.dart';
@@ -24,10 +25,12 @@ class _EditInfoState extends State<EditInfo> {
   @override
   void didChangeDependencies() {
     super.didChangeDependencies();
-    final args =
-        ModalRoute.of(context)!.settings.arguments as Map<String, dynamic>;
-    imagePath = args['imagePath'];
-    nickname = args['nickname'];
+    final userInfo = context.watch<UserProvider>().userInfo;
+    if (userInfo != null) {
+      imagePath =
+          userInfo.avatar.isNotEmpty ? IMG_SERVER_URI + userInfo.avatar : '';
+      nickname = userInfo.name;
+    }
     _nicknameController.text = nickname;
   }
 

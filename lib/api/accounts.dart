@@ -14,6 +14,7 @@ class AccountsApi {
 
   static const String _userInfoKey = 'user_info';
 
+  // 获取用户信息
   Future<UserInfo> getUserInfo() async {
     try {
       // 从缓存获取
@@ -93,14 +94,22 @@ class AccountsApi {
           );
         }
       }
-      print(formData.fields);
       await BaseApi.request.put("/accounts/me", data: formData);
       await clearUserInfo();
-      print('更新用户信息');
       return true;
     } catch (e) {
       print("Error updating profile: $e");
       return false;
     }
+  }
+
+  // 修改密码
+  Future<void> editPassword(
+      String oldPassword, String password, String confirm) async {
+    await BaseApi.request.put("/accounts/password", data: {
+      "oldPassword": oldPassword,
+      "password": password,
+      "confirm": confirm
+    });
   }
 }

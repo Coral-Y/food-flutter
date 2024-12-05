@@ -1,5 +1,9 @@
 import 'package:dio/dio.dart';
+import 'package:flutter/material.dart';
+import 'package:food/api/accounts.dart';
+import 'package:food/main.dart';
 import 'package:food/model/exception.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class Request {
   static late Dio dio;
@@ -15,6 +19,25 @@ class Request {
       connectTimeout: const Duration(seconds: 10),
       headers: {
         'Content-Type': 'application/json',
+      },
+    ));
+    instance.interceptors.add(InterceptorsWrapper(
+      onError: (error, handler) async {
+        // 捕获 401 错误
+        if (error.response?.statusCode == 401) {
+          // 清除token
+          final prefs = await SharedPreferences.getInstance();
+          await prefs.remove('token');
+          // 清除用户信息缓存
+          await AccountsApi().clearUserInfo();
+          // 跳转到登录页面
+          final context = navigatorKey.currentContext;
+          if (context != null) {
+            Navigator.of(context)
+                .pushNamedAndRemoveUntil('/login', (route) => false);
+          }
+        }
+        return handler.next(error); // 继续抛出错误
       },
     ));
     return instance;
@@ -56,6 +79,7 @@ class Request {
         // 服务器返回错误
         String message = response?.data?['message'];
         int code = response?.statusCode ?? response?.data?['code'];
+
         return Future.error(ApiException(code, message));
       } else {
         // dio其他异常，网络问题，连接超时等
