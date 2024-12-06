@@ -1,12 +1,55 @@
+import 'dart:io';
+
 import 'package:flutter/material.dart';
 import 'package:food/api/auth.dart';
 import 'package:food/api/accounts.dart';
+import 'package:food/api/versions.dart';
+import 'package:food/model/version.dart';
 import 'package:food/widgets/header.dart';
 import 'package:food/widgets/c_button.dart';
 import 'package:food/widgets/c_snackbar.dart';
+import 'package:package_info_plus/package_info_plus.dart';
 
-class Settings extends StatelessWidget {
+class Settings extends StatefulWidget {
   const Settings({super.key});
+
+  @override
+  State<Settings> createState() => _SettingsState();
+}
+
+class _SettingsState extends State<Settings> {
+  String version = ''; // 版本号
+  String buildNumber = ''; // 构建号
+  String lastVersion = ''; // 最新版本号
+  String downloadAndroid = ''; // 安卓下载连接
+  String downloadIos = ''; // IOS下载连接
+
+  @override
+  void initState() {
+    super.initState();
+    _getAppInfo(); // 获取应用信息
+    _getLastVersion();
+  }
+
+  // 获取APP版本信息
+  Future<void> _getAppInfo() async {
+    final PackageInfo packageInfo = await PackageInfo.fromPlatform();
+
+    setState(() {
+      version = packageInfo.version; // 版本号
+      buildNumber = packageInfo.buildNumber; // 构建号
+    });
+  }
+
+  // 获取APP最新版本信息
+  Future<void> _getLastVersion() async {
+    Version res = await VersionApi().last();
+    setState(() {
+      lastVersion = res.version;
+      downloadAndroid = res.downloadAndroid;
+      downloadIos = res.downloadIos;
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -55,6 +98,66 @@ class Settings extends StatelessWidget {
                 child: const Text(
                   '修改密码',
                   style: TextStyle(fontSize: 16),
+                ),
+              ),
+            ),
+
+            const SizedBox(
+              height: 20,
+            ),
+            // 当前版本
+            Container(
+                width: double.infinity,
+                color: Colors.white,
+                padding:
+                    const EdgeInsets.symmetric(vertical: 10, horizontal: 15),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    const Text(
+                      '当前版本',
+                      style: TextStyle(fontSize: 16),
+                    ),
+                    Text(version)
+                  ],
+                )),
+            Container(
+              height: 1,
+              color: const Color(0xfff5f5f5),
+            ),
+
+            // 版本更新
+            GestureDetector(
+              onTap: () {
+                if(version == lastVersion) {
+                  // 已是最新版本
+                  return;
+                }
+                if (Platform.isAndroid) {
+                  print(downloadAndroid);
+                }
+                if (Platform.isIOS) {
+                  print(downloadIos);
+                }
+              },
+              child: Container(
+                width: double.infinity,
+                color: Colors.white,
+                padding:
+                    const EdgeInsets.symmetric(vertical: 10, horizontal: 15),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    const Text(
+                      '版本更新',
+                      style: TextStyle(fontSize: 16),
+                    ),
+                    Text(lastVersion.isEmpty
+                        ? lastVersion
+                        : version == lastVersion
+                            ? '已是最新版本'
+                            : '升级至最新版本$lastVersion')
+                  ],
                 ),
               ),
             ),
