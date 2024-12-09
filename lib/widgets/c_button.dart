@@ -21,19 +21,22 @@ class CButton extends StatelessWidget {
   Widget build(BuildContext context) {
     return FilledButton(
         style: ButtonStyle(
-          backgroundColor: MaterialStateProperty.all(
+          backgroundColor: WidgetStateProperty.all(
               Color(type == 'primary' ? 0xff232946 : 0xffd4939d)),
-          padding: MaterialStateProperty.all<EdgeInsetsGeometry>(
+          padding: WidgetStateProperty.all<EdgeInsetsGeometry>(
             const EdgeInsets.symmetric(horizontal: 5, vertical: 3), // 设置内边距
           ),
-          shape: MaterialStateProperty.all<RoundedRectangleBorder>(
+          shape: WidgetStateProperty.all<RoundedRectangleBorder>(
             RoundedRectangleBorder(
               borderRadius:
                   BorderRadius.circular(size == 'small' ? 4 : 6), // 设置圆角
             ),
           ),
         ),
-        onPressed: onPressed,
+        onPressed: () {
+          FocusScope.of(context).unfocus();
+          onPressed();
+        },
         child: Row(
           mainAxisSize: MainAxisSize.min,
           mainAxisAlignment: MainAxisAlignment.center,

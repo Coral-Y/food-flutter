@@ -1,8 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:food/api/auth.dart';
+import 'package:food/utils/validate.dart';
 import 'package:food/widgets/c_button.dart';
+import 'package:iconify_flutter/icons/ic.dart';
 import 'package:food/widgets/c_snackbar.dart';
 import 'package:food/widgets/header.dart';
+import 'package:iconify_flutter/iconify_flutter.dart';
 
 class SetPasswordord extends StatefulWidget {
   const SetPasswordord({super.key});
@@ -13,6 +16,8 @@ class SetPasswordord extends StatefulWidget {
 
 class _SetPasswordordState extends State<SetPasswordord> {
   String phone = '';
+  bool _obscuredPassword = true;
+  bool _obscuredConfirm = true;
   final TextEditingController _passwordController = TextEditingController();
   final TextEditingController _confirmController = TextEditingController();
 
@@ -38,16 +43,14 @@ class _SetPasswordordState extends State<SetPasswordord> {
 
   // 提交设置
   void submit() async {
-    if (_passwordController.text.isEmpty) {
-      CSnackBar(message: '请输入密码').show(context);
+    if (_passwordController.text.isEmpty ||
+        !isPassword(_passwordController.text)) {
+      CSnackBar(message: '请输入正确的密码').show(context);
       return;
     }
-    if (_confirmController.text.isEmpty) {
-      CSnackBar(message: '请输入确认密码').show(context);
-      return;
-    }
-    if (_passwordController.text != _confirmController.text) {
-      CSnackBar(message: '确认密码与新密码不一致，请重新输入').show(context);
+    if (_confirmController.text.isEmpty ||
+        _passwordController.text != _confirmController.text) {
+      CSnackBar(message: '请输入正确的确认密码').show(context);
       return;
     }
     try {
@@ -82,30 +85,62 @@ class _SetPasswordordState extends State<SetPasswordord> {
               height: 10,
             ),
             TextField(
-              obscureText: true,
+              obscureText: _obscuredPassword,
               controller: _passwordController,
-              decoration: const InputDecoration(
+              decoration: InputDecoration(
                   fillColor: Colors.white,
                   filled: true,
                   contentPadding:
-                      EdgeInsets.symmetric(horizontal: 15, vertical: 3),
-                  label: Text('密码'),
-                  border: OutlineInputBorder(),
+                      const EdgeInsets.symmetric(horizontal: 15, vertical: 3),
+                  label: const Text('密码'),
+                  suffixIcon: IconButton(
+                    onPressed: () {
+                      setState(() {
+                        _obscuredPassword = !_obscuredPassword;
+                      });
+                    },
+                    icon: _obscuredPassword
+                        ? const Iconify(
+                            Ic.outline_visibility_off,
+                            size: 18,
+                          )
+                        : const Iconify(
+                            Ic.outline_visibility,
+                            size: 18,
+                          ),
+                  ),
+                  border: const OutlineInputBorder(),
                   counterText: ""),
             ),
             const SizedBox(
               height: 15,
             ),
             TextField(
-              obscureText: true,
+              obscureText: _obscuredConfirm,
               controller: _confirmController,
-              decoration: const InputDecoration(
+              decoration: InputDecoration(
                   fillColor: Colors.white,
                   filled: true,
                   contentPadding:
-                      EdgeInsets.symmetric(horizontal: 15, vertical: 3),
-                  label: Text('确认密码'),
-                  border: OutlineInputBorder(),
+                      const EdgeInsets.symmetric(horizontal: 15, vertical: 3),
+                  label: const Text('确认密码'),
+                  border: const OutlineInputBorder(),
+                  suffixIcon: IconButton(
+                    onPressed: () {
+                      setState(() {
+                        _obscuredConfirm = !_obscuredConfirm;
+                      });
+                    },
+                    icon: _obscuredConfirm
+                        ? const Iconify(
+                            Ic.outline_visibility_off,
+                            size: 18,
+                          )
+                        : const Iconify(
+                            Ic.outline_visibility,
+                            size: 18,
+                          ),
+                  ),
                   counterText: ""),
             ),
             const SizedBox(

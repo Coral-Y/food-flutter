@@ -53,8 +53,6 @@ class RecipeApi {
 
   //创建食谱
   Future<bool> created(Recipe recipe) async {
-    print(recipe.ingredients);
-    try {
       var formData = FormData.fromMap({
         "name": recipe.name,
         "kindId": recipe.kind!.id,
@@ -67,14 +65,10 @@ class RecipeApi {
         await MultipartFile.fromFile(recipe.image, filename: "image.jpg"),
       ));
 
-      print("FormData fields: ${formData.fields}");
       // 发送请求
       await BaseApi.request.post("/recipes", data: formData);
       return true;
-    } catch (e) {
-      print(e);
-      rethrow;
-    }
+   
   }
 
   //修改食谱
@@ -103,7 +97,6 @@ class RecipeApi {
           ));
         }
       }
-      print(formData.fields);
       var res = await BaseApi.request.put(
           "/recipes/${recipe.id is String ? int.parse(recipe.id.toString()) : recipe.id}",
           data: formData);

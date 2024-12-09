@@ -1,10 +1,9 @@
-import 'dart:async';
-
 import 'package:flutter/material.dart';
+import 'package:food/model/exception.dart';
+import 'package:food/utils/validate.dart';
 import 'package:food/widgets/c_button.dart';
+import 'package:iconify_flutter/icons/ic.dart';
 import 'package:iconify_flutter/iconify_flutter.dart';
-import 'package:iconify_flutter/icons/cib.dart';
-import 'package:flutter/services.dart';
 import 'package:food/widgets/c_snackbar.dart';
 import 'package:food/api/auth.dart';
 import 'package:food/api/accounts.dart';
@@ -22,14 +21,14 @@ class Login extends StatefulWidget {
 class _LoginState extends State<Login> {
   final TextEditingController _phoneController = TextEditingController();
   final TextEditingController _passwordController = TextEditingController();
+  bool _obscured = true;
   bool agreed = false;
 
   @override
   void didChangeDependencies() async {
     super.didChangeDependencies();
-    _phoneController.text = '13049363874';
-    _passwordController.text = 'Aa1234';
-    agreed = true;
+    _phoneController.text = '';
+    _passwordController.text = '';
   }
 
   @override
@@ -41,24 +40,26 @@ class _LoginState extends State<Login> {
 
   // 登录
   void signIn() async {
-    if (!agreed) {
-      CSnackBar(message: '请先同意用户协议和隐私协议').show(context);
-      return;
-    }
-    if (_phoneController.text.length != 11) {
+    String phone = _phoneController.text;
+    String password = _passwordController.text;
+    if (phone.length != 11 || !isPhone(phone)) {
       CSnackBar(message: '请输入正确的手机号').show(context);
       return;
     }
-    if (_passwordController.text.isEmpty) {
-      CSnackBar(message: '请输入密码').show(context);
+    if (password.isEmpty || !isPassword(password)) {
+      CSnackBar(message: '请输入正确的密码').show(context);
+      return;
+    }
+    if (!agreed) {
+      CSnackBar(message: '请同意用户协议和隐私协议').show(context);
       return;
     }
 
-    bool isLogin = await AuthApi().signIn(
-      _phoneController.text,
-      _passwordController.text,
-    );
-    if (isLogin) {
+    try {
+      await AuthApi().signIn(
+        phone,
+        password,
+      );
       try {
         UserInfo userInfo = await AccountsApi().getUserInfo();
         if (!mounted) return;
@@ -68,9 +69,9 @@ class _LoginState extends State<Login> {
         print("Error loading user info: $e");
         CSnackBar(message: '获取用户信息失败').show(context);
       }
-    } else {
-      CSnackBar(message: '登录失败').show(context);
-    }
+    } on ApiException catch (e) {
+      CSnackBar(message: e.message).show(context);
+    } catch (e) {}
   }
 
   @override
@@ -107,15 +108,31 @@ class _LoginState extends State<Login> {
           Padding(
             padding: const EdgeInsets.only(top: 25, left: 15, right: 15),
             child: TextField(
-              obscureText: true,
+              obscureText: _obscured,
               controller: _passwordController,
-              decoration: const InputDecoration(
+              decoration: InputDecoration(
                 fillColor: Colors.white,
                 filled: true,
                 contentPadding:
-                    EdgeInsets.symmetric(horizontal: 15, vertical: 3),
-                label: Text('密码'),
-                border: OutlineInputBorder(),
+                    const EdgeInsets.symmetric(horizontal: 15, vertical: 3),
+                label: const Text('密码'),
+                suffixIcon: IconButton(
+                  onPressed: () {
+                    setState(() {
+                      _obscured = !_obscured;
+                    });
+                  },
+                  icon: _obscured
+                      ? const Iconify(
+                          Ic.outline_visibility_off,
+                          size: 18,
+                        )
+                      : const Iconify(
+                          Ic.outline_visibility,
+                          size: 18,
+                        ),
+                ),
+                border: const OutlineInputBorder(),
                 counterText: "", // 隐藏字符计数器
               ),
             ),

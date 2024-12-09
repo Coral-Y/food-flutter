@@ -5,7 +5,7 @@ import 'package:food/widgets/c_snackbar.dart';
 import 'package:food/api/auth.dart';
 
 class VerifyPhone extends StatefulWidget {
-  final VoidCallback submit;
+  final void Function(String, String) submit;
   const VerifyPhone({required this.submit, super.key});
 
   @override
@@ -22,8 +22,8 @@ class _VerifyPhoneState extends State<VerifyPhone> {
   @override
   void didChangeDependencies() async {
     super.didChangeDependencies();
-    _phoneController.text = '13049363874';
-    _codeController.text = '000000';
+    _phoneController.text = '';
+    _codeController.text = '';
     agreed = true;
   }
 
@@ -117,6 +117,7 @@ class _VerifyPhoneState extends State<VerifyPhone> {
               SizedBox(
                 width: 120,
                 child: CButton(
+                  type: 'secondary',
                   onPressed: canGetCode ? sendCode : () => {},
                   text: canGetCode ? '获取验证码' : '${_countdown}s后重试',
                 ),
@@ -128,7 +129,11 @@ class _VerifyPhoneState extends State<VerifyPhone> {
           padding: const EdgeInsets.only(top: 25, bottom: 40),
           child: SizedBox(
             width: double.infinity,
-            child: CButton(onPressed: widget.submit, text: '注册'),
+            child: CButton(
+                onPressed: () {
+                  widget.submit(_phoneController.text, _codeController.text);
+                },
+                text: '注册'),
           ),
         ),
       ],

@@ -9,7 +9,7 @@ class AuthApi {
   // 获取验证码
   Future<bool> getCode(String phone) async {
     try {
-      await BaseApi.request.get("/auth", params: {"phone": phone});
+      await BaseApi.request.get("/auth/code", params: {"phone": phone});
       return true;
     } catch (e) {
       print("Error getting code: $e");
@@ -32,28 +32,18 @@ class AuthApi {
 
   // 登录
   Future<bool> signIn(String phone, String password) async {
+    var response = await BaseApi.request.post("/auth/signIn", data: {
+      "phone": phone,
+      "password": password,
+    });
+    // 保存 token
     try {
-      print('登录');
-      var response = await BaseApi.request.post("/auth/signIn", data: {
-        "phone": phone,
-        "password": password,
-      });
-      if (response == null) {
-        print('登录响应为空');
-        return false;
-      }
-      // 保存 token
-      try {
-        await saveToken(response.toString());
-        // 设置请求头
-        BaseApi.request.setHeaders({'Authorization': 'Bearer $response'});
-        return true;
-      } catch (e) {
-        print('保存 token 失败: $e');
-        return false;
-      }
+      await saveToken(response.toString());
+      // 设置请求头
+      BaseApi.request.setHeaders({'Authorization': 'Bearer $response'});
+      return true;
     } catch (e) {
-      print("Error signing in: $e");
+      print('保存 token 失败: $e');
       return false;
     }
   }

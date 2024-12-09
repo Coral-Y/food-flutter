@@ -353,7 +353,6 @@ class _EditRecipeState extends State<EditRecipe> {
                           onTap: () {
                             if (_ingredientController.text != null &&
                                 !_ingredientController.text.isEmpty) {
-                              print(_ingredientController.text);
                               setState(() {
                                 recipe.ingredients
                                     .add(_ingredientController.text);
@@ -375,7 +374,6 @@ class _EditRecipeState extends State<EditRecipe> {
                         },
                         onDoubleTap: (item) {
                           setState(() {
-                            print(item);
                             _ingredientController.text = item;
                             recipe.ingredients.remove(item);
                           });
@@ -430,7 +428,6 @@ class _EditRecipeState extends State<EditRecipe> {
                         },
                         onDoubleTap: (item) {
                           setState(() {
-                            print(item);
                             _seasoningController.text = item;
                             recipe.seasonings!.remove(item);
                           });
