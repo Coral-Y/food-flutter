@@ -103,27 +103,30 @@ class _EditRecipeState extends State<EditRecipe> {
       CSnackBar(message: '请上传图片').show(context);
       return;
     }
-    try {
-      if (recipe.id == 0) {
-        await _addRecipe();
-      } else {
-        await _updateRecipe();
-      }
-      Navigator.of(context).pop(true);
-    } catch (e) {
-      _handleError(e);
+    if (recipe.id == 0) {
+      await _addRecipe();
+    } else {
+      await _updateRecipe();
     }
   }
 
   Future<void> _addRecipe() async {
-    await RecipeApi().created(recipe);
-    CSnackBar(message: '添加成功').show(context);
+    try {
+      await RecipeApi().created(recipe);
+      CSnackBar(message: '添加成功').show(context);
+      Navigator.of(context).pop(true);
+    } on ApiException catch (e) {
+      CSnackBar(message: '添加失败').show(context);
+    } catch (e) {
+      print(e);
+    }
   }
 
   Future<void> _updateRecipe() async {
     final recipeProvider = Provider.of<RecipeProvider>(context, listen: false);
     await recipeProvider.updateRecipe(recipe);
     CSnackBar(message: '修改成功').show(context);
+    Navigator.of(context).pop(true);
   }
 
   void _handleError(dynamic e) {

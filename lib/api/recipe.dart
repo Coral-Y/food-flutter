@@ -52,23 +52,21 @@ class RecipeApi {
   }
 
   //创建食谱
-  Future<bool> created(Recipe recipe) async {
-      var formData = FormData.fromMap({
-        "name": recipe.name,
-        "kindId": recipe.kind!.id,
-        "ingredients": arrayToString(recipe.ingredients),
-        "seasonings": arrayToString(recipe.seasonings),
-        "instructions": arrayToString(recipe.instructions),
-      });
-      formData.files.add(MapEntry(
-        "image",
-        await MultipartFile.fromFile(recipe.image, filename: "image.jpg"),
-      ));
+  Future<void> created(Recipe recipe) async {
+    var formData = FormData.fromMap({
+      "name": recipe.name,
+      "kindId": recipe.kind!.id,
+      "ingredients": arrayToString(recipe.ingredients),
+      "seasonings": arrayToString(recipe.seasonings),
+      "instructions": arrayToString(recipe.instructions),
+    });
+    formData.files.add(MapEntry(
+      "image",
+      await MultipartFile.fromFile(recipe.image, filename: "image.jpg"),
+    ));
 
-      // 发送请求
-      await BaseApi.request.post("/recipes", data: formData);
-      return true;
-   
+    // 发送请求
+    await BaseApi.request.post("/recipes", data: formData);
   }
 
   //修改食谱

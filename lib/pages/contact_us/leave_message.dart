@@ -110,7 +110,7 @@ class _LeaveMessageState extends State<LeaveMessage> {
                     ),
                     SizedBox(
                       width: double.infinity,
-                      child: CButton(onPressed: _submit, text: '提交'),
+                      child: CButton(onPressed: _submit, text: '确认'),
                     )
                   ],
                 ),

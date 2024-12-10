@@ -1,11 +1,8 @@
 import 'dart:convert';
-
 import 'package:dio/dio.dart';
 import 'package:food/api/base.dart';
 import 'package:food/model/user_info.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:food/providers/user_provider.dart';
-import 'package:provider/provider.dart';
 
 class AccountsApi {
   AccountsApi._();
@@ -16,23 +13,17 @@ class AccountsApi {
 
   // 获取用户信息
   Future<UserInfo> getUserInfo() async {
-    try {
-      // 从缓存获取
-      UserInfo? cachedInfo = await _getCachedUserInfo();
-      if (cachedInfo != null) {
-        return cachedInfo;
-      }
-      var response = await BaseApi.request.get("/accounts/me");
-      var userInfo = UserInfo.fromJson(response);
-
-      // 缓存用户信息
-      await _cacheUserInfo(userInfo);
-      print(userInfo);
-      return userInfo;
-    } catch (e) {
-      print("错误是 $e");
-      rethrow;
+    // 从缓存获取
+    UserInfo? cachedInfo = await _getCachedUserInfo();
+    if (cachedInfo != null) {
+      return cachedInfo;
     }
+    var response = await BaseApi.request.get("/accounts/me");
+    var userInfo = UserInfo.fromJson(response);
+
+    // 缓存用户信息
+    await _cacheUserInfo(userInfo);
+    return userInfo;
   }
 
   // 从缓存中获取用户信息

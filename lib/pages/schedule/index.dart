@@ -165,6 +165,7 @@ class _ScheduleState extends State<WeeklySchedule> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: Theme.of(context).colorScheme.surface,
       body: SafeArea(
           child: Column(
         children: [

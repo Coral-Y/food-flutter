@@ -1,5 +1,6 @@
 import 'dart:io';
 import 'package:food/config.dart';
+import 'package:food/model/exception.dart';
 import 'package:food/model/user_info.dart';
 import 'package:food/providers/user_provider.dart';
 import 'package:food/widgets/c_button.dart';
@@ -52,21 +53,19 @@ class _EditInfoState extends State<EditInfo> {
   Future<void> _submit() async {
     FocusScope.of(context).unfocus();
     if (_nicknameController.text.isEmpty) {
-      CSnackBar(message: '用户名不能为空').show(context);
+      CSnackBar(message: '请输入用户名').show(context);
+      return;
     } else {
-      bool isOk = await AccountsApi().updateUserInfo(
-          name: _nicknameController.text, avatarPath: imagePath);
-      if (isOk) {
-        if (context != null) {
-          context.read<UserProvider>().clearUserInfo();
-        }
+      try {
+        await AccountsApi().updateUserInfo(
+            name: _nicknameController.text, avatarPath: imagePath);
+
+        context.read<UserProvider>().clearUserInfo();
         UserInfo info = await AccountsApi().getUserInfo();
-        if (context != null) {
-          context.read<UserProvider>().setUserInfo(info);
-        }
+        context.read<UserProvider>().setUserInfo(info);
         CSnackBar(message: '修改成功').show(context);
         Navigator.of(context).pop();
-      } else {
+      } on ApiException catch (e) {
         CSnackBar(message: '修改失败').show(context);
       }
     }
@@ -75,6 +74,7 @@ class _EditInfoState extends State<EditInfo> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: Theme.of(context).colorScheme.surface,
       body: SafeArea(
           child: Padding(
         padding: const EdgeInsets.fromLTRB(15, 10, 15, 10),
@@ -162,10 +162,21 @@ class _EditInfoState extends State<EditInfo> {
             const SizedBox(
               height: 20,
             ),
-            SizedBox(
-              width: double.infinity,
-              child: CButton(onPressed: _submit, text: '提交'),
-            )
+            Row(
+              children: [
+                Expanded(
+                  child: CButton(
+                    onPressed: () {
+                      Navigator.of(context).pop();
+                    },
+                    text: '取消',
+                    type: 'secondary',
+                  ),
+                ),
+                const SizedBox(width: 25),
+                Expanded(child: CButton(onPressed: _submit, text: '确认')),
+              ],
+            ),
           ],
         ),
       )),
