@@ -42,9 +42,7 @@ class RecipeApi {
   //获取食谱详情
   Future<Recipe> detail(int id) async {
     try {
-      print(id);
       var response = await BaseApi.request.get("/recipes/$id");
-      print(Recipe.fromJson(response));
       return Recipe.fromJson(response);
     } catch (e) {
       rethrow;
@@ -71,39 +69,33 @@ class RecipeApi {
 
   //修改食谱
   Future<String> changed(Recipe recipe) async {
-    try {
-      print(recipe.image);
-      var formData = FormData.fromMap({
-        'id': recipe.id,
-        "name": recipe.name,
-        "ingredients": arrayToString(recipe.ingredients),
-        "seasonings": arrayToString(recipe.seasonings),
-        "instructions": arrayToString(recipe.instructions),
-        "kindId": recipe.kind!.id,
-      });
-      // 处理图片
-      // 修改图片处理逻辑
-      if (recipe.image.isNotEmpty) {
-        if (recipe.image.startsWith('http://') ||
-            recipe.image.startsWith('https://')) {
-          print('使用现有网络图片'); // 添加日志
-        } else {
-          print('添加新的本地图片'); // 添加日志
-          formData.files.add(MapEntry(
-            "image",
-            await MultipartFile.fromFile(recipe.image, filename: "image.jpg"),
-          ));
-        }
+    var formData = FormData.fromMap({
+      'id': recipe.id,
+      "name": recipe.name,
+      "ingredients": arrayToString(recipe.ingredients),
+      "seasonings": arrayToString(recipe.seasonings),
+      "instructions": arrayToString(recipe.instructions),
+      "kindId": recipe.kind!.id,
+    });
+    // 处理图片
+    // 修改图片处理逻辑
+    if (recipe.image.isNotEmpty) {
+      if (recipe.image.startsWith('http://') ||
+          recipe.image.startsWith('https://')) {
+        print('使用现有网络图片'); // 添加日志
+      } else {
+        print('添加新的本地图片'); // 添加日志
+        formData.files.add(MapEntry(
+          "image",
+          await MultipartFile.fromFile(recipe.image, filename: "image.jpg"),
+        ));
       }
-      var res = await BaseApi.request.put(
-          "/recipes/${recipe.id is String ? int.parse(recipe.id.toString()) : recipe.id}",
-          data: formData);
-
-      return res['image'];
-    } catch (e) {
-      print(e);
-      rethrow;
     }
+    var res = await BaseApi.request.put(
+        "/recipes/${recipe.id is String ? int.parse(recipe.id.toString()) : recipe.id}",
+        data: formData);
+
+    return res['image'];
   }
 
   //删除食谱

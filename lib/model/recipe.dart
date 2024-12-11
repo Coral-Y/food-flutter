@@ -1,7 +1,7 @@
 // 自制食谱
 import 'package:food/model/kind.dart';
 import 'package:json_annotation/json_annotation.dart';
-import 'package:food/config.dart';
+
 
 part 'recipe.g.dart';
 
@@ -13,7 +13,7 @@ class Recipe {
   @JsonKey(toJson: kindToJson, fromJson: kindFromJson)
   Kind? kind; // 分类
   String? kindIcon; //菜谱图标
-  List<String> ingredients; // 食材
+  List<String>? ingredients; // 食材
   List<String>? seasonings; // 调味品
   List<String>? instructions; // 步骤
 

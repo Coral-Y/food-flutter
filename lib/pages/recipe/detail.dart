@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:food/model/recipe.dart';
 import 'package:dotted_border/dotted_border.dart';
+import 'package:food/widgets/c_snackbar.dart';
 import 'package:food/widgets/header.dart';
 import 'package:food/widgets/c_button.dart';
 import 'package:iconify_flutter/iconify_flutter.dart';
@@ -67,71 +68,83 @@ class _RecipeDetailState extends State<RecipeDetail> {
                           Row(
                             mainAxisAlignment: MainAxisAlignment.spaceBetween,
                             children: [
-                              Container(
-                                  width: 180,
-                                  constraints: const BoxConstraints(
-                                    minHeight: 100, // 设置最小高度
-                                  ),
-                                  color: const Color(0xFFFFFFFE),
-                                  child: DottedBorder(
-                                      borderType: BorderType.RRect,
-                                      radius: const Radius.circular(4),
-                                      padding: const EdgeInsets.fromLTRB(
-                                          20, 20, 0, 20),
-                                      child: Column(
-                                        crossAxisAlignment:
-                                            CrossAxisAlignment.start,
-                                        children: [
-                                          const Padding(
-                                            padding: EdgeInsets.only(bottom: 5),
-                                            child: Text(
-                                              '食材',
-                                              style: TextStyle(
-                                                  fontSize: 16,
-                                                  fontWeight: FontWeight.bold),
+                              Visibility(
+                                visible: recipe!.seasonings!.isNotEmpty ||
+                                    recipe!.ingredients!.isNotEmpty,
+                                child: Container(
+                                    width: 180,
+                                    constraints: const BoxConstraints(
+                                      minHeight: 100, // 设置最小高度
+                                    ),
+                                    padding: const EdgeInsets.only(right: 20),
+                                    color: const Color(0xFFFFFFFE),
+                                    child: DottedBorder(
+                                        borderType: BorderType.RRect,
+                                        radius: const Radius.circular(4),
+                                        padding: const EdgeInsets.fromLTRB(
+                                            20, 20, 0, 20),
+                                        child: Column(
+                                          crossAxisAlignment:
+                                              CrossAxisAlignment.start,
+                                          children: [
+                                            Visibility(
+                                              visible: recipe!
+                                                  .ingredients!.isNotEmpty,
+                                              child: const Padding(
+                                                padding:
+                                                    EdgeInsets.only(bottom: 5),
+                                                child: Text(
+                                                  '食材',
+                                                  style: TextStyle(
+                                                      fontSize: 16,
+                                                      fontWeight:
+                                                          FontWeight.bold),
+                                                ),
+                                              ),
                                             ),
-                                          ),
-                                          ...List.generate(
-                                              recipe!.ingredients.length,
-                                              (index) {
-                                            return Text(
-                                                recipe!.ingredients[index]);
-                                          }),
-                                          Visibility(
-                                              visible:
-                                                  recipe!.seasonings != null,
-                                              child: Column(
-                                                crossAxisAlignment:
-                                                    CrossAxisAlignment.start,
-                                                children: [
-                                                  const Padding(
-                                                    padding: EdgeInsets.only(
-                                                        top: 10, bottom: 5),
-                                                    child: Text(
-                                                      '调料',
-                                                      style: TextStyle(
-                                                          fontSize: 16,
-                                                          fontWeight:
-                                                              FontWeight.bold),
+                                            ...List.generate(
+                                                recipe!.ingredients!.length,
+                                                (index) {
+                                              return Text(
+                                                  recipe!.ingredients![index]);
+                                            }),
+                                            Visibility(
+                                                visible: recipe!
+                                                    .seasonings!.isNotEmpty,
+                                                child: Column(
+                                                  crossAxisAlignment:
+                                                      CrossAxisAlignment.start,
+                                                  children: [
+                                                    const Padding(
+                                                      padding: EdgeInsets.only(
+                                                          top: 10, bottom: 5),
+                                                      child: Text(
+                                                        '调料',
+                                                        style: TextStyle(
+                                                            fontSize: 16,
+                                                            fontWeight:
+                                                                FontWeight
+                                                                    .bold),
+                                                      ),
                                                     ),
-                                                  ),
-                                                  ...List.generate(
-                                                      recipe!.seasonings!
-                                                          .length, (index) {
-                                                    return Text(recipe!
-                                                        .seasonings![index]);
-                                                  }),
-                                                ],
-                                              )),
-                                        ],
-                                      ))),
-                              const SizedBox(
-                                width: 20,
+                                                    ...List.generate(
+                                                        recipe!.seasonings!
+                                                            .length, (index) {
+                                                      return Text(recipe!
+                                                          .seasonings![index]);
+                                                    }),
+                                                  ],
+                                                )),
+                                          ],
+                                        ))),
                               ),
                               Expanded(
                                   child: SizedBox(
                                       width: double.infinity,
-                                      height: 100,
+                                      height: recipe!.seasonings!.isNotEmpty ||
+                                              recipe!.ingredients!.isNotEmpty
+                                          ? 100
+                                          : 300,
                                       child: ClipRRect(
                                         borderRadius: BorderRadius.circular(4),
                                         child: Image.network(
@@ -216,13 +229,16 @@ class _RecipeDetailState extends State<RecipeDetail> {
                   ),
                   Expanded(
                       child: CButton(
-                    startIcon: Iconify(MdiLight.play, color: Colors.white),
+                    startIcon:
+                        const Iconify(MdiLight.play, color: Colors.white),
                     text: "开始制作",
                     onPressed: () {
                       if (recipe!.instructions != null &&
-                          recipe!.instructions!.length > 0) {
+                          recipe!.instructions!.isNotEmpty) {
                         Navigator.of(context)
                             .pushNamed('/recipeStep', arguments: recipe);
+                      } else {
+                        CSnackBar(message: '先添加食谱步骤哦').show(context);
                       }
                       //提示添加步骤
                     },

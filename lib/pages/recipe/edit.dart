@@ -92,7 +92,7 @@ class _EditRecipeState extends State<EditRecipe> {
 
   Future<void> _handleSubmit() async {
     if (_nameController.text.isEmpty) {
-      CSnackBar(message: '名称不能为空').show(context);
+      CSnackBar(message: '请输入名称').show(context);
       return;
     }
     if (recipe.kind == null || recipe.kind!.name == "全部") {
@@ -123,20 +123,17 @@ class _EditRecipeState extends State<EditRecipe> {
   }
 
   Future<void> _updateRecipe() async {
-    final recipeProvider = Provider.of<RecipeProvider>(context, listen: false);
-    await recipeProvider.updateRecipe(recipe);
-    CSnackBar(message: '修改成功').show(context);
-    Navigator.of(context).pop(true);
-  }
-
-  void _handleError(dynamic e) {
-    String errorMessage = '操作失败';
-    if (e is ApiException) {
-      errorMessage = '错误: ${e.message}, 代码: ${e.code}';
-    } else {
-      errorMessage = '发生未知错误: $e';
+    try {
+      final recipeProvider =
+          Provider.of<RecipeProvider>(context, listen: false);
+      await recipeProvider.updateRecipe(recipe);
+      CSnackBar(message: '编辑成功').show(context);
+      Navigator.of(context).pop(true);
+    } on ApiException catch (e) {
+      CSnackBar(message: e.message).show(context);
+    } catch (e) {
+      print(e);
     }
-    CSnackBar(message: errorMessage).show(context);
   }
 
   _bottomSheet() async {
@@ -355,9 +352,9 @@ class _EditRecipeState extends State<EditRecipe> {
                         InkWell(
                           onTap: () {
                             if (_ingredientController.text != null &&
-                                !_ingredientController.text.isEmpty) {
+                                _ingredientController.text.isNotEmpty) {
                               setState(() {
-                                recipe.ingredients
+                                recipe.ingredients!
                                     .add(_ingredientController.text);
                               });
                               _ingredientController.clear();
@@ -367,18 +364,18 @@ class _EditRecipeState extends State<EditRecipe> {
                         )
                       ],
                     ),
-                    if (recipe.ingredients.isNotEmpty)
+                    if (recipe.ingredients!.isNotEmpty)
                       TagList(
-                        tags: recipe.ingredients,
+                        tags: recipe.ingredients ?? [],
                         onDeleted: (item) {
                           setState(() {
-                            recipe.ingredients.remove(item);
+                            recipe.ingredients!.remove(item);
                           });
                         },
                         onDoubleTap: (item) {
                           setState(() {
                             _ingredientController.text = item;
-                            recipe.ingredients.remove(item);
+                            recipe.ingredients!.remove(item);
                           });
                           _ingredientFocusNode.requestFocus(); // 请求焦点
                         },
@@ -619,9 +616,8 @@ class _StepListState extends State<StepList> {
                         hintText: '请输入步骤 ${index + 1}',
                         border: InputBorder.none,
                       ),
-                      onEditingComplete: () {
-                        widget.onChanged(
-                            index, widget.stepsController[index].text);
+                      onChanged: (value) {
+                        widget.onChanged(index, value);
                       },
                     ),
                   ),

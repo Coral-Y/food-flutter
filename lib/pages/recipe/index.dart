@@ -3,7 +3,6 @@ import 'package:food/model/kind.dart';
 import 'package:food/model/recipe.dart';
 import 'package:iconify_flutter/iconify_flutter.dart';
 import 'package:iconify_flutter/icons/cil.dart';
-import 'package:food/api/recipe.dart';
 import 'package:food/api/kind.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:food/config.dart';

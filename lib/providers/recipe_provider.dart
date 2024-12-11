@@ -23,17 +23,13 @@ class RecipeProvider with ChangeNotifier {
 
   // 更新食谱
   Future<void> updateRecipe(Recipe updatedRecipe) async {
-    try {
-      String res = await RecipeApi().changed(updatedRecipe);
-      final index =
-          _recipes.indexWhere((recipe) => recipe.id == updatedRecipe.id);
-      if (index != -1) {
-        _recipes[index] = updatedRecipe;
-        _recipes[index].image = res;
-        notifyListeners();
-      }
-    } catch (e) {
-      rethrow;
+    String res = await RecipeApi().changed(updatedRecipe);
+    final index =
+        _recipes.indexWhere((recipe) => recipe.id == updatedRecipe.id);
+    if (index != -1) {
+      _recipes[index] = updatedRecipe;
+      _recipes[index].image = res;
+      notifyListeners();
     }
   }
 
