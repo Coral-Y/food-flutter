@@ -74,7 +74,6 @@ class _EditInfoState extends State<EditInfo> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Theme.of(context).colorScheme.surface,
       body: SafeArea(
           child: Padding(
         padding: const EdgeInsets.fromLTRB(15, 10, 15, 10),

@@ -54,6 +54,7 @@ class MyApp extends StatelessWidget {
           onSurface: const Color(0xFF333333),
           surface: const Color(0xFFF5F5F5),
         ),
+        scaffoldBackgroundColor: const Color(0xFFF5F5F5),
         useMaterial3: true,
       ),
       routes: {

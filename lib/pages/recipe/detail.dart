@@ -47,7 +47,6 @@ class _RecipeDetailState extends State<RecipeDetail> {
       );
     }
     return Scaffold(
-      backgroundColor: Theme.of(context).colorScheme.surface,
       body: SafeArea(
         child: Column(
           children: [

@@ -47,7 +47,6 @@ class _RecipeListState extends State<RecipeList> {
   Widget build(BuildContext context) {
     final recipeProvider = Provider.of<RecipeProvider>(context);
     return Scaffold(
-        backgroundColor: Theme.of(context).colorScheme.surface,
         //分类列表
         drawer: Drawer(
             width: 150,

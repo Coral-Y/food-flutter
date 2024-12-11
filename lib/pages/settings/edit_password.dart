@@ -67,7 +67,6 @@ class _EditPasswordState extends State<EditPassword> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Theme.of(context).colorScheme.surface,
       body: SafeArea(
           child: Padding(
         padding: const EdgeInsets.symmetric(vertical: 5, horizontal: 15),
