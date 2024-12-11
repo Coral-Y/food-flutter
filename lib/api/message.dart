@@ -27,21 +27,15 @@ class MessageApi {
   }
 
   // 新增留言
-  Future<bool> create({
+  Future<void> create({
     required String title,
     required String type,
     required String content,
   }) async {
-    try {
-      await BaseApi.request.post("/messages", data: {
-        'title': title,
-        'type': type,
-        'content': content,
-      });
-      return true;
-    } catch (e) {
-      print("Error creating message: $e");
-      return false;
-    }
+    await BaseApi.request.post("/messages", data: {
+      'title': title,
+      'type': type,
+      'content': content,
+    });
   }
 }
