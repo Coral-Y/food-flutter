@@ -2,7 +2,7 @@
 class Dish {
   int id;
   String title; // 标题
-  String icon;
+  String? icon;
   String type; //类型 breakfast：早餐 lunch：中餐 dinner：晚餐
   int? recipeId; // 食谱id
   int? sort; // 排序
@@ -11,7 +11,7 @@ class Dish {
   Dish({
     required this.id,
     required this.title,
-    required this.icon,
+    this.icon,
     required this.type,
     required this.date,
     this.recipeId,
@@ -22,7 +22,7 @@ class Dish {
     return Dish(
       id: json['id'] as int,
       title: json['title'] as String,
-      icon: json['icon'] as String,
+      icon: json['icon']  ?? '',
       type: json['type'] as String,
       sort: json['sort'] as int? ?? 0,
       date: DateTime.parse(json['date'] as String),

@@ -1,5 +1,6 @@
 import 'dart:async';
-
+import 'package:iconify_flutter/iconify_flutter.dart';
+import 'package:iconify_flutter/icons/codicon.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:food/model/dish.dart';
@@ -476,13 +477,16 @@ class FoodCard extends StatelessWidget {
                                   borderRadius: BorderRadius.circular(4)),
                               child: Row(
                                 children: [
-                                  SvgPicture.network(
-                                    '$ICON_SERVER_URI${item.icon}.svg',
-                                    width: 13,
-                                    height: 13,
-                                  ),
-                                  const SizedBox(
-                                    width: 4,
+                                  Visibility(
+                                    visible: item.icon!.isNotEmpty,
+                                    child: Padding(
+                                      padding: const EdgeInsets.only(right: 4),
+                                      child: SvgPicture.network(
+                                        '$ICON_SERVER_URI${item.icon}.svg',
+                                        width: 13,
+                                        height: 13,
+                                      ),
+                                    ),
                                   ),
                                   Expanded(
                                       child: Text(
@@ -669,7 +673,7 @@ class _PickerBottomSheetState extends State<PickerBottomSheet> {
                         final dish = Dish(
                             id: widget.id == null ? 0 : widget.id!,
                             title: _nameController.text,
-                            icon: selectedIcon!,
+                            icon: selectedIcon,
                             type: widget.title == '早餐'
                                 ? 'breakfast'
                                 : widget.title == '中餐'
@@ -770,22 +774,34 @@ class _PickerBottomSheetState extends State<PickerBottomSheet> {
                                 crossAxisCount: 10,
                                 mainAxisSpacing: 4,
                                 crossAxisSpacing: 8,
-                                children: widget.icons
-                                    .map((item) => GestureDetector(
-                                          onTap: () {
-                                            setState(() {
-                                              selectedIcon = item;
-                                              recipeId = null;
-                                            });
-                                          },
-                                          child: SvgPicture.network(
-                                            '$ICON_SERVER_URI$item.svg',
-                                            placeholderBuilder: (BuildContext
-                                                    context) =>
-                                                const CircularProgressIndicator(),
-                                          ),
-                                        ))
-                                    .toList(),
+                                children: [
+                                  GestureDetector(
+                                    onTap: () {
+                                      setState(() {
+                                        selectedIcon = null;
+                                        recipeId = null;
+                                      });
+                                    },
+                                    child: const Iconify(
+                                      Codicon.circle_slash,
+                                      size: 16,
+                                    ),
+                                  ),
+                                  ...widget.icons.map((item) => GestureDetector(
+                                        onTap: () {
+                                          setState(() {
+                                            selectedIcon = item;
+                                            recipeId = null;
+                                          });
+                                        },
+                                        child: SvgPicture.network(
+                                          '$ICON_SERVER_URI$item.svg',
+                                          placeholderBuilder: (BuildContext
+                                                  context) =>
+                                              const CircularProgressIndicator(),
+                                        ),
+                                      ))
+                                ],
                               ),
                               ListView.builder(
                                 controller: _scrollController,
