@@ -51,50 +51,28 @@ class RecipeApi {
 
   //创建食谱
   Future<void> created(Recipe recipe) async {
-    var formData = FormData.fromMap({
-      "name": recipe.name,
-      "kindId": recipe.kind!.id,
-      "ingredients": arrayToString(recipe.ingredients),
-      "seasonings": arrayToString(recipe.seasonings),
-      "instructions": arrayToString(recipe.instructions),
+    await BaseApi.request.post("/recipes", data: {
+      'name': recipe.name,
+      'kindId': recipe.kind!.id,
+      'image': recipe.image,
+      'ingredients': arrayToString(recipe.ingredients),
+      'seasonings': arrayToString(recipe.seasonings),
+      'instructions': arrayToString(recipe.instructions),
     });
-    formData.files.add(MapEntry(
-      "image",
-      await MultipartFile.fromFile(recipe.image, filename: "image.jpg"),
-    ));
-
-    // 发送请求
-    await BaseApi.request.post("/recipes", data: formData);
   }
 
   //修改食谱
   Future<String> changed(Recipe recipe) async {
-    var formData = FormData.fromMap({
-      'id': recipe.id,
-      "name": recipe.name,
-      "ingredients": arrayToString(recipe.ingredients),
-      "seasonings": arrayToString(recipe.seasonings),
-      "instructions": arrayToString(recipe.instructions),
-      "kindId": recipe.kind!.id,
-    });
-    // 处理图片
-    // 修改图片处理逻辑
-    if (recipe.image.isNotEmpty) {
-      if (recipe.image.startsWith('http://') ||
-          recipe.image.startsWith('https://')) {
-        print('使用现有网络图片'); // 添加日志
-      } else {
-        print('添加新的本地图片'); // 添加日志
-        formData.files.add(MapEntry(
-          "image",
-          await MultipartFile.fromFile(recipe.image, filename: "image.jpg"),
-        ));
-      }
-    }
     var res = await BaseApi.request.put(
         "/recipes/${recipe.id is String ? int.parse(recipe.id.toString()) : recipe.id}",
-        data: formData);
-
+        data: {
+          'name': recipe.name,
+          'kindId': recipe.kind!.id,
+          'image': recipe.image,
+          'ingredients': arrayToString(recipe.ingredients),
+          'seasonings': arrayToString(recipe.seasonings),
+          'instructions': arrayToString(recipe.instructions),
+        });
     return res['image'];
   }
 

@@ -1,4 +1,5 @@
 import 'dart:io';
+import 'package:food/api/source.dart';
 import 'package:food/model/kind.dart';
 import 'package:food/model/recipe.dart';
 import 'package:colorful_iconify_flutter/icons/twemoji.dart';
@@ -46,7 +47,6 @@ class _EditRecipeState extends State<EditRecipe> {
       image: '',
       kind: Kind(id: 0, name: '全部', icon: Twemoji.shallow_pan_of_food));
   List<Kind> kinds = []; //分类
-  File? _image; //图片文件
 
   @override
   void didChangeDependencies() {
@@ -60,7 +60,7 @@ class _EditRecipeState extends State<EditRecipe> {
           .map((instruction) => TextEditingController(text: instruction))
           .toList();
       if (recipe.image.isNotEmpty) {
-        recipe.image = IMG_SERVER_URI + recipe.image;
+        recipe.image = recipe.image;
       }
       return;
     }
@@ -70,20 +70,21 @@ class _EditRecipeState extends State<EditRecipe> {
     final pickedFile =
         await ImagePicker().pickImage(source: ImageSource.gallery);
 
-    setState(() {
+    try {
       if (pickedFile != null) {
-        _image = File(pickedFile.path);
-        recipe.image = pickedFile.path;
-      } else {
-        print('No image selected.');
+        var res = await SourceApi().add(pickedFile.path, 'recipe');
+        setState(() {
+          recipe.image = res;
+        });
       }
-    });
+    } on ApiException catch (e) {
+      print(e.message);
+    }
   }
 
   Future<void> getKindList() async {
     try {
       var res = await KindApi().list();
-      print(res.list);
       setState(() {
         kinds = res.list;
       });
@@ -99,7 +100,7 @@ class _EditRecipeState extends State<EditRecipe> {
       CSnackBar(message: '请选择分类').show(context);
       return;
     }
-    if (_image == null && (recipe.image == null || recipe.image!.isEmpty)) {
+    if (recipe.image.isEmpty) {
       CSnackBar(message: '请上传图片').show(context);
       return;
     }
@@ -257,9 +258,7 @@ class _EditRecipeState extends State<EditRecipe> {
                         ),
                         InkWell(
                           onTap: _pickImage,
-                          child: (_image == null &&
-                                  (recipe.image == null ||
-                                      recipe.image!.isEmpty))
+                          child: recipe.image.isEmpty
                               ? DottedBorder(
                                   borderType: BorderType.RRect,
                                   radius: const Radius.circular(4),
@@ -280,48 +279,39 @@ class _EditRecipeState extends State<EditRecipe> {
                                     ),
                                     borderRadius: BorderRadius.circular(10.0),
                                   ),
-                                  child: _image != null
-                                      ? ClipRRect(
-                                          borderRadius:
-                                              BorderRadius.circular(10.0),
-                                          child: Image.file(
-                                            _image!,
-                                            fit: BoxFit.cover,
-                                          ))
-                                      : ClipRRect(
-                                          borderRadius:
-                                              BorderRadius.circular(10.0),
-                                          child: Image.network(
-                                            recipe.image!,
-                                            fit: BoxFit.cover,
-                                            errorBuilder:
-                                                (context, error, stackTrace) {
-                                              return Container(
-                                                color: Colors.grey[300],
-                                                child: const Icon(Icons.error,
-                                                    color: Colors.red),
-                                              );
-                                            },
-                                            loadingBuilder: (context, child,
-                                                loadingProgress) {
-                                              if (loadingProgress == null)
-                                                return child;
-                                              return Center(
-                                                child:
-                                                    CircularProgressIndicator(
-                                                  value: loadingProgress
-                                                              .expectedTotalBytes !=
-                                                          null
-                                                      ? loadingProgress
-                                                              .cumulativeBytesLoaded /
-                                                          loadingProgress
-                                                              .expectedTotalBytes!
-                                                      : null,
-                                                ),
-                                              );
-                                            },
+                                  child: ClipRRect(
+                                    borderRadius: BorderRadius.circular(10.0),
+                                    child: Image.network(
+                                      IMG_SERVER_URI + recipe.image,
+                                      fit: BoxFit.cover,
+                                      errorBuilder:
+                                          (context, error, stackTrace) {
+                                        return Container(
+                                          color: Colors.grey[300],
+                                          child: const Icon(Icons.error,
+                                              color: Colors.red),
+                                        );
+                                      },
+                                      loadingBuilder:
+                                          (context, child, loadingProgress) {
+                                        if (loadingProgress == null) {
+                                          return child;
+                                        }
+                                        return Center(
+                                          child: CircularProgressIndicator(
+                                            value: loadingProgress
+                                                        .expectedTotalBytes !=
+                                                    null
+                                                ? loadingProgress
+                                                        .cumulativeBytesLoaded /
+                                                    loadingProgress
+                                                        .expectedTotalBytes!
+                                                : null,
                                           ),
-                                        ),
+                                        );
+                                      },
+                                    ),
+                                  ),
                                 ),
                         )
                       ],

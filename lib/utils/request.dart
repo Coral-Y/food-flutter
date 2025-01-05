@@ -67,6 +67,7 @@ class Request {
           ));
       if (response.data is Map) {
         var dataMap = response.data as Map<String, dynamic>;
+
         if (dataMap.containsKey('data')) {
           return dataMap['data'];
         }
@@ -74,6 +75,7 @@ class Request {
       return Future.value();
     } on DioException catch (e) {
       final response = e.response;
+      print('aaaa$response');
       final type = e.type;
       if (type == DioExceptionType.badResponse) {
         // 服务器返回错误
