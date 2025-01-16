@@ -1,8 +1,10 @@
 import 'dart:io';
+import 'package:flutter_image_compress/flutter_image_compress.dart';
 import 'package:food/api/source.dart';
 import 'package:food/model/kind.dart';
 import 'package:food/model/recipe.dart';
 import 'package:colorful_iconify_flutter/icons/twemoji.dart';
+import 'package:food/utils/common.dart';
 import 'package:food/widgets/c_button.dart';
 import 'package:food/widgets/c_list_tile.dart';
 import 'package:iconify_flutter/icons/mdi_light.dart';
@@ -72,7 +74,16 @@ class _EditRecipeState extends State<EditRecipe> {
 
     try {
       if (pickedFile != null) {
-        var res = await SourceApi().add(pickedFile.path, 'recipe');
+        String path = pickedFile.path;
+        int lenth = await pickedFile.length();
+        // 文件过大，进行压缩
+        if (lenth > 5 * 1024 * 1024) {
+          String targetPath = '${path}_compressed.jpg';
+          await compressImage(path, targetPath);
+          path = targetPath;
+        }
+
+        var res = await SourceApi().add(path, 'recipe');
         setState(() {
           recipe.image = res;
         });
