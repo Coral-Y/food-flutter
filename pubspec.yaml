@@ -50,6 +50,7 @@ dependencies:
   image_picker: ^1.1.2
   # 虚线边框widget
   dotted_border: ^2.1.0
+  # 启动图标
   flutter_launcher_icons: ^0.13.1
   # 网络请求
   dio: ^5.6.0

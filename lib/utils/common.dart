@@ -30,7 +30,7 @@ Future<XFile?> compressImage(String filePath, String targetPath) async {
     final compressedFile = await FlutterImageCompress.compressAndGetFile(
       filePath, // 原文件路径
       targetPath, // 压缩后保存的目标路径
-      quality: 85, // 压缩质量
+      quality: 60, // 压缩质量
     );
 
     // 检查是否成功压缩
