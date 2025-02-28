@@ -84,7 +84,7 @@ dev_dependencies:
 flutter_launcher_icons:
   android: true
   ios: false
-  image_path: "assets/icons/cookie_color.png"  # 图标的路径
+  image_path: "assets/icons/app_icon.png"  # 图标的路径
 
 # For information on the generic Dart part of this file, see the
 # following page: https://dart.dev/tools/pub/pubspec

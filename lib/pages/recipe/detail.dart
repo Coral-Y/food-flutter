@@ -75,7 +75,6 @@ class _RecipeDetailState extends State<RecipeDetail> {
                                     constraints: const BoxConstraints(
                                       minHeight: 100, // 设置最小高度
                                     ),
-                                    padding: const EdgeInsets.only(right: 20),
                                     color: const Color(0xFFFFFFFE),
                                     child: DottedBorder(
                                         borderType: BorderType.RRect,
@@ -137,6 +136,7 @@ class _RecipeDetailState extends State<RecipeDetail> {
                                           ],
                                         ))),
                               ),
+                              SizedBox(width: 20),
                               Expanded(
                                   child: SizedBox(
                                       width: double.infinity,
