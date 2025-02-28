@@ -28,7 +28,6 @@ class Message {
       );
     } catch (e) {
       print('Error parsing Message: $e');
-      print('JSON data: $json');
       rethrow;
     }
   }

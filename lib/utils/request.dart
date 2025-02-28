@@ -75,7 +75,6 @@ class Request {
       return Future.value();
     } on DioException catch (e) {
       final response = e.response;
-      print('aaaa$response');
       final type = e.type;
       if (type == DioExceptionType.badResponse) {
         // 服务器返回错误

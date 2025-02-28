@@ -12,10 +12,6 @@ class MessageApi {
     try {
       var response = await BaseApi.request
           .get("/messages", params: {'current': current ?? 1, 'pageSize': 10});
-      print(Pager<Message>.fromJson(
-        response,
-        (json) => Message.fromJson(json as Map<String, dynamic>),
-      ));
       return Pager<Message>.fromJson(
         response,
         (json) => Message.fromJson(json as Map<String, dynamic>),

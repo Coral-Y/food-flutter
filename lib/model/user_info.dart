@@ -14,7 +14,6 @@ class UserInfo {
   });
 
   factory UserInfo.fromJson(Map<String, dynamic> json) {
-    print(json['id']);
     return UserInfo(
       id: json['id'] is String ? int.parse(json['id']) : json['id'] as int,
       name: json['name'] as String,
