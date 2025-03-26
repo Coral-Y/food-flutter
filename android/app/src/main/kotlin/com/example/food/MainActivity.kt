@@ -1,4 +1,4 @@
-package com.example.food
+package online.cookiestudio.food
 
 import io.flutter.embedding.android.FlutterActivity
 
