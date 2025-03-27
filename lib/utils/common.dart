@@ -25,21 +25,36 @@ String getFileSize(int length) {
 }
 
 // 压缩图片
-Future<XFile?> compressImage(String filePath, String targetPath) async {
+Future<String?> compressImage(XFile file) async {
   try {
-    final compressedFile = await FlutterImageCompress.compressAndGetFile(
-      filePath, // 原文件路径
-      targetPath, // 压缩后保存的目标路径
-      quality: 60, // 压缩质量
-    );
+    String path = file.path;
+    int quality = 90;
+    List<String> res = path.split('.');
+    res.removeLast();
+    String url = res.join('.');
+    int length = await file.length();
+    String targetPath = '${url}_compressed.jpg';
 
-    // 检查是否成功压缩
-    if (compressedFile != null) {
-      // 删除原文件（如果需要）
-      File file = File(filePath);
-      await file.delete();
+    // 大于100KB
+    while (length > 100 * 1024 || quality <= 10) {
+      final compressedFile = await FlutterImageCompress.compressAndGetFile(
+        path, // 原文件路径
+        targetPath, // 压缩后保存的目标路径
+        quality: quality, // 压缩质量
+      );
+
+      // 检查是否成功压缩
+      if (compressedFile == null) {
+        return null;
+      }
+      length = await compressedFile.length();
+      quality -= 10;
     }
-    return compressedFile;
+
+    // 删除原文件（如果需要）
+    File originFile = File(path);
+    await originFile.delete();
+    return targetPath;
   } catch (e) {
     print("压缩失败: $e");
     return null;

@@ -78,9 +78,8 @@ class _EditRecipeState extends State<EditRecipe> {
         int lenth = await pickedFile.length();
         // 文件过大，进行压缩
         if (lenth > 100 * 1024) {
-          String targetPath = '${path}_compressed.jpg';
-          await compressImage(path, targetPath);
-          path = targetPath;
+          String? targetPath = await compressImage(pickedFile);
+          path = targetPath ?? '';
         }
 
         var res = await SourceApi().add(path, 'recipe');
