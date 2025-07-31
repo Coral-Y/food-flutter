@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 
 class CSnackBar {
   final String message;
+  ScaffoldFeatureController<SnackBar, SnackBarClosedReason>? _controller;
 
   CSnackBar({required this.message});
 
@@ -22,6 +23,15 @@ class CSnackBar {
   }
 
   void show(BuildContext context) {
-    ScaffoldMessenger.of(context).showSnackBar(buildSnackBar());
+    _controller = ScaffoldMessenger.of(context).showSnackBar(buildSnackBar());
+  }
+
+  void dispose() {
+    try {
+      _controller?.close();
+    } catch (e) {
+      debugPrint('CSnackBar关闭: $e');
+    }
+    _controller = null;
   }
 }

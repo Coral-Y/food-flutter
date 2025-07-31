@@ -22,6 +22,7 @@ class _RecipeListState extends State<RecipeList> {
   Kind kind = Kind(id: 0, name: '全部', icon: "list"); //当前分类
   List<Kind> kinds = [];
   bool isDeleteMode = false; // 删除模式标志
+  DateTime? _lastFetchTime; //下拉获取更多时间
 
   Future<void> getKindList() async {
     try {
@@ -43,6 +44,7 @@ class _RecipeListState extends State<RecipeList> {
     getKindList();
   }
 
+  CSnackBar? _snackBar;
   @override
   Widget build(BuildContext context) {
     final recipeProvider = Provider.of<RecipeProvider>(context);
@@ -217,16 +219,27 @@ class _RecipeListState extends State<RecipeList> {
                   Expanded(
                     child: NotificationListener<ScrollEndNotification>(
                       onNotification: (ScrollNotification notification) {
-                        ScrollMetrics scrollMetrics = notification.metrics;
-                        double pixels = scrollMetrics.pixels;
-                        double maxPixels = scrollMetrics.maxScrollExtent;
-                        // 滚动超过内容的2/3
-                        if (pixels >= maxPixels / 3 * 2) {
-                          if (recipeProvider.totalPage >
-                              recipeProvider.current) {
-                            recipeProvider.getNextPage(kind.id); // 加载更多数据
-                          } else {
-                            CSnackBar(message: '没有更多').show(context);
+                        if (notification is ScrollEndNotification) {
+                          ScrollMetrics scrollMetrics = notification.metrics;
+                          double pixels = scrollMetrics.pixels;
+                          double maxPixels = scrollMetrics.maxScrollExtent;
+
+                          // 滚动超过内容的 2/3
+                          if (pixels >= maxPixels / 3 * 2) {
+                            final now = DateTime.now();
+                            if (_lastFetchTime != null &&
+                                now.difference(_lastFetchTime!) <
+                                    const Duration(seconds: 2)) {
+                              return true;
+                            }
+                            _lastFetchTime = now;
+                            if (recipeProvider.totalPage >
+                                recipeProvider.current) {
+                              recipeProvider.getNextPage(kind.id);
+                            } else {
+                              _snackBar = CSnackBar(message: '没有更多');
+                              _snackBar?.show(context);
+                            }
                           }
                         }
                         return true;
@@ -340,6 +353,12 @@ class _RecipeListState extends State<RecipeList> {
               ),
           ],
         )));
+  }
+
+  @override
+  void dispose() {
+    _snackBar?.dispose(); // 页面销毁时主动关闭 snackbar
+    super.dispose();
   }
 }
 
