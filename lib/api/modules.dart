@@ -27,4 +27,14 @@ class ModulesApi {
       rethrow;
     }
   }
+
+//模块详情
+  Future<Module> detail(int id) async {
+    try {
+      var response = await BaseApi.request.get("/modules/$id");
+      return Module.fromJson(response);
+    } catch (e) {
+      rethrow;
+    }
+  }
 }

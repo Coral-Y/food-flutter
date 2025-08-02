@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
+import 'package:food/api/modules.dart';
+import 'package:food/config.dart';
 import 'package:food/model/module.dart';
 import 'package:food/widgets/header.dart';
 
@@ -11,11 +13,25 @@ class ModuleList extends StatefulWidget {
 }
 
 class _ModuleListState extends State<ModuleList> {
-  final List<Module> modules = [
-    Module(
-        icon: 'assets/icons/class.svg', title: '自定义分类', endTime: '2025-7-31'),
-    Module(icon: 'assets/icons/recipe.svg', title: '菜谱数量上限')
-  ];
+  List<Module> modules = [];
+
+  Future<void> getModulesList() async {
+    try {
+      var res = await ModulesApi().list();
+      setState(() {
+        modules = res.list;
+      });
+    } catch (e) {
+      print("Error: $e");
+    }
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    getModulesList();
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -37,8 +53,9 @@ class _ModuleListState extends State<ModuleList> {
               itemCount: modules.length,
               itemBuilder: (context, index) {
                 return ModuleCard(
+                  id: modules[index].id,
                   icon: modules[index].icon,
-                  title: modules[index].title,
+                  title: modules[index].name,
                   endTime: modules[index].endTime,
                 );
               },
@@ -51,52 +68,71 @@ class _ModuleListState extends State<ModuleList> {
 }
 
 class ModuleCard extends StatelessWidget {
+  final int id;
   final String icon;
   final String title;
   final String? endTime;
 
   const ModuleCard(
-      {super.key, required this.icon, required this.title, this.endTime});
+      {super.key,
+      required this.id,
+      required this.icon,
+      required this.title,
+      this.endTime});
 
   @override
   Widget build(BuildContext context) {
-    return Card(
-      elevation: 0, // 去除阴影
-      color: endTime != null ? Colors.white : const Color(0xFFF5F5F5),
-      surfaceTintColor: Colors.white ,
-      shape: RoundedRectangleBorder(
-        side: const BorderSide(
-          color: Color(0xFF333333), // 边框颜色
-          width: 1, // 边框宽度
-        ),
-        borderRadius: BorderRadius.circular(10), // 圆角半径
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.center,
-        mainAxisAlignment: MainAxisAlignment.start,
-        children: [
-          const SizedBox(
-            height: 12,
+    final isExpired = endTime == null;
+
+    return InkWell(
+        onTap: () {
+          Navigator.of(context).pushNamed(
+            '/moduleDetail',
+            arguments: {
+              'moduleId': id,
+              'moduleName': title,
+            },
+          );
+        },
+        child: Card(
+          elevation: 0,
+          color: isExpired
+              ? const Color.fromARGB(10, 158, 157, 157)
+              : Colors.white,
+          surfaceTintColor: Colors.white,
+          shape: RoundedRectangleBorder(
+            side: const BorderSide(
+              color: Color(0xFF333333),
+              width: 1,
+            ),
+            borderRadius: BorderRadius.circular(10),
           ),
-          SvgPicture.asset(
-            icon,
-            width: 50,
-            height: 50,
+          child: SizedBox(
+            height: 150, // 可根据实际卡片高度调整
+            child: Center(
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Image.network(
+                    '$IMG_SERVER_URI$icon',
+                    width: 50,
+                    height: 50,
+                    fit: BoxFit.cover,
+                  ),
+                  const SizedBox(height: 5),
+                  Text(title),
+                  if (!isExpired)
+                    Text(
+                      '$endTime 到期',
+                      style: const TextStyle(
+                        color: Color(0xFF999999),
+                        fontSize: 12,
+                      ),
+                    ),
+                ],
+              ),
+            ),
           ),
-          const SizedBox(
-            height: 5,
-          ),
-          Text(title),
-          endTime != null
-              ? Text(
-                  '$endTime到期',
-                  style:
-                      const TextStyle(color: Color(0xFF999999), fontSize: 12),
-                )
-              : SizedBox.shrink()
-        ],
-      ),
-    );
+        ));
   }
 }
-

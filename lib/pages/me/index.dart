@@ -123,27 +123,27 @@ class _MeState extends State<Me> {
                     )
                   ]),
             ),
-
             const SizedBox(
               height: 15,
             ),
 
             // 模块
-            // Container(
-            //   decoration: BoxDecoration(
-            //     borderRadius: BorderRadius.circular(8),
-            //     color: Colors.white,
-            //   ),
-            //   child: ListTile(
-            //     leading: const Iconify(Twemoji.package),
-            //     title: const Text('装备'),
-            //     subtitle: Text('2/4'),
-            //     trailing: const Icon(Icons.arrow_forward),
-            //     onTap: () {
-            //       Navigator.of(context).pushNamed('/moduleList');
-            //     },
-            //   ),
-            // ),
+            Container(
+              margin: const EdgeInsets.symmetric(horizontal: 15),
+              decoration: BoxDecoration(
+                borderRadius: BorderRadius.circular(8),
+                color: Colors.white,
+              ),
+              child: ListTile(
+                leading: const Iconify(Twemoji.package),
+                title: const Text('装备'),
+                subtitle: Text('2/4'),
+                trailing: const Icon(Icons.arrow_forward),
+                onTap: () {
+                  Navigator.of(context).pushNamed('/moduleList');
+                },
+              ),
+            ),
 
             const SizedBox(
               height: 50,
