@@ -117,7 +117,7 @@ class _ModuleDetailState extends State<ModuleDetail> {
               alignment: Alignment.center,
               color: Colors.white,
               child: Image.network(
-                '$IMG_SERVER_URI${detail?.icon}',
+                '$IMG_SERVER_URI${detail!.description?.image}',
                 width: 50,
                 height: 50,
                 fit: BoxFit.cover,

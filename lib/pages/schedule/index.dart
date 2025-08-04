@@ -15,7 +15,6 @@ import 'package:food/model/exception.dart';
 import 'package:food/api/schedules.dart';
 import 'package:food/model/recipe.dart';
 import 'package:food/api/recipe.dart';
-import 'package:food/config.dart';
 import 'package:provider/provider.dart';
 import 'package:food/providers/user_provider.dart';
 

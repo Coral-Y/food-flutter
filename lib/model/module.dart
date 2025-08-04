@@ -1,3 +1,4 @@
+import 'dart:convert'; // 👈 添加这一行
 import 'package:json_annotation/json_annotation.dart';
 
 part 'module.g.dart';
@@ -26,7 +27,9 @@ class Module {
   double price;
 
   @JsonKey(
-      fromJson: Module._descriptionFromJson, toJson: Module._descriptionToJson)
+    fromJson: Module._descriptionFromJson,
+    toJson: Module._descriptionToJson,
+  )
   ModuleDescription? description;
 
   final String? endTime;
@@ -43,15 +46,27 @@ class Module {
   factory Module.fromJson(Map<String, dynamic> json) => _$ModuleFromJson(json);
   Map<String, dynamic> toJson() => _$ModuleToJson(this);
 
-  /// 兼容 Map 或 String 的 description 字段
   static ModuleDescription? _descriptionFromJson(dynamic json) {
     if (json == null) return null;
+
     if (json is String) {
-      return ModuleDescription(text: json);
-    } else if (json is Map<String, dynamic>) {
+      try {
+        final map = jsonDecode(json);
+        if (map is Map<String, dynamic>) {
+          return ModuleDescription.fromJson(map);
+        } else {
+          throw Exception("Parsed JSON is not a map");
+        }
+      } catch (e) {
+        throw Exception("Invalid JSON string for description: $e");
+      }
+    }
+
+    if (json is Map<String, dynamic>) {
       return ModuleDescription.fromJson(json);
     }
-    throw Exception("Invalid type for description");
+
+    throw Exception("Invalid type for description: ${json.runtimeType}");
   }
 
   static dynamic _descriptionToJson(ModuleDescription? desc) {

@@ -154,10 +154,10 @@ class _MeState extends State<Me> {
                 child: GridView.count(
               crossAxisCount: 4,
               children: const [
-                // Feature(
-                //     name: '分类管理',
-                //     icon: Twemoji.card_index_dividers,
-                //     route: '/kindManage'),
+                Feature(
+                    name: '分类管理',
+                    icon: Twemoji.card_index_dividers,
+                    route: '/kindManage'),
                 Feature(
                     name: '联系我们',
                     icon: Twemoji.open_mailbox_with_raised_flag,

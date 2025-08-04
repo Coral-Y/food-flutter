@@ -223,7 +223,6 @@ class _RecipeListState extends State<RecipeList> {
                           ScrollMetrics scrollMetrics = notification.metrics;
                           double pixels = scrollMetrics.pixels;
                           double maxPixels = scrollMetrics.maxScrollExtent;
-
                           // 滚动超过内容的 2/3
                           if (pixels >= maxPixels / 3 * 2) {
                             final now = DateTime.now();

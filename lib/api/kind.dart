@@ -27,4 +27,42 @@ class KindApi {
       rethrow;
     }
   }
+
+  /// 添加分类
+  Future<bool> add(Kind kind) async {
+    try {
+      await BaseApi.request.post("/kinds", data: {
+        "name": kind.name,
+        "icon": kind.icon,
+      });
+      return true;
+    } catch (e) {
+      return false;
+    }
+  }
+
+  /// 编辑分类
+  Future<bool> edit(Kind kind) async {
+    try {
+      await BaseApi.request.put(
+          "/kinds/${kind.id is String ? int.parse(kind.id.toString()) : kind.id}",
+          data: {
+            "name": kind.name,
+            "icon": kind.icon,
+          });
+      return true;
+    } catch (e) {
+      return false;
+    }
+  }
+
+  /// 删除分类
+  Future<bool> delete(int id) async {
+    try {
+      await BaseApi.request.delete("/kinds/$id");
+      return true;
+    } catch (e) {
+      rethrow;
+    }
+  }
 }
