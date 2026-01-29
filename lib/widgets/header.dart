@@ -7,15 +7,20 @@ import 'package:food/config.dart';
 class Header extends StatelessWidget {
   final String title;
   final String? icon;
+  final double paddingBottom;
   final bool showIcon;
 
   const Header(
-      {super.key, required this.title, this.icon, this.showIcon = true});
+      {super.key,
+      required this.title,
+      this.icon,
+      this.showIcon = true,
+      this.paddingBottom = 20});
 
   @override
   Widget build(BuildContext context) {
     return Padding(
-      padding: const EdgeInsets.only(bottom: 20),
+      padding: EdgeInsets.only(bottom: paddingBottom),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [

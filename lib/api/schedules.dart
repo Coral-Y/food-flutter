@@ -1,5 +1,6 @@
 import 'package:food/api/base.dart';
 import 'package:food/model/dish.dart';
+import 'package:intl/intl.dart';
 
 class SchedulesApi {
   SchedulesApi._();
@@ -47,6 +48,19 @@ class SchedulesApi {
       print("Error getting schedules: $e");
       rethrow;
     }
+  }
+
+  // 获取指定时间段的规划
+  Future<Map<String, List<Dish>>> getRangeSchedules(
+      DateTime start, DateTime end) async {
+    var format = DateFormat('yyyy-MM-dd');
+    var response = await BaseApi.request.get('/schedules',
+        params: {"date": '${format.format(start)},${format.format(end)}'});
+    Map<String, List<Dish>> result = {};
+    response.forEach((date, list) {
+      result[date] = (list as List).map((item) => Dish.fromJson(item)).toList();
+    });
+    return result;
   }
 
   // 更新规划排序

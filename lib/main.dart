@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:food/pages/contact_us/leave_message.dart';
 import 'package:food/pages/contact_us/list.dart';
 import 'package:food/pages/home.dart';
@@ -17,6 +18,7 @@ import 'package:food/pages/sign_in/privacyPolicy.dart';
 import 'package:food/pages/sign_in/register.dart';
 import 'package:food/pages/sign_in/set_password.dart';
 import 'package:food/pages/sign_in/userAgreement.dart';
+import 'package:food/pages/week_view/index.dart';
 import 'package:food/widgets/c_snackbar.dart';
 import 'package:food/api/auth.dart';
 import 'package:food/api/accounts.dart';
@@ -29,6 +31,11 @@ final GlobalKey<NavigatorState> navigatorKey = GlobalKey<NavigatorState>();
 
 void main() {
   WidgetsFlutterBinding.ensureInitialized();
+  // 设置竖屏
+  SystemChrome.setPreferredOrientations([
+    DeviceOrientation.portraitUp,
+    DeviceOrientation.portraitDown,
+  ]);
   runApp(
     MultiProvider(
       providers: [
@@ -74,6 +81,7 @@ class MyApp extends StatelessWidget {
         '/editInfo': (context) => const EditInfo(),
         '/contactUs': (context) => const ContactUs(),
         '/kindManage': (context) => const KindManage(),
+        '/weekView': (context) => const WeekView(),
         '/leaveMessage': (context) => const LeaveMessage(),
         '/moduleList': (context) => const ModuleList(),
         '/moduleDetail': (context) => const ModuleDetail()

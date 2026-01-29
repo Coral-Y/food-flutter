@@ -359,7 +359,7 @@ class _DatePickerState extends State<DatePicker> {
             }
           },
           children: weeks
-              .map((item) => WeekView(
+              .map((item) => WeekBar(
                     start: item,
                     current: widget.current,
                     onCurrentUpdate: widget.onCurrentUpdate,
@@ -369,11 +369,11 @@ class _DatePickerState extends State<DatePicker> {
   }
 }
 
-class WeekView extends StatelessWidget {
+class WeekBar extends StatelessWidget {
   final DateTime start; // 周一的日期
   final DateTime current; // 当前选中的日期
   final Function(DateTime) onCurrentUpdate; // 更新选中日期回调函数
-  const WeekView(
+  const WeekBar(
       {super.key,
       required this.start,
       required this.current,
