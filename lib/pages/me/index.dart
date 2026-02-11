@@ -165,7 +165,7 @@ class _MeState extends State<Me> {
                     Feature(
                         name: '冰箱库存',
                         icon: 'assets/icons/fridge.svg',
-                        route: '/kindManage'),
+                        route: '/fridgeStock'),
                     Feature(
                         name: '周视图',
                         icon: 'assets/icons/schedule.svg',

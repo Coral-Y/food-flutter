@@ -97,14 +97,16 @@ class _WeekViewState extends State<WeekView> {
                     .map((item) => Expanded(
                             child: Padding(
                           padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 4),
-                          child: Column(
-                            children: [
-                              Text('${item.day}'),
-                              ...(schedules[DateFormat('yyyy-MM-dd')
-                                          .format(item)] ??
-                                      [])
-                                  .map((dish) => DishItem(dish: dish))
-                            ],
+                          child: SingleChildScrollView(
+                            child: Column(
+                              children: [
+                                Text('${item.day}'),
+                                ...(schedules[DateFormat('yyyy-MM-dd')
+                                            .format(item)] ??
+                                        [])
+                                    .map((dish) => DishItem(dish: dish))
+                              ],
+                            ),
                           ),
                         )))
                     .toList(),

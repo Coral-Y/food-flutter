@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:food/pages/contact_us/leave_message.dart';
 import 'package:food/pages/contact_us/list.dart';
+import 'package:food/pages/fridge_stock/index.dart';
 import 'package:food/pages/home.dart';
 import 'package:food/pages/kind_manage/list.dart';
 import 'package:food/pages/me/edit_info.dart';
@@ -81,6 +82,7 @@ class MyApp extends StatelessWidget {
         '/editInfo': (context) => const EditInfo(),
         '/contactUs': (context) => const ContactUs(),
         '/kindManage': (context) => const KindManage(),
+        '/fridgeStock': (context) => const FridgeStock(),
         '/weekView': (context) => const WeekView(),
         '/leaveMessage': (context) => const LeaveMessage(),
         '/moduleList': (context) => const ModuleList(),
