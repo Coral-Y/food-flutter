@@ -10,15 +10,25 @@ class FridgeStockApi {
     return _instance;
   }
 
-  // 获取冰箱库存列表
-  Future<List<FridgeStock>> list() async {
+  // 获取冰箱库存列表（分页）
+  Future<Map<String, dynamic>> list({
+    required String location,
+    required int current,
+    int pageSize = 20,
+  }) async {
     try {
-      var response = await BaseApi.request.get("/inventories");
-      return (response['list'] as List)
-          .map((item) => FridgeStock.fromJson(item as Map<String, dynamic>))
-          .toList();
+      var response = await BaseApi.request.get("/inventories", params: {
+        "location": location,
+        "current": current,
+        "pageSize": pageSize,
+      });
+      return {
+        'list': (response['list'] as List)
+            .map((item) => FridgeStock.fromJson(item as Map<String, dynamic>))
+            .toList(),
+        'total': response['total'] ?? 0,
+      };
     } catch (e) {
-      print("Error fetching fridge stocks: $e");
       rethrow;
     }
   }
@@ -72,4 +82,3 @@ class FridgeStockApi {
     }
   }
 }
-

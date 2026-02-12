@@ -15,34 +15,144 @@ class _FridgeStockState extends State<FridgeStock> {
   List<model.FridgeStock> refrigeratedItems = []; // 冷藏区
   List<model.FridgeStock> frozenItems = []; // 冷冻区
 
+  // 分页相关
+  int refrigeratedPage = 1;
+  int frozenPage = 1;
+  bool refrigeratedHasMore = true;
+  bool frozenHasMore = true;
+  bool refrigeratedLoading = false;
+  bool frozenLoading = false;
+
+  final ScrollController _refrigeratedScrollController = ScrollController();
+  final ScrollController _frozenScrollController = ScrollController();
+
   @override
   void initState() {
     super.initState();
-    _loadData();
+    _loadRefrigeratedData();
+    _loadFrozenData();
+
+    // 添加滚动监听
+    _refrigeratedScrollController.addListener(_onRefrigeratedScroll);
+    _frozenScrollController.addListener(_onFrozenScroll);
   }
 
-  // 加载数据
-  Future<void> _loadData() async {
-    try {
-      var items = await FridgeStockApi().list();
-      print(items);
-      setState(() {
-        refrigeratedItems =
-            items.where((item) => item.location == 'refrigerated').toList();
-        frozenItems = items.where((item) => item.location == 'frozen').toList();
-      });
-    } catch (e) {
-      if (mounted) {
-        CSnackBar(message: '加载失败: $e').show(context);
+  @override
+  void dispose() {
+    _refrigeratedScrollController.dispose();
+    _frozenScrollController.dispose();
+    super.dispose();
+  }
+
+  // 冷藏区滚动监听
+  void _onRefrigeratedScroll() {
+    if (_refrigeratedScrollController.position.pixels >=
+        _refrigeratedScrollController.position.maxScrollExtent - 200) {
+      if (!refrigeratedLoading && refrigeratedHasMore) {
+        _loadRefrigeratedData();
       }
     }
+  }
+
+  // 冷冻区滚动监听
+  void _onFrozenScroll() {
+    if (_frozenScrollController.position.pixels >=
+        _frozenScrollController.position.maxScrollExtent - 200) {
+      if (!frozenLoading && frozenHasMore) {
+        _loadFrozenData();
+      }
+    }
+  }
+
+  // 加载冷藏区数据
+  Future<void> _loadRefrigeratedData() async {
+    if (refrigeratedLoading) return;
+
+    setState(() {
+      refrigeratedLoading = true;
+    });
+
+    try {
+      var result = await FridgeStockApi().list(
+        location: 'refrigerated',
+        current: refrigeratedPage,
+        pageSize: 20,
+      );
+
+      List<model.FridgeStock> newItems = result['list'] as List<model.FridgeStock>;
+      int total = result['total'] as int;
+
+      setState(() {
+        refrigeratedItems.addAll(newItems);
+        refrigeratedPage++;
+        refrigeratedHasMore = refrigeratedItems.length < total;
+        refrigeratedLoading = false;
+      });
+    } catch (e) {
+      setState(() {
+        refrigeratedLoading = false;
+      });
+      if (mounted) {
+        CSnackBar(message: '加载冷藏区失败: $e').show(context);
+      }
+    }
+  }
+
+  // 加载冷冻区数据
+  Future<void> _loadFrozenData() async {
+    if (frozenLoading) return;
+
+    setState(() {
+      frozenLoading = true;
+    });
+
+    try {
+      var result = await FridgeStockApi().list(
+        location: 'frozen',
+        current: frozenPage,
+        pageSize: 20,
+      );
+
+      List<model.FridgeStock> newItems = result['list'] as List<model.FridgeStock>;
+      int total = result['total'] as int;
+
+      setState(() {
+        frozenItems.addAll(newItems);
+        frozenPage++;
+        frozenHasMore = frozenItems.length < total;
+        frozenLoading = false;
+      });
+    } catch (e) {
+      setState(() {
+        frozenLoading = false;
+      });
+      if (mounted) {
+        CSnackBar(message: '加载冷冻区失败: $e').show(context);
+      }
+    }
+  }
+
+  // 刷新数据
+  Future<void> _refreshData() async {
+    setState(() {
+      refrigeratedItems.clear();
+      frozenItems.clear();
+      refrigeratedPage = 1;
+      frozenPage = 1;
+      refrigeratedHasMore = true;
+      frozenHasMore = true;
+    });
+    await Future.wait([
+      _loadRefrigeratedData(),
+      _loadFrozenData(),
+    ]);
   }
 
   // 添加库存
   Future<void> _addStock(model.FridgeStock stock) async {
     bool isOk = await FridgeStockApi().add(stock);
     if (isOk) {
-      _loadData();
+      _refreshData();
       if (mounted) {
         CSnackBar(message: '添加成功').show(context);
       }
@@ -57,7 +167,7 @@ class _FridgeStockState extends State<FridgeStock> {
   Future<void> _updateStock(model.FridgeStock stock) async {
     bool isOk = await FridgeStockApi().update(stock);
     if (isOk) {
-      _loadData();
+      _refreshData();
       if (mounted) {
         CSnackBar(message: '修改成功').show(context);
       }
@@ -72,7 +182,7 @@ class _FridgeStockState extends State<FridgeStock> {
   Future<void> _deleteStock(int id) async {
     bool isOk = await FridgeStockApi().delete(id);
     if (isOk) {
-      _loadData();
+      _refreshData();
       if (mounted) {
         CSnackBar(message: '删除成功').show(context);
       }
@@ -149,28 +259,41 @@ class _FridgeStockState extends State<FridgeStock> {
                     children: [
                       // 冷藏区域
                       Expanded(
-                          child: SizedBox(
-                        width: double.infinity,
-                        child: Padding(
-                          padding: const EdgeInsets.all(15),
-                          child: SingleChildScrollView(
-                            child: Wrap(
-                              spacing: 8,
-                              runSpacing: 8,
-                              alignment: WrapAlignment.start,
-                              runAlignment: WrapAlignment.start,
-                              children: refrigeratedItems
-                                  .map((item) => StockItem(
-                                        stock: item,
-                                        onTap: () => _showBottomSheet(
+                        child: SizedBox(
+                          width: double.infinity,
+                          child: Padding(
+                            padding: const EdgeInsets.all(15),
+                            child: SingleChildScrollView(
+                              controller: _refrigeratedScrollController,
+                              child: Wrap(
+                                spacing: 8,
+                                runSpacing: 8,
+                                alignment: WrapAlignment.start,
+                                runAlignment: WrapAlignment.start,
+                                children: [
+                                  ...refrigeratedItems
+                                      .map((item) => StockItem(
                                             stock: item,
-                                            location: 'refrigerated'),
-                                      ))
-                                  .toList(),
+                                            onTap: () => _showBottomSheet(
+                                                stock: item,
+                                                location: 'refrigerated'),
+                                          )),
+                                  if (refrigeratedLoading)
+                                    const SizedBox(
+                                      width: double.infinity,
+                                      child: Center(
+                                        child: Padding(
+                                          padding: EdgeInsets.all(16.0),
+                                          child: CircularProgressIndicator(),
+                                        ),
+                                      ),
+                                    ),
+                                ],
+                              ),
                             ),
                           ),
                         ),
-                      )),
+                      ),
                       // 虚线分隔
                       Container(
                         padding: const EdgeInsets.symmetric(horizontal: 15),
@@ -198,27 +321,40 @@ class _FridgeStockState extends State<FridgeStock> {
                       ),
                       // 冷冻区域
                       Expanded(
-                          child: SizedBox(
-                        width: double.infinity,
-                        child: Padding(
-                          padding: const EdgeInsets.all(15),
-                          child: SingleChildScrollView(
-                            child: Wrap(
-                              spacing: 8,
-                              runSpacing: 8,
-                              alignment: WrapAlignment.start,
-                              runAlignment: WrapAlignment.start,
-                              children: frozenItems
-                                  .map((item) => StockItem(
-                                        stock: item,
-                                        onTap: () => _showBottomSheet(
-                                            stock: item, location: 'frozen'),
-                                      ))
-                                  .toList(),
+                        child: SizedBox(
+                          width: double.infinity,
+                          child: Padding(
+                            padding: const EdgeInsets.all(15),
+                            child: SingleChildScrollView(
+                              controller: _frozenScrollController,
+                              child: Wrap(
+                                spacing: 8,
+                                runSpacing: 8,
+                                alignment: WrapAlignment.start,
+                                runAlignment: WrapAlignment.start,
+                                children: [
+                                  ...frozenItems
+                                      .map((item) => StockItem(
+                                            stock: item,
+                                            onTap: () => _showBottomSheet(
+                                                stock: item, location: 'frozen'),
+                                          )),
+                                  if (frozenLoading)
+                                    const SizedBox(
+                                      width: double.infinity,
+                                      child: Center(
+                                        child: Padding(
+                                          padding: EdgeInsets.all(16.0),
+                                          child: CircularProgressIndicator(),
+                                        ),
+                                      ),
+                                    ),
+                                ],
+                              ),
                             ),
                           ),
                         ),
-                      )),
+                      ),
                     ],
                   ),
                 ),

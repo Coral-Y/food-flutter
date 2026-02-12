@@ -1,8 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:food/api/schedules.dart';
+import 'package:food/widgets/c_button.dart';
 import 'package:food/widgets/header.dart';
 import 'package:food/model/dish.dart';
+import 'package:iconify_flutter/iconify_flutter.dart';
+import 'package:iconify_flutter/icons/cil.dart';
 import 'package:intl/intl.dart';
 
 class WeekView extends StatefulWidget {
@@ -69,22 +72,96 @@ class _WeekViewState extends State<WeekView> {
         child: Column(
           children: [
             // 头部标题
-            const Header(
-              title: '周视图',
-              paddingBottom: 5,
+            Padding(
+              padding: const EdgeInsets.only(bottom: 6),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  InkWell(
+                    onTap: () {
+                      Navigator.of(context).pop();
+                    },
+                    child: const Iconify(
+                      Cil.arrow_left,
+                      size: 20,
+                    ),
+                  ),
+                  Row(
+                    children: [
+                      SizedBox(
+                        height: 30,
+                        child: CButton(
+                          onPressed: () {
+                            setState(() {
+                              current =
+                                  current.subtract(const Duration(days: 7));
+                            });
+                            getScheduleData();
+                          },
+                          text: '上一周',
+                          size: 'small',
+                        ),
+                      ),
+                      const SizedBox(width: 10),
+                      SizedBox(
+                        height: 30,
+                        child: CButton(
+                          onPressed: () {
+                            setState(() {
+                              current = DateTime.now();
+                            });
+                            getScheduleData();
+                          },
+                          text: '本周',
+                          type: 'secondary',
+                          size: 'small',
+                        ),
+                      ),
+                      const SizedBox(width: 10),
+                      SizedBox(
+                        height: 30,
+                        child: CButton(
+                          onPressed: () {
+                            setState(() {
+                              current = current.add(const Duration(days: 7));
+                            });
+                            getScheduleData();
+                          },
+                          text: '下一周',
+                          size: 'small',
+                        ),
+                      ),
+                    ],
+                  ),
+                  const Text(
+                    '周视图',
+                    style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
+                  ),
+                ],
+              ),
             ),
             Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 crossAxisAlignment: CrossAxisAlignment.center,
-                children: week
-                    .map((item) => Expanded(
-                          child: Text(
-                            item,
-                            textAlign: TextAlign.center,
-                            style: const TextStyle(fontWeight: FontWeight.bold),
-                          ),
-                        ))
-                    .toList()),
+                children: List.generate(
+                    7,
+                    (index) => Expanded(
+                            child: Row(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          crossAxisAlignment: CrossAxisAlignment.end,
+                          children: [
+                            Text(
+                              week[index],
+                              style:
+                                  const TextStyle(fontWeight: FontWeight.bold),
+                            ),
+                            const SizedBox(width: 2),
+                            Text(
+                              '(${dateList[index].month}/${dateList[index].day})',
+                              style: const TextStyle(fontSize: 13, color: Colors.grey),
+                            ),
+                          ],
+                        ))).toList()),
             const SizedBox(
               height: 5,
             ),
@@ -93,22 +170,21 @@ class _WeekViewState extends State<WeekView> {
               decoration: BoxDecoration(
                   color: Colors.white, borderRadius: BorderRadius.circular(10)),
               child: Row(
+                crossAxisAlignment: CrossAxisAlignment.start,
                 children: dateList
                     .map((item) => Expanded(
+                        child: SingleChildScrollView(
                             child: Padding(
-                          padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 4),
-                          child: SingleChildScrollView(
-                            child: Column(
-                              children: [
-                                Text('${item.day}'),
-                                ...(schedules[DateFormat('yyyy-MM-dd')
-                                            .format(item)] ??
-                                        [])
-                                    .map((dish) => DishItem(dish: dish))
-                              ],
-                            ),
-                          ),
-                        )))
+                                padding:
+                                    const EdgeInsets.symmetric(horizontal: 4),
+                                child: Column(
+                                  children: [
+                                    ...(schedules[DateFormat('yyyy-MM-dd')
+                                                .format(item)] ??
+                                            [])
+                                        .map((dish) => DishItem(dish: dish))
+                                  ],
+                                )))))
                     .toList(),
               ),
             ))

@@ -195,15 +195,15 @@ class _RecipeListState extends State<RecipeList> {
                               size: 18,
                             ),
                             style: ButtonStyle(
-                                shape: MaterialStateProperty.all(
-                                    RoundedRectangleBorder(
-                                        borderRadius:
-                                            BorderRadius.circular(4))),
-                                minimumSize: MaterialStateProperty.all(
-                                    const Size(25, 30)),
-                                padding: MaterialStateProperty.all(
-                                    const EdgeInsetsDirectional.symmetric(
-                                        horizontal: 10))),
+                              shape: MaterialStateProperty.all(
+                                  RoundedRectangleBorder(
+                                      borderRadius: BorderRadius.circular(4))),
+                              minimumSize:
+                                  MaterialStateProperty.all(const Size(25, 30)),
+                              padding: MaterialStateProperty.all(
+                                  const EdgeInsetsDirectional.symmetric(
+                                      horizontal: 10)),
+                            ),
                           ),
                         ],
                       ),
